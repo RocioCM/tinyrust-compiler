@@ -2,7 +2,6 @@ package lexic_analyzer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -42,8 +41,6 @@ public class LexicAnalyzer {
 	public Token nextToken() {
 		Token token = new Token("", "", lineNumber, columnNumber);
 		char currentChar = readConsumeChar();
-		int lastLine = lineNumber;
-		int lastColumn = columnNumber;
 
 		if (isValidChar(currentChar)) {
 			// ASCIIs: https://www.ascii-code.com/
