@@ -49,7 +49,7 @@ public class LexicAnalyzer {
 			// ASCIIs: https://www.ascii-code.com/
 			// Acá hacemos un switch gigante.
 			// Léase Autómata Finito Determinista.
-			System.out.println(isIdentificator(currentChar, token));
+			System.out.println(isIdentificator(currentChar, token) + " " + token.getLexema());
 			System.out.println(currentLine);
 			return token;
 		}
@@ -124,7 +124,7 @@ public class LexicAnalyzer {
 				currentState = 1;
 				lexema += currentChar;
 
-				//Miramos un poco hacia adelante a ver si es operador o no.
+				//Miramos un poco hacia adelante a ver si es operador o no el siguiente char.
 				currentChar = readWithoutConsumeChar();
 				if(!isOperator(currentChar)){
 					currentChar = readConsumeChar();
@@ -133,18 +133,23 @@ public class LexicAnalyzer {
 				if(currentState == 0 && isDigit(currentChar)){
 					currentState = 3;
 					break;
-				}
-				if(currentState == 1 && (isAlphabet(currentChar) || isDigit(currentChar) || currentChar == '_')){
-					currentState = 1;
-					lexema += currentChar;
-					currentChar = readWithoutConsumeChar();
-					if(!isOperator(currentChar)){
-						currentChar = readConsumeChar();
+				}else {
+					if(currentState == 1 && (isAlphabet(currentChar) || isDigit(currentChar) || currentChar == '_')){
+						currentState = 1;
+						lexema += currentChar;
+						currentChar = readWithoutConsumeChar();
+						if(!isOperator(currentChar)){
+							currentChar = readConsumeChar();
+						}
+					}else {
+						if(currentState == 1 && isOperator(currentChar)){
+							currentState = 2;
+							break;
+						}else{
+							currentState = 3;
+							break;
+						}
 					}
-				}
-				if(currentState == 1 && isOperator(currentChar)){
-					currentState = 2;
-					break;
 				}
 			}
 		}

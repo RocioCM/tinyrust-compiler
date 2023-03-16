@@ -5,5 +5,9 @@ class TinyRustCompiler {
 		LexicAnalyzer lexic = new LexicAnalyzer("./tests/test1.rs");
 		lexic.nextToken();
 		lexic.nextToken();
+		lexic.nextToken();
+		lexic.nextToken();
+		lexic.nextToken();
+		lexic.nextToken();
 	}
 }
