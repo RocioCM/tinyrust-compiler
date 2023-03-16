@@ -47,8 +47,8 @@ public class LexicAnalyzer {
 			// Acá hacemos un switch gigante.
 			// Léase Autómata Finito Determinista.
 			if(isIdentificator(currentChar, token)){
-				System.out.println("Token: " + token.getLexema() + " | Lexema: " + token.getToken() + " | Linea: " + token.getLine() + " | Columna: " + token.getCol());
-				System.out.println("Palabra reservada: " + ReservedWords.isReservedWord(token).getToken());
+				ReservedWords.isReservedWord(token);
+				System.out.println("Token: " + token.getToken() + " | Lexema: " + token.getLexema() + " | Linea: " + token.getLine() + " | Columna: " + token.getCol());
 			}
 			// System.out.println(currentLine);
 			return token;

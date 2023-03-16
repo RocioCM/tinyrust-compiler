@@ -41,6 +41,7 @@ public class ReservedWords {
 					break;
 				case "pub":
 					token.setToken("p_pub");
+					break;
 				case "private":
 					token.setToken("p_private");
 					break;
