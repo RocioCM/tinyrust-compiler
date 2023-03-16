@@ -123,7 +123,12 @@ public class LexicAnalyzer {
 			if(currentState == 0 && (isLowercaseChar(currentChar) || currentChar == '_')){
 				currentState = 1;
 				lexema += currentChar;
-				currentChar = readConsumeChar();
+
+				//Miramos un poco hacia adelante a ver si es operador o no.
+				currentChar = readWithoutConsumeChar();
+				if(!isOperator(currentChar)){
+					currentChar = readConsumeChar();
+				}
 			}else{
 				if(currentState == 0 && isDigit(currentChar)){
 					currentState = 3;
@@ -132,7 +137,10 @@ public class LexicAnalyzer {
 				if(currentState == 1 && (isAlphabet(currentChar) || isDigit(currentChar) || currentChar == '_')){
 					currentState = 1;
 					lexema += currentChar;
-					currentChar = readConsumeChar();
+					currentChar = readWithoutConsumeChar();
+					if(!isOperator(currentChar)){
+						currentChar = readConsumeChar();
+					}
 				}
 				if(currentState == 1 && isOperator(currentChar)){
 					currentState = 2;
