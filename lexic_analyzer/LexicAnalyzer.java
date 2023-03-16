@@ -112,10 +112,23 @@ public class LexicAnalyzer {
 		}
 	}
 
+	/**
+	 * A partir de un caracter inicial, verifica si lo que sigue es un identificador.
+	 * Este método es básicamente un autómata con 4 estados
+	 * 0: siendo el inicial
+	 * 1: al que nos movemos si encontramos _ a letra minúscula - Aceptador
+	 * 2: al que nos movemos si encontramos letra, dígito o _ - Aceptador
+	 * 3: el rechazador mediante el cual arrojaremos el error de que no es un identificador.
+	 * Vamos a frenar en un estado aceptador si venimos desde el estado 1 o 2 y nos topamos con un espacio o algún operador.
+	 * @param initialChar el caracter a partir del cual vamos a analizar si es un identificador.
+	 * @param token el token que vamos a llenar con el lexema y el token si es que es un identificador.
+	 * @return true si es un identificador, false si no lo es.
+	 */
+
 	private boolean isIdentificator(char initialChar, Token token) {
 		int initialState = 0;
 		int currentState = initialState;
-		Integer successStates[] = {1,2};
+		Integer successStates[] = {1,2}; 
 		char currentChar = initialChar;
 		String lexema = "";
 
