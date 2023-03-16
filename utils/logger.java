@@ -1,3 +1,5 @@
+package utils;
+
 class Logger {
 	public static void lexicError(String token, String lexema, String line, String col){
 		System.out.println("ERROR: LEXICO ");

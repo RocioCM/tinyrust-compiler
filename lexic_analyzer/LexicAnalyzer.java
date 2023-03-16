@@ -2,6 +2,8 @@ package lexic_analyzer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class LexicAnalyzer {
@@ -13,11 +15,11 @@ public class LexicAnalyzer {
 	public LexicAnalyzer(String filePath) {
 		// Inicializar linea, columna y filereader.
 		// Error si no puede leer el archivo.
-
 		try {
 			File doc = new File(filePath);
 			Scanner obj = new Scanner(doc);
 			file = obj;
+			currentLine = obj.nextLine();
 
 			// // Hardcoded with testing purposes:
 			// while (obj.hasNextLine()) {
@@ -38,13 +40,17 @@ public class LexicAnalyzer {
 	}
 
 	public Token nextToken() {
-		Token token = new Token(/* lineNumber, columnNumber */);
+		Token token = new Token("", "", lineNumber, columnNumber);
 		char currentChar = readConsumeChar();
+		int lastLine = lineNumber;
+		int lastColumn = columnNumber;
 
 		if (isValidChar(currentChar)) {
 			// ASCIIs: https://www.ascii-code.com/
 			// Acá hacemos un switch gigante.
 			// Léase Autómata Finito Determinista.
+			System.out.println(isIdentificator(currentChar, token));
+			System.out.println(currentLine);
 			return token;
 		}
 
@@ -58,6 +64,89 @@ public class LexicAnalyzer {
 			return true;
 		}
 		return false;
+	}
+
+	private boolean isLowercaseChar(char currentChar) {
+		int asciiChar = (int) currentChar;
+		if (asciiChar >= 97 && asciiChar <= 122) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isAlphabet(char currentChar) {
+		int asciiChar = (int) currentChar;
+		if (asciiChar >= 65 && asciiChar <= 90 || asciiChar >= 97 && asciiChar <= 122) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isDigit(char currentChar) {
+		int asciiChar = (int) currentChar;
+		if (asciiChar >= 48 && asciiChar <= 57) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isOperator(char currentChar){
+		switch (currentChar) {
+			case '+':
+			case '-':
+			case '*':
+			case '/':
+			case '%':
+			case '=':
+			case '!':
+			case '<':
+			case '>':
+			case '&':
+			case '|': 
+			case '(': // Paréntesis para los parámetros.
+			case '[': // Corchetes para los arreglos.
+			case '.': // Punto para los métodos.
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	private boolean isIdentificator(char initialChar, Token token) {
+		int initialState = 0;
+		int currentState = initialState;
+		Integer successStates[] = {1,2};
+		char currentChar = initialChar;
+		String lexema = "";
+
+		while(currentState != 3 && currentChar != ' '){
+			if(currentState == 0 && (isLowercaseChar(currentChar) || currentChar == '_')){
+				currentState = 1;
+				lexema += currentChar;
+				currentChar = readConsumeChar();
+			}else{
+				if(currentState == 0 && isDigit(currentChar)){
+					currentState = 3;
+					break;
+				}
+				if(currentState == 1 && (isAlphabet(currentChar) || isDigit(currentChar) || currentChar == '_')){
+					currentState = 1;
+					lexema += currentChar;
+					currentChar = readConsumeChar();
+				}
+				if(currentState == 1 && isOperator(currentChar)){
+					currentState = 2;
+					break;
+				}
+			}
+		}
+
+		if(Arrays.asList(successStates).contains(currentState)){	
+			token.setLexema(lexema);
+			token.setToken("id");
+			return true;
+		}
+		return false; //Throw error identificador mal formado
 	}
 
 	private char readConsumeChar() {
