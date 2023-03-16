@@ -7,8 +7,8 @@ import java.util.Scanner;
 
 public class LexicAnalyzer {
 	private String currentLine = "";
-	private int lineNumber = 0;
-	private int columnNumber = 0;
+	private int lineNumber = 1;
+	private int columnNumber = 1;
 	private Scanner file;
 
 	public LexicAnalyzer(String filePath) {
@@ -46,8 +46,11 @@ public class LexicAnalyzer {
 			// ASCIIs: https://www.ascii-code.com/
 			// Acá hacemos un switch gigante.
 			// Léase Autómata Finito Determinista.
-			System.out.println(isIdentificator(currentChar, token) + " " + token.getLexema());
-			System.out.println(currentLine);
+			if(isIdentificator(currentChar, token)){
+				System.out.println("Token: " + token.getLexema() + " | Lexema: " + token.getToken() + " | Linea: " + token.getLine() + " | Columna: " + token.getCol());
+				System.out.println("Palabra reservada: " + ReservedWords.isReservedWord(token).getToken());
+			}
+			// System.out.println(currentLine);
 			return token;
 		}
 
@@ -170,7 +173,7 @@ public class LexicAnalyzer {
 				currentChar = (char) 13; // Carriage Return - ENTER
 				currentLine = file.nextLine();
 				lineNumber++;
-				columnNumber = 0;
+				columnNumber = 1;
 			} else {
 				currentChar = (char) 3; // End of File - ETX
 				// TODO - Handelear si llaman a esta función después del EOF con un flag o algo
