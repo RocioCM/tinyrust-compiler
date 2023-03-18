@@ -1,8 +1,10 @@
-import lexic_analyzer.LexicAnalyzer;
+import lexic_analyzer.Executor;
 
 class TinyRustCompiler {
 	public static void main(String[] args) {
-		System.out.println("Hello, World!");
-		LexicAnalyzer lexic = new LexicAnalyzer("./tests/test1.rs");
+		String inputPath = "./tests/test1.rs"; // TODO - Leer el path de entrada del comando.
+		String outputPath = "./out"; // TODO - Leer el path de output del comando.
+
+		new Executor().run(inputPath, outputPath);
 	}
 }
