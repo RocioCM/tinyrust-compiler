@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Scanner;
 
+import error.BadIdentifierError;
 import error.InvalidCharacterError;
 import error.LexicalError;
 import error.UnclosedMultiLineCommentError;
@@ -85,6 +86,8 @@ public class LexicAnalyzer {
 			default:
 				if (isIdentifier(currentChar, token)) {
 					ReservedWords.isReservedWord(token);
+				}
+				if(isMultilineComment(currentChar, token)) {
 				}
 				if (isIntLiteral(currentChar, token)) {
 				}
@@ -194,14 +197,14 @@ public class LexicAnalyzer {
 	 * @return true si es un identificador, false si no lo es.
 	 */
 
-	private boolean isIdentifier(char initialChar, Token token) throws InvalidCharacterError {
+	private boolean isIdentifier(char initialChar, Token token) throws BadIdentifierError, InvalidCharacterError {
 		int initialState = 0;
 		int currentState = initialState;
 		Integer successStates[] = { 1, 2 };
 		char currentChar = initialChar;
 		String lexema = "";
 
-		while (currentState != 3 && currentChar != ' ') {
+		while (currentState != 3 && !isSpaceOrFormat(currentChar)) {
 			if (currentState == 0 && (isLowercaseChar(currentChar) || currentChar == '_')) {
 				currentState = 1;
 				lexema += currentChar;
@@ -240,8 +243,9 @@ public class LexicAnalyzer {
 			token.setLexema(lexema);
 			token.setToken("id");
 			return true;
+		}else{
+			throw new BadIdentifierError(lineNumber, columnNumber, lexema);
 		}
-		return false; // Throw error identificador mal formado
 	}
 
 	private boolean isMultilineComment(char initialChar, Token token) throws UnclosedMultiLineCommentError, InvalidCharacterError {
