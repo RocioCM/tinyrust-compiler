@@ -13,6 +13,10 @@ public class Token {
 		this.col = col;
 	}
 
+	public void appendLexema(char lastChar) {
+		this.lexema += lastChar;
+	}
+
 	public String getToken() {
 		return this.token;
 	}
