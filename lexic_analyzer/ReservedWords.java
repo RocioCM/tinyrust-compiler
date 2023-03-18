@@ -1,10 +1,12 @@
 package lexic_analyzer;
 
 public class ReservedWords {
-	public static Token isReservedWord(Token token){
-		if(token.getToken() != "id"){ // Si no es un identificador, no es una palabra reservada. Verificamos por las dudas
+	public static Token isReservedWord(Token token) {
+		if (token.getToken() != "id") {
+			// Si no es identificador, no es una palabra reservada.
+			// Verificamos por las dudas.
 			return token;
-		}else{
+		} else {
 			switch (token.getLexema()) {
 				case "fn":
 					token.setToken("p_func");
@@ -49,7 +51,7 @@ public class ReservedWords {
 					token.setToken("p_void");
 					break;
 				default:
-					return token;	
+					return token;
 			}
 		}
 		return token;

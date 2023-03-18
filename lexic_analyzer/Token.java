@@ -6,42 +6,42 @@ public class Token {
 	private int line;
 	private int col;
 
-	public Token(String token, String lexema, int line, int col){
-		this.token = "";
-		this.lexema = "";
+	public Token(String token, String lexema, int line, int col) {
+		this.token = token;
+		this.lexema = lexema;
 		this.line = line;
 		this.col = col;
 	}
 
-	public String getToken(){
+	public String getToken() {
 		return this.token;
 	}
 
-	public String getLexema(){
+	public String getLexema() {
 		return this.lexema;
 	}
 
-	public int getLine(){
+	public int getLine() {
 		return this.line;
 	}
 
-	public int getCol(){
+	public int getCol() {
 		return this.col;
 	}
 
-	public void setToken(String token){
+	public void setToken(String token) {
 		this.token = token;
 	}
 
-	public void setLexema(String lexema){
+	public void setLexema(String lexema) {
 		this.lexema = lexema;
 	}
 
-	public void setLine(int line){
+	public void setLine(int line) {
 		this.line = line;
 	}
 
-	public void setCol(int col){
+	public void setCol(int col) {
 		this.col = col;
 	}
 }
