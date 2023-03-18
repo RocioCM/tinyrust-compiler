@@ -7,6 +7,7 @@ import java.util.Scanner;
 
 import error.InvalidCharacterError;
 import error.LexicalError;
+import error.UnclosedMultiLineCommentError;
 
 public class LexicAnalyzer {
 	private Scanner file;
@@ -194,6 +195,67 @@ public class LexicAnalyzer {
 			return true;
 		}
 		return false; // Throw error identificador mal formado
+	}
+
+	private boolean isMultilineComment(char initialChar, Token token) throws UnclosedMultiLineCommentError, InvalidCharacterError {
+		int initialState = 0;
+		int currentState = initialState;
+		Integer successStates[] = { 4 };
+		char currentChar = initialChar;
+		String lexema = "";
+
+		while(currentState != 5){
+			if(reachedEOF){
+				currentState =5;
+				break;
+			}
+			if(currentState == 0 && currentChar == '/'){
+				currentState = 1;
+				lexema += currentChar;
+				currentChar = readConsumeChar();
+			} else {
+				if(currentState == 1 && currentChar == '*'){ //Comienzo del comentario multilinea
+					currentState = 2;
+					lexema += currentChar;
+					currentChar = readConsumeChar();
+				} else {
+					if(currentState == 2 && currentChar != '*'){ //Cualquier caracter que no sea *
+						currentState = 2;
+						lexema += currentChar;
+						currentChar = readConsumeChar();
+					} else {
+						if(currentState == 2 && currentChar == '*'){
+							currentState = 3;
+							lexema += currentChar;
+							currentChar = readConsumeChar();
+						} else {
+							if(currentState == 3 && currentChar != '/'){ // si encontamos ya un * y no le sigue un / entonces no era el final del comentario
+								currentState = 2;
+								lexema += currentChar;
+								currentChar = readConsumeChar();
+							} else {
+								if(currentState == 3 && currentChar == '/'){
+									currentState = 4;
+									lexema += currentChar;
+									currentChar = readConsumeChar();
+								} else {
+									currentState = 5;
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		if (Arrays.asList(successStates).contains(currentState)) {
+			token.setLexema(lexema);
+			token.setToken("multiline_comment");
+			return true;
+		}else{
+			throw new UnclosedMultiLineCommentError(lineNumber, columnNumber); // Throw error comentario multilinea
+		}
 	}
 
 	private void consumeSpaces() throws InvalidCharacterError {
