@@ -35,21 +35,62 @@ public class LexicAnalyzer {
 	public Token nextToken() throws LexicalError {
 		consumeSpaces(); // Consumir sin guardar los espacios, tabs y enter antes de un caracter valioso.
 		char currentChar = readConsumeChar();
-		Token token = new Token("", "", lineNumber, columnNumber);
+		Token token = new Token("", "" + currentChar, lineNumber, columnNumber);
 
 		// ASCIIs: https://www.ascii-code.com/
 		// Acá hacemos un switch gigante.
 		// Léase Autómata Finito Determinista.
 
-		if (isIdentifier(currentChar, token)) {
-			ReservedWords.isReservedWord(token);
+		switch (currentChar) {
+			case '+': // Operador suma.
+				token.setToken("op_add");
+				break;
+			case '*': // Operador multiplicación.
+				token.setToken("op_prod");
+				break;
+			case '%': // Operador módulo.
+				token.setToken("op_mod");
+				break;
+			case ';': // Delimitador de final de linea.
+				token.setToken("semicolon");
+				break;
+			case ':': // Delimitador de tipo de variable.
+				token.setToken("colon");
+				break;
+			case '{': // Llave de apertura de bloque.
+				token.setToken("open_curly");
+				break;
+			case '}': // Llave de cierre de bloque.
+				token.setToken("close_curly");
+				break;
+			case '(': // Paréntesis de apertura para parámetros o expresiones.
+				token.setToken("open_par");
+				break;
+			case ')': // Paréntesis de cierre para parámetros o expresiones.
+				token.setToken("close_par");
+				break;
+			case '[': // Corchete de apertura de arreglos.
+				token.setToken("open_bracket");
+				break;
+			case ']': // Corchete de cierre de arreglos.
+				token.setToken("open_bracket");
+				break;
+			case ',': // Separador de parámetros en funciones o arreglos.
+				token.setToken("comma");
+				break;
+			case '.': // Punto para los métodos.
+				token.setToken("dot");
+				break;
+			default:
+				if (isIdentifier(currentChar, token)) {
+					ReservedWords.isReservedWord(token);
+				}
+				if (isIntLiteral(currentChar, token)) {
+				}
+				if (isStringLiteral(currentChar, token)) {
+				}
 		}
-		if (isIntLiteral(currentChar, token)) {
 
-		}
-		if (isStringLiteral(currentChar, token)) {
-
-		}
 		return token;
 	}
 
@@ -100,7 +141,13 @@ public class LexicAnalyzer {
 			case '&':
 			case '|':
 			case '(': // Paréntesis para los parámetros.
+			case ')': // Paréntesis para los parámetros.
 			case '[': // Corchetes para los arreglos.
+			case ']': // Corchetes para los arreglos.
+			case '{': // Llaves para bloques.
+			case '}': // Llaves para bloques.
+			case ',':
+			case ';':
 			case '.': // Punto para los métodos.
 				return true;
 			default:
