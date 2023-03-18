@@ -83,6 +83,51 @@ public class LexicAnalyzer {
 			case '.': // Punto para los métodos.
 				token.setToken("dot");
 				break;
+			case '=': 
+				if (readWithoutConsumeChar() == '=') { // Operador de comparación de igualdad.
+					token.setToken("op_eq");
+					token.setLexema("==");
+					readConsumeChar(); // consumimos finalmente el caracter.
+				} else { // Asignación.
+					token.setToken("assignment");
+				}
+				break;
+			case '!':
+				if (readWithoutConsumeChar() == '=') { // Operador de comparación de desigualdad.
+					token.setToken("op_not_eq");
+					token.setLexema("!=");
+					readConsumeChar(); // consumimos finalmente el caracter.
+				} else { // Operador de negación.
+					token.setToken("op_not");
+				}
+				break;
+			case '<':
+				if (readWithoutConsumeChar() == '=') { // Operador de comparación de menor o igual.
+					token.setToken("op_less_eq");
+					token.setLexema("<=");
+					readConsumeChar(); // consumimos finalmente el caracter.
+				} else { // Operador de comparación de menor.
+					token.setToken("op_less");
+				}
+				break;
+			case '>':
+				if (readWithoutConsumeChar() == '=') { // Operador de comparación de mayor o igual.
+					token.setToken("op_great_eq");
+					token.setLexema(">=");
+					readConsumeChar(); // consumimos finalmente el caracter.
+				} else { // Operador de comparación de mayor.
+					token.setToken("op_great");
+				}
+				break;
+			case '-':
+				if (readWithoutConsumeChar() == '>') { // Operador de acceso a atributos.
+					token.setToken("return_type");
+					token.setLexema("->");
+					readConsumeChar(); // consumimos finalmente el caracter.
+				} else { // Operador de resta.
+					token.setToken("op_sub");
+				}
+				break;
 			default:
 				if(currentChar == '/'){
 					if(!isMultilineComment(currentChar, token)){
