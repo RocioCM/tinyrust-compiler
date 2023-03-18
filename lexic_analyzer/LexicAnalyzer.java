@@ -37,7 +37,7 @@ public class LexicAnalyzer {
 			// ASCIIs: https://www.ascii-code.com/
 			// Acá hacemos un switch gigante.
 			// Léase Autómata Finito Determinista.
-			if (isIdentificator(currentChar, token)) {
+			if (isIdentifier(currentChar, token)) {
 				ReservedWords.isReservedWord(token);
 			}
 			if (isIntLiteral(currentChar, token)) {
@@ -134,7 +134,7 @@ public class LexicAnalyzer {
 	 * @return true si es un identificador, false si no lo es.
 	 */
 
-	private boolean isIdentificator(char initialChar, Token token) {
+	private boolean isIdentifier(char initialChar, Token token) {
 		int initialState = 0;
 		int currentState = initialState;
 		Integer successStates[] = { 1, 2 };
