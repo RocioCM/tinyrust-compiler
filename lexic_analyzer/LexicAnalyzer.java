@@ -209,7 +209,7 @@ public class LexicAnalyzer {
 		char currentChar = initialChar;
 		String lexema = "";
 		
-		while (currentState != 3 && !isSpaceOrFormat(currentChar)) {
+		while (currentState != 3 && !isSpaceOrFormat(currentChar) && !reachedEOF) {
 			if (currentState == 0 && (isLowercaseChar(currentChar) || currentChar == '_')) {
 				currentState = 1;
 				lexema += currentChar;
