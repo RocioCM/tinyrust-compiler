@@ -84,10 +84,15 @@ public class LexicAnalyzer {
 				token.setToken("dot");
 				break;
 			default:
-				if (isIdentifier(currentChar, token)) {
-					ReservedWords.isReservedWord(token);
+				if(currentChar == '/'){
+					if(!isMultilineComment(currentChar, token)){
+						isComment(currentChar, token);
+					}
 				}
-				if(isMultilineComment(currentChar, token)) {
+				if(isLowercaseChar(currentChar) || isAlphabet(currentChar)) {
+					if(isIdentifier(currentChar, token)){
+						ReservedWords.isReservedWord(token);
+					}
 				}
 				if (isIntLiteral(currentChar, token)) {
 				}
@@ -203,7 +208,7 @@ public class LexicAnalyzer {
 		Integer successStates[] = { 1, 2 };
 		char currentChar = initialChar;
 		String lexema = "";
-
+		
 		while (currentState != 3 && !isSpaceOrFormat(currentChar)) {
 			if (currentState == 0 && (isLowercaseChar(currentChar) || currentChar == '_')) {
 				currentState = 1;
@@ -255,57 +260,115 @@ public class LexicAnalyzer {
 		char currentChar = initialChar;
 		String lexema = "";
 
-		while(currentState != 5){
-			if(reachedEOF){
-				currentState =5;
-				break;
-			}
-			if(currentState == 0 && currentChar == '/'){
-				currentState = 1;
-				lexema += currentChar;
-				currentChar = readConsumeChar();
-			} else {
-				if(currentState == 1 && currentChar == '*'){ //Comienzo del comentario multilinea
-					currentState = 2;
+		//Verificamos que el siguiente char sea un asterisco para comenzar el comentario multilinea
+		if(readWithoutConsumeChar() == '*'){
+			while(currentState != 5){
+				if(reachedEOF){
+					currentState =5;
+					break;
+				}
+				if(currentState == 0 && currentChar == '/'){
+					currentState = 1;
 					lexema += currentChar;
 					currentChar = readConsumeChar();
 				} else {
-					if(currentState == 2 && currentChar != '*'){ //Cualquier caracter que no sea *
+					if(currentState == 1 && currentChar == '*'){ //Comienzo del comentario multilinea
 						currentState = 2;
 						lexema += currentChar;
 						currentChar = readConsumeChar();
 					} else {
-						if(currentState == 2 && currentChar == '*'){
-							currentState = 3;
-							lexema += currentChar;
+						if(currentState == 2 && currentChar != '*'){ //Cualquier caracter que no sea *
+							currentState = 2;
+							int asciiChar = (int) currentChar;
+							if(asciiChar != 13){ // Verificamos que no sea un ENTER para poder mostrar bien el lexema
+								lexema += currentChar;
+							}
 							currentChar = readConsumeChar();
 						} else {
-							if(currentState == 3 && currentChar != '/'){ // si encontamos ya un * y no le sigue un / entonces no era el final del comentario
-								currentState = 2;
+							if(currentState == 2 && currentChar == '*'){
+								currentState = 3;
 								lexema += currentChar;
 								currentChar = readConsumeChar();
 							} else {
-								if(currentState == 3 && currentChar == '/'){
-									currentState = 4;
+								/* si encontamos ya un * y no le sigue un / entonces no era el final del comentario
+								por lo que volvemos al estado anterior
+								*/
+								if(currentState == 3 && currentChar != '/'){ 
+									currentState = 2;
 									lexema += currentChar;
 									currentChar = readConsumeChar();
 								} else {
-									currentState = 5;
-									break;
+									/* Si encontramos un * y le sigue un / entonces es el final del comentario multilinea
+									por lo que frenamos el automata en estado aceptador
+									*/
+									if(currentState == 3 && currentChar == '/'){
+										currentState = 4;
+										lexema += currentChar;
+										break;
+									} else {
+										currentState = 5;
+										break;
+									}
 								}
 							}
 						}
 					}
 				}
 			}
-		}
-		
+			
 		if (Arrays.asList(successStates).contains(currentState)) {
 			token.setLexema(lexema);
 			token.setToken("multiline_comment");
 			return true;
 		}else{
 			throw new UnclosedMultiLineCommentError(lineNumber, columnNumber); // Throw error comentario multilinea
+		}}else{
+			return false;
+		}
+	}
+
+	private boolean isComment(char initialChar, Token token) throws InvalidCharacterError {
+		int initialState = 0;
+		int currentState = initialState;
+		Integer successStates[] = { 2 };
+		char currentChar = initialChar;
+		String lexema = "";
+
+		while (currentState != 3 && (int) currentChar != 13) {
+			if (currentState == 0 && currentChar == '/') {
+				currentState = 1;
+				lexema += currentChar;
+				currentChar = readConsumeChar();
+			} else {
+				if (currentState == 1 && currentChar == '/') {
+					currentState = 2;
+					lexema += currentChar;
+					currentChar = readConsumeChar();
+				}else {
+					if(currentState == 2 && (int) currentChar == 13){
+						currentState = 2;
+						lexema += currentChar;
+						break;
+					}else {
+						if(currentState == 2 && (int) currentChar != 13){
+							currentState = 2;
+							lexema += currentChar;
+							currentChar = readConsumeChar();
+						}else{
+							currentState = 3;
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		if (Arrays.asList(successStates).contains(currentState)) {
+			token.setLexema(lexema);
+			token.setToken("comment");
+			return true;
+		} else {
+			return false;
 		}
 	}
 
