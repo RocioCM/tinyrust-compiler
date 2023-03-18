@@ -11,8 +11,8 @@ import error.LexicalError;
 public class LexicAnalyzer {
 	private Scanner file;
 	private String currentLine = "";
-	private int lineNumber = 1;
-	private int columnNumber = 1;
+	private int lineNumber = 0;
+	private int columnNumber = 0;
 	private boolean reachedEOF = false;
 
 	public LexicAnalyzer(String filePath) throws FileNotFoundException {
@@ -21,8 +21,11 @@ public class LexicAnalyzer {
 		Scanner scanner = new Scanner(document);
 		this.file = scanner;
 
-		// Inicializar la primera linea a leer.
-		readWithoutConsumeChar();
+		// Inicializar la lectura de la primer linea del archivo.
+		if (file.hasNextLine()) {
+			currentLine = file.nextLine();
+			lineNumber++;
+		}
 	}
 
 	public boolean hasNextToken() {
@@ -30,32 +33,30 @@ public class LexicAnalyzer {
 	}
 
 	public Token nextToken() throws LexicalError {
-		Token token = new Token("", "", lineNumber, columnNumber);
+		consumeSpaces(); // Consumir sin guardar los espacios, tabs y enter antes de un caracter valioso.
 		char currentChar = readConsumeChar();
+		Token token = new Token("", "", lineNumber, columnNumber);
 
-		if (isValidChar(currentChar)) {
-			// ASCIIs: https://www.ascii-code.com/
-			// Acá hacemos un switch gigante.
-			// Léase Autómata Finito Determinista.
-			if (isIdentifier(currentChar, token)) {
-				ReservedWords.isReservedWord(token);
-			}
-			if (isIntLiteral(currentChar, token)) {
+		// ASCIIs: https://www.ascii-code.com/
+		// Acá hacemos un switch gigante.
+		// Léase Autómata Finito Determinista.
 
-			}
-			if (isStringLiteral(currentChar, token)) {
-
-			}
-			return token;
-		} else {
-			throw new InvalidCharacterError(lineNumber, columnNumber, currentChar);
+		if (isIdentifier(currentChar, token)) {
+			ReservedWords.isReservedWord(token);
 		}
+		if (isIntLiteral(currentChar, token)) {
+
+		}
+		if (isStringLiteral(currentChar, token)) {
+
+		}
+		return token;
 	}
 
 	private boolean isValidChar(char currentChar) {
 		int asciiChar = (int) currentChar;
 		if (asciiChar >= 32 && asciiChar <= 126 || asciiChar == 209 || asciiChar == 241 || asciiChar == 161
-				|| asciiChar == 191 || asciiChar == 9 || asciiChar == 9 || asciiChar == 13 || asciiChar == 3) {
+				|| asciiChar == 191 || asciiChar == 9 || asciiChar == 13 || asciiChar == 3 || asciiChar == -1) {
 			return true;
 		}
 		return false;
@@ -107,6 +108,17 @@ public class LexicAnalyzer {
 		}
 	}
 
+	private boolean isSpaceOrFormat(char currentChar) {
+		int asciiChar = (int) currentChar;
+		if (asciiChar == 32 // space
+				|| asciiChar == 9 // tab
+				|| asciiChar == 13 // enter
+		) {
+			return true;
+		}
+		return false;
+	}
+
 	private boolean isIntLiteral(char initialChar, Token token) {
 		return true;
 	}
@@ -134,7 +146,7 @@ public class LexicAnalyzer {
 	 * @return true si es un identificador, false si no lo es.
 	 */
 
-	private boolean isIdentifier(char initialChar, Token token) {
+	private boolean isIdentifier(char initialChar, Token token) throws InvalidCharacterError {
 		int initialState = 0;
 		int currentState = initialState;
 		Integer successStates[] = { 1, 2 };
@@ -184,24 +196,39 @@ public class LexicAnalyzer {
 		return false; // Throw error identificador mal formado
 	}
 
-	private char readConsumeChar() {
+	private void consumeSpaces() throws InvalidCharacterError {
+		char currentChar = readWithoutConsumeChar();
+		while (isSpaceOrFormat(currentChar)) {
+			readConsumeChar();
+			currentChar = readWithoutConsumeChar();
+		}
+	}
+
+	private char readConsumeChar() throws InvalidCharacterError {
 		char currentChar;
-		if (currentLine.length() > 0) {
-			currentChar = currentLine.charAt(0);
-			currentLine = currentLine.substring(1);
-			columnNumber++;
+		if (reachedEOF) {
+			currentChar = (char) 3; // End of File - ETX
 		} else {
-			if (file.hasNextLine()) {
-				currentChar = (char) 13; // Carriage Return - ENTER
-				currentLine = file.nextLine();
-				lineNumber++;
-				columnNumber = 1;
+			if (currentLine.length() > 0) {
+				currentChar = currentLine.charAt(0);
+				currentLine = currentLine.substring(1);
+				columnNumber++;
 			} else {
-				reachedEOF = true;
-				currentChar = (char) 3; // End of File - ETX
-				// TODO - Handelear si llaman a esta función después del EOF con un flag o algo
-				// Aprovechar para cerrar el file reader.
+				if (file.hasNextLine()) {
+					currentChar = (char) 13; // Carriage Return - ENTER
+					currentLine = file.nextLine();
+					lineNumber++;
+					columnNumber = 0;
+				} else {
+					reachedEOF = true;
+					currentChar = (char) 3; // End of File - ETX
+					file.close();
+				}
 			}
+		}
+
+		if (!isValidChar(currentChar)) {
+			throw new InvalidCharacterError(lineNumber, columnNumber, currentChar);
 		}
 		return currentChar;
 	}
@@ -217,6 +244,7 @@ public class LexicAnalyzer {
 				currentChar = (char) 3; // End of File - ETX
 			}
 		}
+		// TODO - Evaluar si es necesario verificar isValidChar acá. Contra: ñine number
 		return currentChar;
 	}
 
