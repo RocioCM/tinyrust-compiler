@@ -5,8 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Scanner;
 
-import error.InvalidCharacterError;
-import error.LexicalError;
+import error.*;
 
 public class LexicAnalyzer {
 	private Scanner file;
@@ -41,46 +40,96 @@ public class LexicAnalyzer {
 		// Acá hacemos un switch gigante.
 		// Léase Autómata Finito Determinista.
 
+		// Leer el primer caracter del token y continuar según qué caracter es.
 		switch (currentChar) {
 			case '+': // Operador suma.
 				token.setToken("op_add");
 				break;
+
 			case '*': // Operador multiplicación.
 				token.setToken("op_prod");
 				break;
+
 			case '%': // Operador módulo.
 				token.setToken("op_mod");
 				break;
+
 			case ';': // Delimitador de final de linea.
 				token.setToken("semicolon");
 				break;
+
 			case ':': // Delimitador de tipo de variable.
 				token.setToken("colon");
 				break;
+
 			case '{': // Llave de apertura de bloque.
 				token.setToken("open_curly");
 				break;
+
 			case '}': // Llave de cierre de bloque.
 				token.setToken("close_curly");
 				break;
+
 			case '(': // Paréntesis de apertura para parámetros o expresiones.
 				token.setToken("open_par");
 				break;
+
 			case ')': // Paréntesis de cierre para parámetros o expresiones.
 				token.setToken("close_par");
 				break;
+
 			case '[': // Corchete de apertura de arreglos.
 				token.setToken("open_bracket");
 				break;
+
 			case ']': // Corchete de cierre de arreglos.
 				token.setToken("open_bracket");
 				break;
+
 			case ',': // Separador de parámetros en funciones o arreglos.
 				token.setToken("comma");
 				break;
+
 			case '.': // Punto para los métodos.
 				token.setToken("dot");
 				break;
+
+			case '|': // Operador lógico OR
+				if (!isOrToken(currentChar, token)) {
+					throw new UnmatchedTokenError(token.getLine(), token.getCol(), token.getLexema());
+				}
+				break;
+
+			case '&': // Operador lógico AND
+				if (!isAndToken(currentChar, token)) {
+					throw new UnmatchedTokenError(token.getLine(), token.getCol(), token.getLexema());
+				}
+				break;
+
+			case '-': // Operador resta o tipo de retorno de función.
+				// Op resta o ->
+				break;
+
+			case '/': // Operador división o comentario.
+				// Op div o // o /*
+				break;
+
+			case '!': // Negación o comparación desigualdad.
+				// ! o !=
+				break;
+
+			case '=': // Asignación o comparación igualdad.
+				// = o ==
+				break;
+
+			case '<': // Operador menor / menor o igual.
+				// < o <=
+				break;
+
+			case '>': // Operador mayor / mayor o igual.
+				// > o >=
+				break;
+
 			default:
 				if (isIdentifier(currentChar, token)) {
 					ReservedWords.isReservedWord(token);
@@ -92,12 +141,14 @@ public class LexicAnalyzer {
 		}
 
 		return token;
+
 	}
 
 	private boolean isValidChar(char currentChar) {
 		int asciiChar = (int) currentChar;
 		if (asciiChar >= 32 && asciiChar <= 126 || asciiChar == 209 || asciiChar == 241 || asciiChar == 161
-				|| asciiChar == 191 || asciiChar == 9 || asciiChar == 13 || asciiChar == 3 || asciiChar == -1) {
+				|| asciiChar == 191 || asciiChar == 9 || asciiChar == 10 || asciiChar == 11 || asciiChar == 13 || asciiChar == 3
+				|| asciiChar == -1) {
 			return true;
 		}
 		return false;
@@ -147,6 +198,8 @@ public class LexicAnalyzer {
 			case '{': // Llaves para bloques.
 			case '}': // Llaves para bloques.
 			case ',':
+			case '"':
+			case '\'':
 			case ';':
 			case '.': // Punto para los métodos.
 				return true;
@@ -155,23 +208,93 @@ public class LexicAnalyzer {
 		}
 	}
 
-	private boolean isSpaceOrFormat(char currentChar) {
+	private boolean isBlankSpace(char currentChar) {
 		int asciiChar = (int) currentChar;
 		if (asciiChar == 32 // space
 				|| asciiChar == 9 // tab
+				|| asciiChar == 10 // new line
+				|| asciiChar == 11 // vertical tab
 				|| asciiChar == 13 // enter
+				|| asciiChar == 3 // end of file
 		) {
 			return true;
 		}
 		return false;
 	}
 
-	private boolean isIntLiteral(char initialChar, Token token) {
+	private boolean isLineBreak(char currentChar) {
+		int asciiChar = (int) currentChar;
+		if (asciiChar == 10 // new line
+				|| asciiChar == 11 // vertical tab
+				|| asciiChar == 13 // enter
+				|| asciiChar == 3 // end of file
+		) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isIntLiteral(char initialChar, Token token) throws InvalidCharacterError {
+		if (!isDigit(initialChar)) {
+			return false;
+		}
+
+		char nextChar = readWithoutConsumeChar();
+		while (isDigit(nextChar)) {
+			readConsumeChar();
+			token.appendLexema(nextChar);
+			nextChar = readWithoutConsumeChar();
+		}
+		token.setToken("lit_int");
 		return true;
 	}
 
-	private boolean isStringLiteral(char initialChar, Token token) {
+	private boolean isStringLiteral(char initialChar, Token token) throws InvalidCharacterError, InvalidLiteralError {
+		if (initialChar != '"') {
+			return false;
+		}
+
+		char nextChar = readWithoutConsumeChar();
+		while (!isLineBreak(nextChar) && nextChar != '"') {
+			readConsumeChar();
+			token.appendLexema(nextChar);
+			nextChar = readWithoutConsumeChar();
+		}
+		if (nextChar == '"') {
+			readConsumeChar();
+			token.appendLexema(nextChar);
+			token.setToken("lit_string");
+		} else {
+			throw new InvalidLiteralError(token.getLine(), token.getCol(), "LITERAL CADENA SIN CERRAR.");
+		}
+
 		return true;
+	}
+
+	private boolean isCharLiteral(char initialChar, Token token) {
+		return true;
+	}
+
+	private boolean isOrToken(char initialChar, Token token) throws InvalidCharacterError {
+		char nextChar = readWithoutConsumeChar();
+		if (nextChar == '|') {
+			readConsumeChar();
+			token.setToken("op_or");
+			token.appendLexema(nextChar);
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isAndToken(char initialChar, Token token) throws InvalidCharacterError {
+		char nextChar = readWithoutConsumeChar();
+		if (nextChar == '&') {
+			readConsumeChar();
+			token.setToken("op_and");
+			token.appendLexema(nextChar);
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -245,7 +368,7 @@ public class LexicAnalyzer {
 
 	private void consumeSpaces() throws InvalidCharacterError {
 		char currentChar = readWithoutConsumeChar();
-		while (isSpaceOrFormat(currentChar)) {
+		while (isBlankSpace(currentChar) && !reachedEOF) {
 			readConsumeChar();
 			currentChar = readWithoutConsumeChar();
 		}
@@ -282,16 +405,20 @@ public class LexicAnalyzer {
 
 	private char readWithoutConsumeChar() {
 		char currentChar;
-		if (currentLine.length() > 0) {
-			currentChar = currentLine.charAt(0);
+		if (reachedEOF) {
+			currentChar = (char) 3; // End of File - ETX
 		} else {
-			if (file.hasNextLine()) {
-				currentChar = (char) 13; // Carriage Return - ENTER
+			if (currentLine.length() > 0) {
+				currentChar = currentLine.charAt(0);
 			} else {
-				currentChar = (char) 3; // End of File - ETX
+				if (file.hasNextLine()) {
+					currentChar = (char) 13; // Carriage Return - ENTER
+				} else {
+					currentChar = (char) 3; // End of File - ETX
+				}
 			}
 		}
-		// TODO - Evaluar si es necesario verificar isValidChar acá. Contra: ñine number
+		// TODO - Evaluar si es necesario verificar isValidChar acá. Contra: line number
 		return currentChar;
 	}
 
