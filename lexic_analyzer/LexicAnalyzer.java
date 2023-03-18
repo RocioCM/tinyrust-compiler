@@ -5,6 +5,9 @@ import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Scanner;
 
+import error.InvalidCharacterError;
+import error.LexicalError;
+
 public class LexicAnalyzer {
 	private Scanner file;
 	private String currentLine = "";
@@ -45,14 +48,14 @@ public class LexicAnalyzer {
 			}
 			return token;
 		} else {
-			throw new LexicalError("InvalidCharacterError");
+			throw new InvalidCharacterError(lineNumber, columnNumber, currentChar);
 		}
 	}
 
 	private boolean isValidChar(char currentChar) {
 		int asciiChar = (int) currentChar;
 		if (asciiChar >= 32 && asciiChar <= 126 || asciiChar == 209 || asciiChar == 241 || asciiChar == 161
-				|| asciiChar == 191 || asciiChar == 9) {
+				|| asciiChar == 191 || asciiChar == 9 || asciiChar == 9 || asciiChar == 13 || asciiChar == 3) {
 			return true;
 		}
 		return false;
