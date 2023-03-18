@@ -8,6 +8,7 @@ asdASDA else
 buenas noches 
 */
 
+one/zero:cuchau
 
-an // TODO - falla en identificar el ultimo lexema del archivo.
-a
+an // Is this a single line comment?.
+a, coso;

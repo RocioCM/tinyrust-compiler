@@ -86,7 +86,10 @@ public class LexicAnalyzer {
 			default:
 				if(currentChar == '/'){
 					if(!isMultilineComment(currentChar, token)){
-						isComment(currentChar, token);
+						if(!isComment(currentChar, token)){
+							token.setLexema(String.valueOf(currentChar));
+							token.setToken("op_div");
+						}
 					}
 				}
 				if(isLowercaseChar(currentChar) || isAlphabet(currentChar)) {
@@ -158,6 +161,7 @@ public class LexicAnalyzer {
 			case ',':
 			case ';':
 			case '.': // Punto para los métodos.
+			case ':': // Dos puntos para los tipos de variables.
 				return true;
 			default:
 				return false;
@@ -236,6 +240,7 @@ public class LexicAnalyzer {
 							currentState = 2;
 							break;
 						} else {
+							lexema += currentChar;
 							currentState = 3;
 							break;
 						}
@@ -253,6 +258,33 @@ public class LexicAnalyzer {
 		}
 	}
 
+	/**
+	 * A partir de un caracter inicial, verifica si lo que sigue es un
+	 * comentario de múltiples líneas.
+	 * Este método representa a un autómata con 5 estados con una verificación adicional:
+	 * Hacemos un checkeo de que el siguiente caracter sea un asterisco para comenzar el comentario multilinea.
+	 * Estados:
+	 * 0: el inicial
+	 * 1: al que nos movemos si encontramos un /
+	 * 
+	 * 2: al que nos movemos si encontramos un * habiendo encontrado un / antes.
+	 * Sobre este estado vamos a ir consumiendo todo lo que venga sin rechazar y
+	 * si encontramos un EOF, arrojamos error porque no se cerró el comentario.
+	 * 
+	 * 3: nos movemos a este estado si encontramos un * y estamos en el estado 2.
+	 * Si recibimos cualquier cosa que no sea un /, volvemos al 2. Y si encontramos
+	 * un EOF, arrojamos error porque no se cerró el comentario.
+	 * 
+	 * 4: el estado de aceptación, en el cual consumimos el último caracter y
+	 * retornamos que efectivamente se trata de un comentario multilinea.
+	 * 
+	 * Si en cualquier estado, encontramos un EOF, nos movemos al estado 5, rechazador.
+	 * @param initialChar el caracter a partir del cual vamos a analizar si es un
+	 *                    comentario de una línea.
+	 * @param token       el token que vamos a llenar con el lexema y el token si es
+	 *                    que es un comentario de una línea.
+	 * @return true si es un comentario de una línea, false si no lo es.
+	 */
 	private boolean isMultilineComment(char initialChar, Token token) throws UnclosedMultiLineCommentError, InvalidCharacterError {
 		int initialState = 0;
 		int currentState = initialState;
