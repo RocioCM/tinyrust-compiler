@@ -51,168 +51,167 @@ public class LexicAnalyzer {
 		char currentChar = readConsumeChar();
 		Token token = new Token("", String.valueOf(currentChar), lineNumber, columnNumber); // Inicializar el token.
 
-		// Si ya se consumió todo el archivo,
-		// se retorna un Token vacío representando el fin del archivo.
 		if (reachedEOF) {
+			// Si ya se consumió todo el archivo,
+			// se retorna un Token vacío representando el fin del archivo.
 			token.setToken("EOF");
 			token.setLexema("");
-			return token;
-		}
 
-		// Leer el primer caracter del token y continuar el match según qué caracter es.
-		switch (currentChar) {
-			case '+': // Operador suma.
-				token.setToken("op_add");
-				break;
-
-			case '*': // Operador multiplicación.
-				token.setToken("op_prod");
-				break;
-
-			case '%': // Operador módulo.
-				token.setToken("op_mod");
-				break;
-
-			case ';': // Delimitador de final de linea.
-				token.setToken("semicolon");
-				break;
-
-			case ':': // Delimitador de tipo de variable.
-				token.setToken("colon");
-				break;
-
-			case '{': // Llave de apertura de bloque.
-				token.setToken("open_curly");
-				break;
-
-			case '}': // Llave de cierre de bloque.
-				token.setToken("close_curly");
-				break;
-
-			case '(': // Paréntesis de apertura para parámetros o expresiones.
-				token.setToken("open_par");
-				break;
-
-			case ')': // Paréntesis de cierre para parámetros o expresiones.
-				token.setToken("close_par");
-				break;
-
-			case '[': // Corchete de apertura de arreglos.
-				token.setToken("open_bracket");
-				break;
-
-			case ']': // Corchete de cierre de arreglos.
-				token.setToken("close_bracket");
-				break;
-
-			case ',': // Separador de parámetros en funciones o arreglos.
-				token.setToken("comma");
-				break;
-
-			case '.': // Punto para los métodos.
-				token.setToken("dot");
-				break;
-
-			case '|': // Operador lógico OR
-				if (readWithoutConsumeChar() == '|') {
-					token.setToken("op_or");
-					token.appendLexema(readConsumeChar());
-				} else {
-					throw new UnmatchedTokenError(token.getLine(), token.getCol(), token.getLexema());
-				}
-				break;
-
-			case '&': // Operador lógico AND
-				if (readWithoutConsumeChar() == '&') {
-					token.setToken("op_and");
-					token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
-				} else {
-					throw new UnmatchedTokenError(token.getLine(), token.getCol(), token.getLexema());
-				}
-				break;
-
-			case '=': // Asignación o comparación igualdad.
-				if (readWithoutConsumeChar() == '=') { // Operador de comparación de igualdad.
-					token.setToken("op_eq");
-					token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
-				} else { // Asignación.
-					token.setToken("assignment");
-				}
-				break;
-
-			case '!': // Negación o comparación desigualdad.
-				if (readWithoutConsumeChar() == '=') { // Operador de comparación de desigualdad.
-					token.setToken("op_not_eq");
-					token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
-				} else { // Operador de negación.
-					token.setToken("op_not");
-				}
-				break;
-
-			case '<': // Operador menor / menor o igual.
-				if (readWithoutConsumeChar() == '=') { // Operador de comparación de menor o igual.
-					token.setToken("op_less_eq");
-					token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
-				} else { // Operador de comparación de menor.
-					token.setToken("op_less");
-				}
-				break;
-
-			case '>': // Operador menor / menor o igual.
-				if (readWithoutConsumeChar() == '=') { // Operador de comparación de mayor o igual.
-					token.setToken("op_great_eq");
-					token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
-				} else { // Operador de comparación de mayor.
-					token.setToken("op_great");
-				}
-				break;
-
-			case '-': // Operador resta o tipo de retorno de función.
-				if (readWithoutConsumeChar() == '>') { // Operador de acceso a atributos.
-					token.setToken("return_type");
-					token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
-				} else { // Operador de resta.
-					token.setToken("op_sub");
-				}
-				break;
-
-			case '/': // Operador división o comentario.
-				if (!matchMultilineComment(currentChar, token)) { // Comentario multilinea.
-					if (!matchComment(currentChar, token)) { // Comentario de una linea.
-						// Operador división.
-						token.setToken("op_div");
-					}
-				}
-				break;
-
-			case '"': // Literal cadena.
-				matchStringLiteral(currentChar, token);
-				break;
-
-			case '\'': // Literal caracter.
-				matchCharLiteral(currentChar, token);
-				break;
-
-			default:
-				if (isDigit(currentChar)) { // Dígito numérico.
-					matchIntLiteral(currentChar, token);
+		} else {
+			// Leer el primer caracter del token y continuar el match según qué caracter es.
+			switch (currentChar) {
+				case '+': // Operador suma.
+					token.setToken("op_add");
 					break;
-				}
 
-				if (isAlphabet(currentChar) || currentChar == '_') { // Letra minúscula o mayúscula.
-					matchIdentifier(currentChar, token); // Se consume todo el identificador.
-					if (!matchTypeIdentifier(token)) { // Se verifica si es un identificador de tipo.
-						ReservedWords.matchReservedWord(token); // Se verifica si es una palabra reservada.
+				case '*': // Operador multiplicación.
+					token.setToken("op_prod");
+					break;
+
+				case '%': // Operador módulo.
+					token.setToken("op_mod");
+					break;
+
+				case ';': // Delimitador de final de linea.
+					token.setToken("semicolon");
+					break;
+
+				case ':': // Delimitador de tipo de variable.
+					token.setToken("colon");
+					break;
+
+				case '{': // Llave de apertura de bloque.
+					token.setToken("open_curly");
+					break;
+
+				case '}': // Llave de cierre de bloque.
+					token.setToken("close_curly");
+					break;
+
+				case '(': // Paréntesis de apertura para parámetros o expresiones.
+					token.setToken("open_par");
+					break;
+
+				case ')': // Paréntesis de cierre para parámetros o expresiones.
+					token.setToken("close_par");
+					break;
+
+				case '[': // Corchete de apertura de arreglos.
+					token.setToken("open_bracket");
+					break;
+
+				case ']': // Corchete de cierre de arreglos.
+					token.setToken("close_bracket");
+					break;
+
+				case ',': // Separador de parámetros en funciones o arreglos.
+					token.setToken("comma");
+					break;
+
+				case '.': // Punto para los métodos.
+					token.setToken("dot");
+					break;
+
+				case '|': // Operador lógico OR
+					if (readWithoutConsumeChar() == '|') {
+						token.setToken("op_or");
+						token.appendLexema(readConsumeChar());
+					} else {
+						throw new UnmatchedTokenError(token.getLine(), token.getCol(), token.getLexema());
 					}
 					break;
-				}
 
-				// Si el primer caracter no coincidió con ningún token posible, lanza un error.
-				throw new UnmatchedTokenError(token.getLine(), token.getCol(), token.getLexema());
+				case '&': // Operador lógico AND
+					if (readWithoutConsumeChar() == '&') {
+						token.setToken("op_and");
+						token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
+					} else {
+						throw new UnmatchedTokenError(token.getLine(), token.getCol(), token.getLexema());
+					}
+					break;
+
+				case '=': // Asignación o comparación igualdad.
+					if (readWithoutConsumeChar() == '=') { // Operador de comparación de igualdad.
+						token.setToken("op_eq");
+						token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
+					} else { // Asignación.
+						token.setToken("assignment");
+					}
+					break;
+
+				case '!': // Negación o comparación desigualdad.
+					if (readWithoutConsumeChar() == '=') { // Operador de comparación de desigualdad.
+						token.setToken("op_not_eq");
+						token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
+					} else { // Operador de negación.
+						token.setToken("op_not");
+					}
+					break;
+
+				case '<': // Operador menor / menor o igual.
+					if (readWithoutConsumeChar() == '=') { // Operador de comparación de menor o igual.
+						token.setToken("op_less_eq");
+						token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
+					} else { // Operador de comparación de menor.
+						token.setToken("op_less");
+					}
+					break;
+
+				case '>': // Operador menor / menor o igual.
+					if (readWithoutConsumeChar() == '=') { // Operador de comparación de mayor o igual.
+						token.setToken("op_great_eq");
+						token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
+					} else { // Operador de comparación de mayor.
+						token.setToken("op_great");
+					}
+					break;
+
+				case '-': // Operador resta o tipo de retorno de función.
+					if (readWithoutConsumeChar() == '>') { // Operador de acceso a atributos.
+						token.setToken("return_type");
+						token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
+					} else { // Operador de resta.
+						token.setToken("op_sub");
+					}
+					break;
+
+				case '/': // Operador división o comentario.
+					if (!matchMultilineComment(currentChar, token)) { // Comentario multilinea.
+						if (!matchComment(currentChar, token)) { // Comentario de una linea.
+							// Operador división.
+							token.setToken("op_div");
+						}
+					}
+					break;
+
+				case '"': // Literal cadena.
+					matchStringLiteral(currentChar, token);
+					break;
+
+				case '\'': // Literal caracter.
+					matchCharLiteral(currentChar, token);
+					break;
+
+				default:
+					if (isDigit(currentChar)) { // Dígito numérico.
+						matchIntLiteral(currentChar, token);
+						break;
+					}
+
+					if (isAlphabet(currentChar) || currentChar == '_') { // Letra minúscula o mayúscula.
+						matchIdentifier(currentChar, token); // Se consume todo el identificador.
+						if (!matchTypeIdentifier(token)) { // Se verifica si es un identificador de tipo.
+							ReservedWords.matchReservedWord(token); // Se verifica si es una palabra reservada.
+						}
+						break;
+					}
+
+					// Si el primer caracter no coincidió con ningún token posible, lanza un error.
+					throw new UnmatchedTokenError(token.getLine(), token.getCol(), token.getLexema());
+			}
 		}
 
 		return token;
-
 	}
 
 	/**
@@ -235,11 +234,13 @@ public class LexicAnalyzer {
 	private boolean isValidChar(char currentChar) {
 		// Referencia ASCII: https://www.ascii-code.com/
 		int asciiChar = (int) currentChar;
-		if (asciiChar >= 32 && asciiChar <= 126 || asciiChar == 9 || asciiChar == 10
-				|| asciiChar == 11 || asciiChar == 13 || asciiChar == 3) {
-			return true;
-		}
-		return false;
+		return (asciiChar >= 32
+				&& asciiChar <= 126
+				|| asciiChar == 9
+				|| asciiChar == 10
+				|| asciiChar == 11
+				|| asciiChar == 13
+				|| asciiChar == 3);
 	}
 
 	/**
@@ -250,10 +251,7 @@ public class LexicAnalyzer {
 	 */
 	private boolean isLowercaseChar(char currentChar) {
 		int asciiChar = (int) currentChar;
-		if (asciiChar >= 97 && asciiChar <= 122) {
-			return true;
-		}
-		return false;
+		return (asciiChar >= 97 && asciiChar <= 122);
 	}
 
 	/**
@@ -264,10 +262,7 @@ public class LexicAnalyzer {
 	 */
 	private boolean isUppercaseChar(char currentChar) {
 		int asciiChar = (int) currentChar;
-		if (asciiChar >= 65 && asciiChar <= 90) {
-			return true;
-		}
-		return false;
+		return (asciiChar >= 65 && asciiChar <= 90);
 	}
 
 	/**
@@ -278,10 +273,7 @@ public class LexicAnalyzer {
 	 * @return Devuelve true si el caracter forma parte del abecedario.
 	 */
 	private boolean isAlphabet(char currentChar) {
-		if (isLowercaseChar(currentChar) || isUppercaseChar(currentChar)) {
-			return true;
-		}
-		return false;
+		return (isLowercaseChar(currentChar) || isUppercaseChar(currentChar));
 	}
 
 	/**
@@ -292,10 +284,7 @@ public class LexicAnalyzer {
 	 */
 	private boolean isDigit(char currentChar) {
 		int asciiChar = (int) currentChar;
-		if (asciiChar >= 48 && asciiChar <= 57) {
-			return true;
-		}
-		return false;
+		return (asciiChar >= 48 && asciiChar <= 57);
 	}
 
 	/**
@@ -305,6 +294,7 @@ public class LexicAnalyzer {
 	 * @return Devuelve true si el caracter es un operador o delimitador.
 	 */
 	private boolean isOperator(char currentChar) {
+		boolean validOperator;
 		switch (currentChar) {
 			case '+':
 			case '-':
@@ -329,10 +319,13 @@ public class LexicAnalyzer {
 			case ';': // Delimitador de final de linea.
 			case '.': // Punto para los métodos.
 			case ':': // Dos puntos para los tipos de variables.
-				return true;
+				validOperator = true;
+				break;
 			default:
-				return false;
+				validOperator = false;
 		}
+
+		return validOperator;
 	}
 
 	/**
@@ -345,16 +338,13 @@ public class LexicAnalyzer {
 	 */
 	private boolean isBlankSpace(char currentChar) {
 		int asciiChar = (int) currentChar;
-		if (asciiChar == 32 // space
+		return (asciiChar == 32 // space
 				|| asciiChar == 9 // tab
 				|| asciiChar == 10 // new line
 				|| asciiChar == 11 // vertical tab
 				|| asciiChar == 13 // enter
 				|| asciiChar == 3 // end of file
-		) {
-			return true;
-		}
-		return false;
+		);
 	}
 
 	/**
@@ -365,14 +355,11 @@ public class LexicAnalyzer {
 	 */
 	private boolean isLineBreak(char currentChar) {
 		int asciiChar = (int) currentChar;
-		if (asciiChar == 10 // new line
+		return (asciiChar == 10 // new line
 				|| asciiChar == 11 // vertical tab
 				|| asciiChar == 13 // enter
 				|| asciiChar == 3 // end of file
-		) {
-			return true;
-		}
-		return false;
+		);
 	}
 
 	/**
@@ -614,11 +601,13 @@ public class LexicAnalyzer {
 	 * @return true si es un identificador de tipo, false si no lo es.
 	 */
 	private boolean matchTypeIdentifier(Token token) {
+		boolean matched = false;
 		if (token.getToken() == "id" && isUppercaseChar(token.getLexema().charAt(0))) {
 			token.setToken("id_type");
-			return true;
+			matched = true;
 		}
-		return false;
+
+		return matched;
 	}
 
 	/**
@@ -659,6 +648,7 @@ public class LexicAnalyzer {
 		Integer successStates[] = { 4 };
 		char currentChar = initialChar;
 		String lexema = "";
+		boolean matched = false;
 
 		// Verificamos que el siguiente char sea un asterisco para comenzar el
 		// comentario multilinea
@@ -723,13 +713,13 @@ public class LexicAnalyzer {
 			if (Arrays.asList(successStates).contains(currentState)) {
 				token.setLexema(lexema);
 				token.setToken("multiline_comment");
-				return true;
+				matched = true;
 			} else {
 				throw new UnclosedMultiLineCommentError(lineNumber, columnNumber); // Throw error comentario multilinea
 			}
-		} else {
-			return false;
 		}
+
+		return matched;
 	}
 
 	/**
@@ -763,6 +753,7 @@ public class LexicAnalyzer {
 		Integer successStates[] = { 2 };
 		char currentChar = initialChar;
 		String lexema = "";
+		boolean matched = false;
 
 		// Verificamos que el siguiente char sea un slash para comenzar el comentario.
 		if (readWithoutConsumeChar() == '/') {
@@ -798,13 +789,11 @@ public class LexicAnalyzer {
 			if (Arrays.asList(successStates).contains(currentState)) {
 				token.setLexema(lexema);
 				token.setToken("comment");
-				return true;
-			} else {
-				return false;
+				matched = true;
 			}
-		} else {
-			return false;
 		}
+
+		return matched;
 	}
 
 	/**

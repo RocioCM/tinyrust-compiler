@@ -12,11 +12,9 @@ public class ReservedWords {
 	 * @return El mismo token modificado.
 	 */
 	public static Token matchReservedWord(Token token) {
-		if (token.getToken() != "id") {
-			// Si no es identificador, no es una palabra reservada.
-			// Verificamos por las dudas.
-			return token;
-		} else {
+		// Solo puede ser palabra reservada si es un identificador.
+		// Verificamos por las dudas.
+		if (token.getToken() == "id") {
 			switch (token.getLexema()) {
 				case "fn":
 					token.setToken("p_func");
@@ -61,7 +59,7 @@ public class ReservedWords {
 					token.setToken("p_void");
 					break;
 				default:
-					return token;
+					break;
 			}
 		}
 		return token;

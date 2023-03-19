@@ -59,7 +59,8 @@ public class Logger {
 									"| " + token.getToken() +
 											" | " + token.getLexema() +
 											" | LINEA " + token.getLine() +
-											" | (COLUMNA " + token.getCol() + ") |"));
+											" | (COLUMNA " + token.getCol() +
+											") |"));
 		} else {
 			try {
 				// Se abre el archivo de salida especificado y se escribe el output.
@@ -74,7 +75,8 @@ public class Logger {
 							"| " + token.getToken() +
 									" | " + token.getLexema() +
 									" | LINEA " + token.getLine() +
-									" | (COLUMNA " + token.getCol() + ") |\n");
+									" | (COLUMNA " + token.getCol() +
+									") |\n");
 				}
 
 				fileWriter.close();
