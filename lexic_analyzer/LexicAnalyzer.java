@@ -24,6 +24,8 @@ public class LexicAnalyzer {
 		if (file.hasNextLine()) {
 			currentLine = file.nextLine();
 			lineNumber++;
+		} else {
+			reachedEOF = true;
 		}
 	}
 
@@ -228,9 +230,8 @@ public class LexicAnalyzer {
 	private boolean isValidChar(char currentChar) {
 		// Referencia ASCII: https://www.ascii-code.com/
 		int asciiChar = (int) currentChar;
-		if (asciiChar >= 32 && asciiChar <= 126 || asciiChar == 209 || asciiChar == 241 || asciiChar == 161
-				|| asciiChar == 191 || asciiChar == 9 || asciiChar == 10 || asciiChar == 11 || asciiChar == 13
-				|| asciiChar == 3) {
+		if (asciiChar >= 32 && asciiChar <= 126 || asciiChar == 9 || asciiChar == 10
+				|| asciiChar == 11 || asciiChar == 13 || asciiChar == 3) {
 			return true;
 		}
 		return false;
@@ -674,8 +675,7 @@ public class LexicAnalyzer {
 					} else {
 						if (currentState == 2 && currentChar != '*') { // Cualquier caracter que no sea *
 							currentState = 2;
-							int asciiChar = (int) currentChar;
-							if (asciiChar != 13) { // Verificamos que no sea un ENTER para poder mostrar bien el lexema
+							if (!isLineBreak(currentChar)) { // Verificamos que no sea un ENTER para poder mostrar bien el lexema
 								lexema += currentChar;
 							}
 							currentChar = readConsumeChar();
@@ -761,7 +761,7 @@ public class LexicAnalyzer {
 
 		// Verificamos que el siguiente char sea un slash para comenzar el comentario.
 		if (readWithoutConsumeChar() == '/') {
-			while (currentState != 3 && (int) currentChar != 13) {
+			while (currentState != 3 && !isLineBreak(currentChar)) {
 				if (currentState == 0 && currentChar == '/') {
 					currentState = 1;
 					lexema += currentChar;
@@ -772,12 +772,12 @@ public class LexicAnalyzer {
 						lexema += currentChar;
 						currentChar = readConsumeChar();
 					} else {
-						if (currentState == 2 && (int) currentChar == 13) {
+						if (currentState == 2 && isLineBreak(currentChar)) {
 							currentState = 2;
 							lexema += currentChar;
 							break;
 						} else {
-							if (currentState == 2 && (int) currentChar != 13) {
+							if (currentState == 2 && !isLineBreak(currentChar)) {
 								currentState = 2;
 								lexema += currentChar;
 								currentChar = readConsumeChar();
