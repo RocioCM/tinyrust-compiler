@@ -12,7 +12,7 @@ public class LexicAnalyzer {
 	private String currentLine = "";
 	private int lineNumber = 0;
 	private int columnNumber = 0;
-	private boolean reachedEOF = false;
+	private boolean reachedEOF = false; // Flag que indica si ya se consumió todo el archivo de entrada.
 
 	public LexicAnalyzer(String filePath) throws FileNotFoundException {
 		// Abrir el archivo de entrada.
@@ -227,7 +227,7 @@ public class LexicAnalyzer {
 	 * @return Devuelve true si el caracter pertenece al alfabeto de TinyRust+
 	 */
 	private boolean isValidChar(char currentChar) {
-		// ASCII: https://www.ascii-code.com/
+		// Referencia ASCII: https://www.ascii-code.com/
 		int asciiChar = (int) currentChar;
 		if (asciiChar >= 32 && asciiChar <= 126 || asciiChar == 209 || asciiChar == 241 || asciiChar == 161
 				|| asciiChar == 191 || asciiChar == 9 || asciiChar == 10 || asciiChar == 11 || asciiChar == 13
@@ -370,8 +370,23 @@ public class LexicAnalyzer {
 		return false;
 	}
 
+	/**
+	 * A partir de un caracter inicial, verifica si lo que sigue es un
+	 * literal numérico entero.
+	 * Se considera literal numérico entero a toda sucesión de digitos numéricos.
+	 * 
+	 * @param initialChar el caracter a partir del cual vamos a analizar si es un
+	 *                    literal entero.
+	 * @param token       el token que vamos a modificar si es un literal entero.
+	 * @return true si es un literal entero.
+	 * @throws InvalidCharacterError si algún caracter leído no pertenece al
+	 *                               alfabeto de entrada.
+	 * @throws BadIdentifierError    si el literal entero está unido a un
+	 *                               identificador.
+	 */
 	private boolean matchIntLiteral(char initialChar, Token token) throws InvalidCharacterError, BadIdentifierError {
 		char nextChar = readWithoutConsumeChar();
+		// Consume todos los dígitos contiguos que encuentra.
 		while (isDigit(nextChar)) {
 			readConsumeChar();
 			token.appendLexema(nextChar);
@@ -379,7 +394,7 @@ public class LexicAnalyzer {
 		}
 
 		if (isAlphabet(nextChar)) {
-			// Si luego del número hay una letra,
+			// Si luego del entero hay una letra,
 			// se interpreta todo el conjunto como un identificador mal formado.
 			while (isAlphabet(nextChar) || isDigit(nextChar) || nextChar == '_') {
 				// Se lee el resto del identificador para mostrarlo en el mensaje de error.
@@ -388,22 +403,43 @@ public class LexicAnalyzer {
 			}
 			throw new BadIdentifierError(token.getLine(), token.getCol(), token.getLexema());
 		} else {
+			// Se identifica el token como literal entero exitosamente.
 			token.setToken("lit_int");
 		}
 
 		return true;
 	}
 
+	/**
+	 * A partir de un caracter inicial, verifica si lo que sigue es un
+	 * literal cadena.
+	 * Se considera literal cadena a cualquier cantidad de caracteres encerrados
+	 * entre comillas dobles en una sola linea.
+	 * El literal cadena permite caracteres de escape dentro del literal.
+	 * No es multilinea, por lo que tirará un error si se encuentra un salto de
+	 * linea antes que las comillas de cierre.
+	 * 
+	 * @param initialChar el caracter a partir del cual vamos a analizar si es un
+	 *                    literal cadena.
+	 * @param token       el token que vamos a modificar si es un literal cadena.
+	 * @return true si es un literal cadena.
+	 * @throws InvalidCharacterError si algún caracter leído no pertenece al
+	 *                               alfabeto de entrada.
+	 * @throws InvalidLiteralError   si se encuentra un nil o un salto de linea en
+	 *                               antes de cerrar la cadena.
+	 */
 	private boolean matchStringLiteral(char initialChar, Token token) throws InvalidCharacterError, InvalidLiteralError {
 		char nextChar = readWithoutConsumeChar();
+
+		// Se consumen todos los caracteres hasta encontrar las comillas de cierre.
+		// Si se encuentra un salto de linea también se deja de leer.
 		while (!isLineBreak(nextChar) && nextChar != '"') {
 			token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
-			if (nextChar == '\\') {
-				// Se encontró un caracter de escape en la cadena.
+			if (nextChar == '\\') { // Se encontró un caracter de escape en la cadena.
 				char escapedChar = readWithoutConsumeChar();
 				if (escapedChar == '0') {
 					// Se encontró un caracter NIL en la cadena.
-					throw new InvalidLiteralError(lineNumber, columnNumber, "SE ENCONTRO UN CARACTER NIL EN UNA CADENA");
+					throw new InvalidLiteralError(lineNumber, columnNumber, "SE ENCONTRO UN CARACTER INVALIDO NIL EN UNA CADENA");
 				}
 				if (escapedChar == '"' || escapedChar == '\\') {
 					// Se encontró un escape del caracter " o \. Se sigue leyendo la cadena.
@@ -412,17 +448,42 @@ public class LexicAnalyzer {
 			}
 			nextChar = readWithoutConsumeChar();
 		}
-		if (nextChar == '"') {
-			readConsumeChar();
-			token.appendLexema(nextChar);
+
+		if (nextChar == '"') { // Se cierra el literal al hallar las comillas de cierre.
+			token.appendLexema(readConsumeChar()); // consumimos finalmente las comillas de cierre.
 			token.setToken("lit_string");
 		} else {
 			// Se encontró un salto de linea antes del cierre de la cadena.
-			throw new InvalidLiteralError(token.getLine(), token.getCol(), "CADENA SIN CERRAR");
+			throw new InvalidLiteralError(token.getLine(), token.getCol(),
+					"SE ESPERABA UN CIERRE DE CADENA, PERO SE ENCONTRO UN SALTO DE LINEA.");
 		}
 		return true;
 	}
 
+	/**
+	 * A partir de un caracter inicial, verifica si lo que sigue es un
+	 * literal caracter.
+	 * Se considera literal caracter a un único caracter encerrado
+	 * entre comillas simples.
+	 * El literal caracter permite también un único caracter de escape dentro del
+	 * literal.
+	 * No es multilinea, por lo que tirará un error si se encuentra un salto de
+	 * linea antes que la comilla de cierre.
+	 * 
+	 * Los caracteres se representarán internamente en TinyRust+ como un número
+	 * entero igual al código ASCII asociado al caracter.
+	 * Referencia ASCII: https://www.ascii-code.com/
+	 * 
+	 * 
+	 * @param initialChar el caracter a partir del cual vamos a analizar si es un
+	 *                    literal caracter.
+	 * @param token       el token que vamos a modificar si es un literal caracter.
+	 * @return true si es un literal caracter.
+	 * @throws InvalidCharacterError si algún caracter leído no pertenece al
+	 *                               alfabeto de entrada.
+	 * @throws InvalidLiteralError   si se encuentra un nil, un salto de linea, cero
+	 *                               caracteres o más de un caracter en el literal.
+	 */
 	private boolean matchCharLiteral(char initialChar, Token token) throws InvalidCharacterError, InvalidLiteralError {
 		char currentChar = readConsumeChar();
 
@@ -484,7 +545,6 @@ public class LexicAnalyzer {
 	 *                    que es un identificador.
 	 * @return true si es un identificador, false si no lo es.
 	 */
-
 	private boolean matchIdentifier(char initialChar, Token token) throws BadIdentifierError, InvalidCharacterError {
 		int initialState = 0;
 		int currentState = initialState;
@@ -537,8 +597,19 @@ public class LexicAnalyzer {
 		}
 	}
 
+	/**
+	 * A partir de un token de tipo identificador, valida si es un identificador de
+	 * tipo.
+	 * 
+	 * Se considera identificador de tipo a todo identificador que comienza con una
+	 * letra mayúscula.
+	 * 
+	 * @param token el token que vamos a verificar y modificar si es un
+	 *              identificador de tipo.
+	 * @return true si es un identificador de tipo, false si no lo es.
+	 */
 	private boolean matchTypeIdentifier(Token token) {
-		if (isUppercaseChar(token.getLexema().charAt(0))) {
+		if (token.getToken() == "id" && isUppercaseChar(token.getLexema().charAt(0))) {
 			token.setToken("id_type");
 			return true;
 		}
@@ -572,8 +643,8 @@ public class LexicAnalyzer {
 	 * 
 	 * @param initialChar el caracter a partir del cual vamos a analizar si es un
 	 *                    comentario de una línea.
-	 * @param token       el token que vamos a llenar con el lexema y el token si es
-	 *                    que es un comentario de una línea.
+	 * @param token       el token que vamos a llenar si es un comentario de una
+	 *                    línea.
 	 * @return true si es un comentario de una línea, false si no lo es.
 	 */
 	private boolean matchMultilineComment(char initialChar, Token token)
@@ -657,6 +728,31 @@ public class LexicAnalyzer {
 		}
 	}
 
+	/**
+	 * A partir de un caracter inicial, verifica si lo que sigue es un
+	 * comentario de una sola linea.
+	 * Este método representa a un autómata con 4 estados con una verificación
+	 * adicional:
+	 * Hacemos un checkeo de que el siguiente caracter sea un slash para
+	 * comenzar el comentario.
+	 * Estados:
+	 * 0: el inicial
+	 * 1: al que nos movemos si encontramos un /
+	 * 
+	 * 2: al que nos movemos si encontramos un / habiendo encontrado un / antes.
+	 * Sobre este estado vamos a ir consumiendo todo lo que venga sin rechazar hasta
+	 * encontrar un salto de linea. Este estado es aceptador.
+	 * 
+	 * 3: nos movemos a este estado si encontramos un salto de linea y estamos en el
+	 * estado 2.
+	 * 
+	 * 
+	 * @param initialChar el caracter a partir del cual vamos a analizar si es un
+	 *                    comentario de una línea.
+	 * @param token       el token que vamos a llenar con el lexema y el token si es
+	 *                    que es un comentario de una línea.
+	 * @return true si es un comentario de una línea, false si no lo es.
+	 */
 	private boolean matchComment(char initialChar, Token token) throws InvalidCharacterError {
 		int initialState = 0;
 		int currentState = initialState;
@@ -708,7 +804,7 @@ public class LexicAnalyzer {
 	 * Se detiene al encontrar un caracter no blanco o al alcanzar el final del
 	 * archivo.
 	 * 
-	 * @throws InvalidCharacterError - si algún caracter leído no pertenece al
+	 * @throws InvalidCharacterError si algún caracter leído no pertenece al
 	 *                               alfabeto de entrada.
 	 */
 	private void consumeSpaces() throws InvalidCharacterError {
@@ -795,5 +891,4 @@ public class LexicAnalyzer {
 		}
 		return currentChar;
 	}
-
 }
