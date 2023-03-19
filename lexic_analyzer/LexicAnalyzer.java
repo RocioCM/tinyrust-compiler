@@ -198,7 +198,7 @@ public class LexicAnalyzer {
 						break;
 					}
 
-					if (isAlphabet(currentChar) || currentChar == '_') { // Letra minúscula o mayúscula.
+					if (isAlphabet(currentChar) || currentChar == '_') { // Letra minúscula o mayúscula o _.
 						matchIdentifier(currentChar, token); // Se consume todo el identificador.
 						if (!matchTypeIdentifier(token)) { // Se verifica si es un identificador de tipo.
 							ReservedWords.matchReservedWord(token); // Se verifica si es una palabra reservada.
@@ -544,7 +544,7 @@ public class LexicAnalyzer {
 		char currentChar = initialChar;
 		String lexema = "";
 
-		while (currentState != 3 && !isBlankSpace(currentChar) && !reachedEOF) {
+		while (currentState != 2 && currentState != 3 && !isBlankSpace(currentChar) && !reachedEOF) {
 			if (currentState == 0 && (isAlphabet(currentChar) || currentChar == '_')) {
 				currentState = 1;
 				lexema += currentChar;
@@ -557,7 +557,6 @@ public class LexicAnalyzer {
 			} else {
 				if (currentState == 0 && isDigit(currentChar)) {
 					currentState = 3;
-					break;
 				} else {
 					if (currentState == 1 && (isAlphabet(currentChar) || isDigit(currentChar) || currentChar == '_')) {
 						currentState = 1;
@@ -569,11 +568,9 @@ public class LexicAnalyzer {
 					} else {
 						if (currentState == 1 && isOperator(currentChar)) {
 							currentState = 2;
-							break;
 						} else {
 							lexema += currentChar;
 							currentState = 3;
-							break;
 						}
 					}
 				}
@@ -653,55 +650,53 @@ public class LexicAnalyzer {
 		// Verificamos que el siguiente char sea un asterisco para comenzar el
 		// comentario multilinea
 		if (readWithoutConsumeChar() == '*') {
-			while (currentState != 5) {
+			while (currentState != 4 && currentState != 5) {
 				if (reachedEOF) {
 					currentState = 5;
-					break;
-				}
-				if (currentState == 0 && currentChar == '/') {
-					currentState = 1;
-					lexema += currentChar;
-					currentChar = readConsumeChar();
 				} else {
-					if (currentState == 1 && currentChar == '*') { // Comienzo del comentario multilinea
-						currentState = 2;
+					if (currentState == 0 && currentChar == '/') {
+						currentState = 1;
 						lexema += currentChar;
 						currentChar = readConsumeChar();
 					} else {
-						if (currentState == 2 && currentChar != '*') { // Cualquier caracter que no sea *
+						if (currentState == 1 && currentChar == '*') { // Comienzo del comentario multilinea
 							currentState = 2;
-							if (!isLineBreak(currentChar)) { // Verificamos que no sea un ENTER para poder mostrar bien el lexema
-								lexema += currentChar;
-							}
+							lexema += currentChar;
 							currentChar = readConsumeChar();
 						} else {
-							if (currentState == 2 && currentChar == '*') {
-								currentState = 3;
-								lexema += currentChar;
+							if (currentState == 2 && currentChar != '*') { // Cualquier caracter que no sea *
+								currentState = 2;
+								if (!isLineBreak(currentChar)) { // Verificamos que no sea un ENTER para poder mostrar bien el lexema
+									lexema += currentChar;
+								}
 								currentChar = readConsumeChar();
 							} else {
-								/*
-								 * si encontamos ya un * y no le sigue un / entonces no era el final del
-								 * comentario
-								 * por lo que volvemos al estado anterior
-								 */
-								if (currentState == 3 && currentChar != '/') {
-									currentState = 2;
+								if (currentState == 2 && currentChar == '*') {
+									currentState = 3;
 									lexema += currentChar;
 									currentChar = readConsumeChar();
 								} else {
 									/*
-									 * Si encontramos un * y le sigue un / entonces es el final del comentario
-									 * multilinea
-									 * por lo que frenamos el automata en estado aceptador
+									 * si encontamos ya un * y no le sigue un / entonces no era el final del
+									 * comentario
+									 * por lo que volvemos al estado anterior
 									 */
-									if (currentState == 3 && currentChar == '/') {
-										currentState = 4;
+									if (currentState == 3 && currentChar != '/') {
+										currentState = 2;
 										lexema += currentChar;
-										break;
+										currentChar = readConsumeChar();
 									} else {
-										currentState = 5;
-										break;
+										/*
+										 * Si encontramos un * y le sigue un / entonces es el final del comentario
+										 * multilinea
+										 * por lo que frenamos el automata en estado aceptador
+										 */
+										if (currentState == 3 && currentChar == '/') {
+											currentState = 4;
+											lexema += currentChar;
+										} else {
+											currentState = 5;
+										}
 									}
 								}
 							}
@@ -771,7 +766,6 @@ public class LexicAnalyzer {
 						if (currentState == 2 && isLineBreak(currentChar)) {
 							currentState = 2;
 							lexema += currentChar;
-							break;
 						} else {
 							if (currentState == 2 && !isLineBreak(currentChar)) {
 								currentState = 2;
@@ -779,7 +773,6 @@ public class LexicAnalyzer {
 								currentChar = readConsumeChar();
 							} else {
 								currentState = 3;
-								break;
 							}
 						}
 					}
