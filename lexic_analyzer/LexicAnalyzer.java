@@ -176,11 +176,14 @@ public class LexicAnalyzer {
 					break;
 
 				case '/': // Operador división o comentario.
-					if (!matchMultilineComment(currentChar, token)) { // Comentario multilinea.
-						if (!matchComment(currentChar, token)) { // Comentario de una linea.
-							// Operador división.
-							token.setToken("op_div");
-						}
+					if (!matchMultilineComment(currentChar, token) && // Comentario multilinea.
+							!matchComment(currentChar, token)) { // Comentario de una linea.
+						// Operador división.
+						token.setToken("op_div");
+					} else {
+						// Si es un comentario, se descarta y
+						// se busca recursivamente el próximo token para devolver.
+						token = nextToken();
 					}
 					break;
 
