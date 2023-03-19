@@ -6,6 +6,10 @@ import java.util.ArrayList;
 import error.LexicalError;
 import util.Logger;
 
+/**
+ * Ejecutor provisional que instancia el analizador léxico y solicita tokens
+ * hasta agotar el archivo fuente.
+ */
 public class Executor {
 	public void run(String inputPath, String outputPath) {
 		ArrayList<Token> tokensList = new ArrayList<Token>(); // Lista dinámica para guardar los tokens.

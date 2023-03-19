@@ -1,5 +1,10 @@
 package lexic_analyzer;
 
+/**
+ * La clase Token representa cualquier token del lenguaje TinyRust+.
+ * Registra el número de linea y columna de comienzo del token, identificador de
+ * tipo de token y su lexema.
+ */
 public class Token {
 	private String token;
 	private String lexema;
@@ -13,6 +18,11 @@ public class Token {
 		this.col = col;
 	}
 
+	/**
+	 * Agrega un caracter nuevo al final del lexema previo.
+	 * 
+	 * @param lastChar - caracter para agregar al lexema.
+	 */
 	public void appendLexema(char lastChar) {
 		this.lexema += lastChar;
 	}

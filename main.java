@@ -3,6 +3,11 @@ import java.io.IOException;
 
 import lexic_analyzer.Executor;
 
+/**
+ * Punto de entrada del compilador de TinyRust+.
+ * Analiza los argumentos para la ejecución recibidos en el comando e inicia el
+ * proceso de compilación.
+ */
 class TinyRustCompiler {
 	public static void main(String[] args) {
 		try {

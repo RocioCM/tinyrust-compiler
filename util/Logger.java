@@ -7,7 +7,19 @@ import java.util.ArrayList;
 import error.LexicalError;
 import lexic_analyzer.Token;
 
+/**
+ * Provee métodos estáticos para hacer output de información relacionada al
+ * compilado de TinyRust+.
+ * Dependiendo de si se especificó un archivo de salida,
+ * el output se guardará en dicho archivo o se hará mediante Standard Output.
+ */
 public class Logger {
+	/**
+	 * Muestra con formato un error generado por el analizador léxico
+	 * 
+	 * @param error      - error generado por el analizador léxico
+	 * @param outputPath (Opcional) - Ruta del archivo de salida
+	 */
 	public static void lexicError(LexicalError error, String outputPath) {
 		if (outputPath == null) { // No se especificó archivo de salida.
 			// Se escribe el output en la terminal.
@@ -29,6 +41,12 @@ public class Logger {
 		}
 	}
 
+	/**
+	 * Muestra con formato la lista de tokens generados por el analizador léxico.
+	 * 
+	 * @param tokensList - lista de tokens generados por el analizador léxico.
+	 * @param outputPath (Opcional) - Ruta del archivo de salida
+	 */
 	public static void lexicSuccess(ArrayList<Token> tokensList, String outputPath) {
 		if (outputPath == null) { // No se especificó archivo de salida.
 			// Se escribe el output en la terminal.

@@ -1,6 +1,16 @@
 package lexic_analyzer;
 
+/**
+ * Funcionalidad para reconocer tokens de tipo palabra reservada.
+ */
 public class ReservedWords {
+	/**
+	 * Recibe un token de tipo identificador y actualiza su tipo de forma acorde si
+	 * se trata de una palabra reservada de TinyRust+.
+	 * 
+	 * @param token - token de tipo identificador.
+	 * @return El mismo token modificado.
+	 */
 	public static Token matchReservedWord(Token token) {
 		if (token.getToken() != "id") {
 			// Si no es identificador, no es una palabra reservada.

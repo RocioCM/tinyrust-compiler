@@ -7,11 +7,16 @@ import java.util.Scanner;
 
 import error.*;
 
+/**
+ * Analizador Léxico de TinyRust+.
+ * Consume un archivo de entrada y a demanda retorna tokens generados a partir
+ * de dicho archivo.
+ */
 public class LexicAnalyzer {
-	private Scanner file;
-	private String currentLine = "";
-	private int lineNumber = 0;
-	private int columnNumber = 0;
+	private Scanner file; // Archivo de entrada.
+	private String currentLine = ""; // Contenido de la linea actual leída del archivo.
+	private int lineNumber = 0; // Linea leída actual del archivo de entrada.
+	private int columnNumber = 0; // Columna leída actual del archivo de entrada.
 	private boolean reachedEOF = false; // Flag que indica si ya se consumió todo el archivo de entrada.
 
 	public LexicAnalyzer(String filePath) throws FileNotFoundException {
