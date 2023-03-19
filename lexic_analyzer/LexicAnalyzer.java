@@ -95,7 +95,7 @@ public class LexicAnalyzer {
 				break;
 
 			case ']': // Corchete de cierre de arreglos.
-				token.setToken("open_bracket");
+				token.setToken("close_bracket");
 				break;
 
 			case ',': // Separador de parámetros en funciones o arreglos.
@@ -117,7 +117,6 @@ public class LexicAnalyzer {
 
 			case '&': // Operador lógico AND
 				if (readWithoutConsumeChar() == '&') {
-					readConsumeChar();
 					token.setToken("op_and");
 					token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
 				} else {
@@ -760,39 +759,44 @@ public class LexicAnalyzer {
 		char currentChar = initialChar;
 		String lexema = "";
 
-		while (currentState != 3 && (int) currentChar != 13) {
-			if (currentState == 0 && currentChar == '/') {
-				currentState = 1;
-				lexema += currentChar;
-				currentChar = readConsumeChar();
-			} else {
-				if (currentState == 1 && currentChar == '/') {
-					currentState = 2;
+		// Verificamos que el siguiente char sea un slash para comenzar el comentario.
+		if (readWithoutConsumeChar() == '/') {
+			while (currentState != 3 && (int) currentChar != 13) {
+				if (currentState == 0 && currentChar == '/') {
+					currentState = 1;
 					lexema += currentChar;
 					currentChar = readConsumeChar();
 				} else {
-					if (currentState == 2 && (int) currentChar == 13) {
+					if (currentState == 1 && currentChar == '/') {
 						currentState = 2;
 						lexema += currentChar;
-						break;
+						currentChar = readConsumeChar();
 					} else {
-						if (currentState == 2 && (int) currentChar != 13) {
+						if (currentState == 2 && (int) currentChar == 13) {
 							currentState = 2;
 							lexema += currentChar;
-							currentChar = readConsumeChar();
-						} else {
-							currentState = 3;
 							break;
+						} else {
+							if (currentState == 2 && (int) currentChar != 13) {
+								currentState = 2;
+								lexema += currentChar;
+								currentChar = readConsumeChar();
+							} else {
+								currentState = 3;
+								break;
+							}
 						}
 					}
 				}
 			}
-		}
 
-		if (Arrays.asList(successStates).contains(currentState)) {
-			token.setLexema(lexema);
-			token.setToken("comment");
-			return true;
+			if (Arrays.asList(successStates).contains(currentState)) {
+				token.setLexema(lexema);
+				token.setToken("comment");
+				return true;
+			} else {
+				return false;
+			}
 		} else {
 			return false;
 		}
