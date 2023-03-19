@@ -585,7 +585,7 @@ public class LexicAnalyzer {
 			token.setToken("id");
 			return true;
 		} else {
-			throw new BadIdentifierError(lineNumber, columnNumber, lexema);
+			throw new BadIdentifierError(token.getLine(), token.getCol(), lexema);
 		}
 	}
 
@@ -713,7 +713,8 @@ public class LexicAnalyzer {
 				token.setToken("multiline_comment");
 				matched = true;
 			} else {
-				throw new UnclosedMultiLineCommentError(lineNumber, columnNumber); // Throw error comentario multilinea
+				// Llego al final del archivo y no encontró el cierre del comentario multilinea.
+				throw new UnclosedMultiLineCommentError(token.getLine(), token.getCol());
 			}
 		}
 

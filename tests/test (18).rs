@@ -1,0 +1,9 @@
+"un char no puede ser nil"
+'\t' '\n' '\\''\''
+'\0'
+
+/*
+ERROR: LEXICO
+| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
+| LINEA 3 | COLUMNA 3 | LITERAL MAL FORMADO: SE ENCONTRO UN CARACTER NIL EN UN LITERAL |
+*/
