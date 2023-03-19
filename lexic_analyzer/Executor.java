@@ -20,12 +20,12 @@ public class Executor {
 			}
 
 			// Imprimir lista de tokens del archivo.
-			Logger.lexicSuccess(tokensList);
+			Logger.lexicSuccess(tokensList, outputPath);
 
 		} catch (FileNotFoundException error) {
 			System.out.println("\nERROR: no se encontró un archivo en la ruta " + inputPath);
 		} catch (LexicalError error) {
-			Logger.lexicError(error);
+			Logger.lexicError(error, outputPath);
 		}
 	}
 }
