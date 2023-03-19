@@ -106,34 +106,71 @@ public class LexicAnalyzer {
 				}
 				break;
 
-			case '-': // Operador resta o tipo de retorno de función.
-				// Op resta o ->
-				break;
-
-			case '/': // Operador división o comentario.
-				// Op div o // o /*
+			case '=': // Asignación o comparación igualdad.
+				if (readWithoutConsumeChar() == '=') { // Operador de comparación de igualdad.
+					token.setToken("op_eq");
+					token.setLexema("==");
+					readConsumeChar(); // consumimos finalmente el caracter.
+				} else { // Asignación.
+					token.setToken("assignment");
+				}
 				break;
 
 			case '!': // Negación o comparación desigualdad.
-				// ! o !=
-				break;
-
-			case '=': // Asignación o comparación igualdad.
-				// = o ==
+				if (readWithoutConsumeChar() == '=') { // Operador de comparación de desigualdad.
+					token.setToken("op_not_eq");
+					token.setLexema("!=");
+					readConsumeChar(); // consumimos finalmente el caracter.
+				} else { // Operador de negación.
+					token.setToken("op_not");
+				}
 				break;
 
 			case '<': // Operador menor / menor o igual.
-				// < o <=
+				if (readWithoutConsumeChar() == '=') { // Operador de comparación de menor o igual.
+					token.setToken("op_less_eq");
+					token.setLexema("<=");
+					readConsumeChar(); // consumimos finalmente el caracter.
+				} else { // Operador de comparación de menor.
+					token.setToken("op_less");
+				}
 				break;
 
-			case '>': // Operador mayor / mayor o igual.
-				// > o >=
+			case '>': // Operador menor / menor o igual.
+				if (readWithoutConsumeChar() == '=') { // Operador de comparación de mayor o igual.
+					token.setToken("op_great_eq");
+					token.setLexema(">=");
+					readConsumeChar(); // consumimos finalmente el caracter.
+				} else { // Operador de comparación de mayor.
+					token.setToken("op_great");
+				}
+				break;
+			case '-': // Operador resta o tipo de retorno de función.
+				if (readWithoutConsumeChar() == '>') { // Operador de acceso a atributos.
+					token.setToken("return_type");
+					token.setLexema("->");
+					readConsumeChar(); // consumimos finalmente el caracter.
+				} else { // Operador de resta.
+					token.setToken("op_sub");
+				}
+				break;
+
+			case '/': // Operador división o comentario.
+				if (!isMultilineComment(currentChar, token)) { // Comentario multilinea.
+					if (!isComment(currentChar, token)) { // Comentario single-line.
+						// Operador división.
+						token.setToken("op_div");
+					}
+				}
 				break;
 
 			default:
-				if (isIdentifier(currentChar, token)) {
-					ReservedWords.isReservedWord(token);
+				if (isLowercaseChar(currentChar) || isAlphabet(currentChar)) {
+					if (isIdentifier(currentChar, token)) {
+						ReservedWords.isReservedWord(token);
+					}
 				}
+
 				if (isIntLiteral(currentChar, token)) {
 				}
 				if (isStringLiteral(currentChar, token)) {
@@ -155,6 +192,14 @@ public class LexicAnalyzer {
 	}
 
 	private boolean isLowercaseChar(char currentChar) {
+		int asciiChar = (int) currentChar;
+		if (asciiChar >= 97 && asciiChar <= 122) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isUppercaseChar(char currentChar) {
 		int asciiChar = (int) currentChar;
 		if (asciiChar >= 97 && asciiChar <= 122) {
 			return true;
@@ -202,6 +247,7 @@ public class LexicAnalyzer {
 			case '\'':
 			case ';':
 			case '.': // Punto para los métodos.
+			case ':': // Dos puntos para los tipos de variables.
 				return true;
 			default:
 				return false;
@@ -316,14 +362,14 @@ public class LexicAnalyzer {
 	 * @return true si es un identificador, false si no lo es.
 	 */
 
-	private boolean isIdentifier(char initialChar, Token token) throws InvalidCharacterError {
+	private boolean isIdentifier(char initialChar, Token token) throws BadIdentifierError, InvalidCharacterError {
 		int initialState = 0;
 		int currentState = initialState;
 		Integer successStates[] = { 1, 2 };
 		char currentChar = initialChar;
 		String lexema = "";
 
-		while (currentState != 3 && currentChar != ' ') {
+		while (currentState != 3 && !isBlankSpace(currentChar) && !reachedEOF) {
 			if (currentState == 0 && (isLowercaseChar(currentChar) || currentChar == '_')) {
 				currentState = 1;
 				lexema += currentChar;
@@ -350,6 +396,7 @@ public class LexicAnalyzer {
 							currentState = 2;
 							break;
 						} else {
+							lexema += currentChar;
 							currentState = 3;
 							break;
 						}
@@ -362,8 +409,166 @@ public class LexicAnalyzer {
 			token.setLexema(lexema);
 			token.setToken("id");
 			return true;
+		} else {
+			throw new BadIdentifierError(lineNumber, columnNumber, lexema);
 		}
-		return false; // Throw error identificador mal formado
+	}
+
+	/**
+	 * A partir de un caracter inicial, verifica si lo que sigue es un
+	 * comentario de múltiples líneas.
+	 * Este método representa a un autómata con 5 estados con una verificación
+	 * adicional:
+	 * Hacemos un checkeo de que el siguiente caracter sea un asterisco para
+	 * comenzar el comentario multilinea.
+	 * Estados:
+	 * 0: el inicial
+	 * 1: al que nos movemos si encontramos un /
+	 * 
+	 * 2: al que nos movemos si encontramos un * habiendo encontrado un / antes.
+	 * Sobre este estado vamos a ir consumiendo todo lo que venga sin rechazar y
+	 * si encontramos un EOF, arrojamos error porque no se cerró el comentario.
+	 * 
+	 * 3: nos movemos a este estado si encontramos un * y estamos en el estado 2.
+	 * Si recibimos cualquier cosa que no sea un /, volvemos al 2. Y si encontramos
+	 * un EOF, arrojamos error porque no se cerró el comentario.
+	 * 
+	 * 4: el estado de aceptación, en el cual consumimos el último caracter y
+	 * retornamos que efectivamente se trata de un comentario multilinea.
+	 * 
+	 * Si en cualquier estado, encontramos un EOF, nos movemos al estado 5,
+	 * rechazador.
+	 * 
+	 * @param initialChar el caracter a partir del cual vamos a analizar si es un
+	 *                    comentario de una línea.
+	 * @param token       el token que vamos a llenar con el lexema y el token si es
+	 *                    que es un comentario de una línea.
+	 * @return true si es un comentario de una línea, false si no lo es.
+	 */
+	private boolean isMultilineComment(char initialChar, Token token)
+			throws UnclosedMultiLineCommentError, InvalidCharacterError {
+		int initialState = 0;
+		int currentState = initialState;
+		Integer successStates[] = { 4 };
+		char currentChar = initialChar;
+		String lexema = "";
+
+		// Verificamos que el siguiente char sea un asterisco para comenzar el
+		// comentario multilinea
+		if (readWithoutConsumeChar() == '*') {
+			while (currentState != 5) {
+				if (reachedEOF) {
+					currentState = 5;
+					break;
+				}
+				if (currentState == 0 && currentChar == '/') {
+					currentState = 1;
+					lexema += currentChar;
+					currentChar = readConsumeChar();
+				} else {
+					if (currentState == 1 && currentChar == '*') { // Comienzo del comentario multilinea
+						currentState = 2;
+						lexema += currentChar;
+						currentChar = readConsumeChar();
+					} else {
+						if (currentState == 2 && currentChar != '*') { // Cualquier caracter que no sea *
+							currentState = 2;
+							int asciiChar = (int) currentChar;
+							if (asciiChar != 13) { // Verificamos que no sea un ENTER para poder mostrar bien el lexema
+								lexema += currentChar;
+							}
+							currentChar = readConsumeChar();
+						} else {
+							if (currentState == 2 && currentChar == '*') {
+								currentState = 3;
+								lexema += currentChar;
+								currentChar = readConsumeChar();
+							} else {
+								/*
+								 * si encontamos ya un * y no le sigue un / entonces no era el final del
+								 * comentario
+								 * por lo que volvemos al estado anterior
+								 */
+								if (currentState == 3 && currentChar != '/') {
+									currentState = 2;
+									lexema += currentChar;
+									currentChar = readConsumeChar();
+								} else {
+									/*
+									 * Si encontramos un * y le sigue un / entonces es el final del comentario
+									 * multilinea
+									 * por lo que frenamos el automata en estado aceptador
+									 */
+									if (currentState == 3 && currentChar == '/') {
+										currentState = 4;
+										lexema += currentChar;
+										break;
+									} else {
+										currentState = 5;
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			if (Arrays.asList(successStates).contains(currentState)) {
+				token.setLexema(lexema);
+				token.setToken("multiline_comment");
+				return true;
+			} else {
+				throw new UnclosedMultiLineCommentError(lineNumber, columnNumber); // Throw error comentario multilinea
+			}
+		} else {
+			return false;
+		}
+	}
+
+	private boolean isComment(char initialChar, Token token) throws InvalidCharacterError {
+		int initialState = 0;
+		int currentState = initialState;
+		Integer successStates[] = { 2 };
+		char currentChar = initialChar;
+		String lexema = "";
+
+		while (currentState != 3 && (int) currentChar != 13) {
+			if (currentState == 0 && currentChar == '/') {
+				currentState = 1;
+				lexema += currentChar;
+				currentChar = readConsumeChar();
+			} else {
+				if (currentState == 1 && currentChar == '/') {
+					currentState = 2;
+					lexema += currentChar;
+					currentChar = readConsumeChar();
+				} else {
+					if (currentState == 2 && (int) currentChar == 13) {
+						currentState = 2;
+						lexema += currentChar;
+						break;
+					} else {
+						if (currentState == 2 && (int) currentChar != 13) {
+							currentState = 2;
+							lexema += currentChar;
+							currentChar = readConsumeChar();
+						} else {
+							currentState = 3;
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		if (Arrays.asList(successStates).contains(currentState)) {
+			token.setLexema(lexema);
+			token.setToken("comment");
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	private void consumeSpaces() throws InvalidCharacterError {
