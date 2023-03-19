@@ -1,25 +1,36 @@
 import java.io.File;
+import java.io.IOException;
 
 import lexic_analyzer.Executor;
 
 class TinyRustCompiler {
 	public static void main(String[] args) {
-		String inputPath = args[0];
-		String outputPath = args[1];
+		try {
+			// Se leen las rutas de los archivos de los argumentos de entrada.
+			String inputPath = args[0];
+			String outputPath = null;
 
-		try{
-			File outputFile = new File(outputPath);
-			//Si el archivo ya existe, lo sobreescribimos
-			if(outputFile.createNewFile()){
-				System.out.println("Archivo de salida creado");
-			}else{
-				System.out.println("Sobreescribiendo archivo de salida");
+			// Si se especificó una segunda ruta, se inicializa el archivo de salida.
+			if (args.length > 1) {
+				outputPath = args[1];
+
+				File outputFile = new File(outputPath);
+				// Si el archivo ya existe, lo sobreescribimos
+				if (outputFile.createNewFile()) {
+					System.out.println("ARCHIVO DE SALIDA CREADO EN " + outputPath);
+				} else {
+					System.out.println("ARCHIVO DE SALIDA SOBREESCRITO EN " + outputPath);
+				}
 			}
-			
+
+			// Se inicializa la ejecución del compilador.
 			new Executor().run(inputPath, outputPath);
-		}catch(Exception e){
-			System.out.println("Error: No se ha ingresado un archivo de entrada");
-			System.exit(0);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			System.out.println("ERROR: DEBE ESPECIFICARSE UN ARCHIVO DE ENTRADA EN EL COMANDO.");
+			System.exit(1);
+		} catch (IOException e) {
+			System.out.println("ERROR IO: NO SE PUDO CREAR EL ARCHIVO DE SALIDA.");
+			System.exit(1);
 		}
 	}
 }

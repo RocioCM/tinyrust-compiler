@@ -23,9 +23,11 @@ public class Executor {
 			Logger.lexicSuccess(tokensList, outputPath);
 
 		} catch (FileNotFoundException error) {
-			System.out.println("\nERROR: no se encontró un archivo en la ruta " + inputPath);
+			System.out.println("\nERROR IO: NO SE ENCONTRO UN ARCHIVO DE ENTRADA EN LA RUTA " + inputPath);
+			System.exit(1);
 		} catch (LexicalError error) {
 			Logger.lexicError(error, outputPath);
+			System.exit(1);
 		}
 	}
 }
