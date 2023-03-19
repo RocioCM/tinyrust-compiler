@@ -27,20 +27,32 @@ public class LexicAnalyzer {
 		}
 	}
 
-	public boolean hasNextToken() {
-		return !reachedEOF;
-	}
-
+	/**
+	 * Consume parte del archivo de entrada para reconocer y
+	 * retornar el siguiente token.
+	 * 
+	 * Si ya se consumió todo el archivo de entrada, devuelve un Token especial
+	 * representando el fin del archivo (token EOF).
+	 * 
+	 * @return Siguiente token del archivo de entrada o EOF si el archivo ya fue
+	 *         consumido.
+	 * @throws LexicalError si ocurrió algún error al intentar decodificar el
+	 *                      siguiente token del archivo de entrada.
+	 */
 	public Token nextToken() throws LexicalError {
 		consumeSpaces(); // Consumir sin guardar los espacios, tabs y enter antes de un caracter valioso.
 		char currentChar = readConsumeChar();
-		Token token = new Token("", "" + currentChar, lineNumber, columnNumber);
+		Token token = new Token("", String.valueOf(currentChar), lineNumber, columnNumber); // Inicializar el token.
 
-		// ASCIIs: https://www.ascii-code.com/
-		// Acá hacemos un switch gigante.
-		// Léase Autómata Finito Determinista.
+		// Si ya se consumió todo el archivo,
+		// se retorna un Token vacío representando el fin del archivo.
+		if (reachedEOF) {
+			token.setToken("EOF");
+			token.setLexema("");
+			return token;
+		}
 
-		// Leer el primer caracter del token y continuar según qué caracter es.
+		// Leer el primer caracter del token y continuar el match según qué caracter es.
 		switch (currentChar) {
 			case '+': // Operador suma.
 				token.setToken("op_add");
@@ -95,13 +107,20 @@ public class LexicAnalyzer {
 				break;
 
 			case '|': // Operador lógico OR
-				if (!isOrToken(currentChar, token)) {
+				if (readWithoutConsumeChar() == '|') {
+					token.setToken("op_or");
+					token.appendLexema(readConsumeChar());
+				} else {
 					throw new UnmatchedTokenError(token.getLine(), token.getCol(), token.getLexema());
 				}
 				break;
 
 			case '&': // Operador lógico AND
-				if (!isAndToken(currentChar, token)) {
+				if (readWithoutConsumeChar() == '&') {
+					readConsumeChar();
+					token.setToken("op_and");
+					token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
+				} else {
 					throw new UnmatchedTokenError(token.getLine(), token.getCol(), token.getLexema());
 				}
 				break;
@@ -109,8 +128,7 @@ public class LexicAnalyzer {
 			case '=': // Asignación o comparación igualdad.
 				if (readWithoutConsumeChar() == '=') { // Operador de comparación de igualdad.
 					token.setToken("op_eq");
-					token.setLexema("==");
-					readConsumeChar(); // consumimos finalmente el caracter.
+					token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
 				} else { // Asignación.
 					token.setToken("assignment");
 				}
@@ -119,8 +137,7 @@ public class LexicAnalyzer {
 			case '!': // Negación o comparación desigualdad.
 				if (readWithoutConsumeChar() == '=') { // Operador de comparación de desigualdad.
 					token.setToken("op_not_eq");
-					token.setLexema("!=");
-					readConsumeChar(); // consumimos finalmente el caracter.
+					token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
 				} else { // Operador de negación.
 					token.setToken("op_not");
 				}
@@ -129,8 +146,7 @@ public class LexicAnalyzer {
 			case '<': // Operador menor / menor o igual.
 				if (readWithoutConsumeChar() == '=') { // Operador de comparación de menor o igual.
 					token.setToken("op_less_eq");
-					token.setLexema("<=");
-					readConsumeChar(); // consumimos finalmente el caracter.
+					token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
 				} else { // Operador de comparación de menor.
 					token.setToken("op_less");
 				}
@@ -139,58 +155,94 @@ public class LexicAnalyzer {
 			case '>': // Operador menor / menor o igual.
 				if (readWithoutConsumeChar() == '=') { // Operador de comparación de mayor o igual.
 					token.setToken("op_great_eq");
-					token.setLexema(">=");
-					readConsumeChar(); // consumimos finalmente el caracter.
+					token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
 				} else { // Operador de comparación de mayor.
 					token.setToken("op_great");
 				}
 				break;
+
 			case '-': // Operador resta o tipo de retorno de función.
 				if (readWithoutConsumeChar() == '>') { // Operador de acceso a atributos.
 					token.setToken("return_type");
-					token.setLexema("->");
-					readConsumeChar(); // consumimos finalmente el caracter.
+					token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
 				} else { // Operador de resta.
 					token.setToken("op_sub");
 				}
 				break;
 
 			case '/': // Operador división o comentario.
-				if (!isMultilineComment(currentChar, token)) { // Comentario multilinea.
-					if (!isComment(currentChar, token)) { // Comentario single-line.
+				if (!matchMultilineComment(currentChar, token)) { // Comentario multilinea.
+					if (!matchComment(currentChar, token)) { // Comentario de una linea.
 						// Operador división.
 						token.setToken("op_div");
 					}
 				}
 				break;
 
+			case '"': // Literal cadena.
+				matchStringLiteral(currentChar, token);
+				break;
+
+			case '\'': // Literal caracter.
+				matchCharLiteral(currentChar, token);
+				break;
+
 			default:
-				if (isLowercaseChar(currentChar) || isAlphabet(currentChar)) {
-					if (isIdentifier(currentChar, token)) {
-						ReservedWords.isReservedWord(token);
-					}
+				if (isDigit(currentChar)) { // Dígito numérico.
+					matchIntLiteral(currentChar, token);
+					break;
 				}
 
-				if (isIntLiteral(currentChar, token)) {
+				if (isAlphabet(currentChar) || currentChar == '_') { // Letra minúscula o mayúscula.
+					matchIdentifier(currentChar, token); // Se consume todo el identificador.
+					if (!matchTypeIdentifier(token)) { // Se verifica si es un identificador de tipo.
+						ReservedWords.matchReservedWord(token); // Se verifica si es una palabra reservada.
+					}
+					break;
 				}
-				if (isStringLiteral(currentChar, token)) {
-				}
+
+				// Si el primer caracter no coincidió con ningún token posible, lanza un error.
+				throw new UnmatchedTokenError(token.getLine(), token.getCol(), token.getLexema());
 		}
 
 		return token;
 
 	}
 
+	/**
+	 * Verifica si ya se ha consumido por completo el archivo de entrada, por tanto,
+	 * no hay más tokens para interpretar.
+	 * 
+	 * @return Devuelve true si ya se llegó al final del archivo de entrada.
+	 */
+	public boolean hasNextToken() {
+		return !reachedEOF;
+	}
+
+	/**
+	 * Recibe un caracter y determina si pertenece al alfabeto de entrada de
+	 * TinyRust+.
+	 * 
+	 * @param currentChar caracter a validar.
+	 * @return Devuelve true si el caracter pertenece al alfabeto de TinyRust+
+	 */
 	private boolean isValidChar(char currentChar) {
+		// ASCII: https://www.ascii-code.com/
 		int asciiChar = (int) currentChar;
 		if (asciiChar >= 32 && asciiChar <= 126 || asciiChar == 209 || asciiChar == 241 || asciiChar == 161
-				|| asciiChar == 191 || asciiChar == 9 || asciiChar == 10 || asciiChar == 11 || asciiChar == 13 || asciiChar == 3
-				|| asciiChar == -1) {
+				|| asciiChar == 191 || asciiChar == 9 || asciiChar == 10 || asciiChar == 11 || asciiChar == 13
+				|| asciiChar == 3) {
 			return true;
 		}
 		return false;
 	}
 
+	/**
+	 * Recibe un caracter y determina si es una letra minúscula del abecedario.
+	 * 
+	 * @param currentChar caracter a validar.
+	 * @return Devuelve true si el caracter es una letra minúscula.
+	 */
 	private boolean isLowercaseChar(char currentChar) {
 		int asciiChar = (int) currentChar;
 		if (asciiChar >= 97 && asciiChar <= 122) {
@@ -199,22 +251,40 @@ public class LexicAnalyzer {
 		return false;
 	}
 
+	/**
+	 * Recibe un caracter y determina si es una letra mayúscula del abecedario.
+	 * 
+	 * @param currentChar caracter a validar.
+	 * @return Devuelve true si el caracter es una letra mayúscula.
+	 */
 	private boolean isUppercaseChar(char currentChar) {
 		int asciiChar = (int) currentChar;
-		if (asciiChar >= 97 && asciiChar <= 122) {
+		if (asciiChar >= 65 && asciiChar <= 90) {
 			return true;
 		}
 		return false;
 	}
 
+	/**
+	 * Recibe un caracter y determina si es una letra del abecedario,
+	 * aceptando tanto minúsculas como mayúsculas.
+	 * 
+	 * @param currentChar caracter a validar.
+	 * @return Devuelve true si el caracter forma parte del abecedario.
+	 */
 	private boolean isAlphabet(char currentChar) {
-		int asciiChar = (int) currentChar;
-		if (asciiChar >= 65 && asciiChar <= 90 || asciiChar >= 97 && asciiChar <= 122) {
+		if (isLowercaseChar(currentChar) || isUppercaseChar(currentChar)) {
 			return true;
 		}
 		return false;
 	}
 
+	/**
+	 * Recibe un caracter y determina si es un dígito numérico.
+	 * 
+	 * @param currentChar caracter a validar.
+	 * @return Devuelve true si el caracter es un número.
+	 */
 	private boolean isDigit(char currentChar) {
 		int asciiChar = (int) currentChar;
 		if (asciiChar >= 48 && asciiChar <= 57) {
@@ -223,6 +293,12 @@ public class LexicAnalyzer {
 		return false;
 	}
 
+	/**
+	 * Recibe un caracter y determina si es un operador o algún tipo de delimitador.
+	 * 
+	 * @param currentChar caracter a validar.
+	 * @return Devuelve true si el caracter es un operador o delimitador.
+	 */
 	private boolean isOperator(char currentChar) {
 		switch (currentChar) {
 			case '+':
@@ -234,18 +310,18 @@ public class LexicAnalyzer {
 			case '!':
 			case '<':
 			case '>':
-			case '&':
-			case '|':
+			case '&': // Comienzo de operador AND.
+			case '|': // Comienzo de operador OR.
 			case '(': // Paréntesis para los parámetros.
 			case ')': // Paréntesis para los parámetros.
 			case '[': // Corchetes para los arreglos.
 			case ']': // Corchetes para los arreglos.
 			case '{': // Llaves para bloques.
 			case '}': // Llaves para bloques.
-			case ',':
-			case '"':
-			case '\'':
-			case ';':
+			case ',': // Separador de parámetros.
+			case '"': // Comillas para los literales cadena.
+			case '\'': // Comillas para los literales caracter.
+			case ';': // Delimitador de final de linea.
 			case '.': // Punto para los métodos.
 			case ':': // Dos puntos para los tipos de variables.
 				return true;
@@ -254,6 +330,14 @@ public class LexicAnalyzer {
 		}
 	}
 
+	/**
+	 * Recibe un caracter y determina si es un espacio en blanco.
+	 * Se considera espacio en blanco a tabulaciones, saltos de linea, espacios
+	 * y el caracter de fin de archivo.
+	 * 
+	 * @param currentChar caracter a validar.
+	 * @return Devuelve true si el caracter es un espacio en blanco.
+	 */
 	private boolean isBlankSpace(char currentChar) {
 		int asciiChar = (int) currentChar;
 		if (asciiChar == 32 // space
@@ -268,6 +352,12 @@ public class LexicAnalyzer {
 		return false;
 	}
 
+	/**
+	 * Recibe un caracter y determina si es un salto de linea.
+	 * 
+	 * @param currentChar caracter a validar.
+	 * @return Devuelve true si el caracter es un salto de linea.
+	 */
 	private boolean isLineBreak(char currentChar) {
 		int asciiChar = (int) currentChar;
 		if (asciiChar == 10 // new line
@@ -280,30 +370,46 @@ public class LexicAnalyzer {
 		return false;
 	}
 
-	private boolean isIntLiteral(char initialChar, Token token) throws InvalidCharacterError {
-		if (!isDigit(initialChar)) {
-			return false;
-		}
-
+	private boolean matchIntLiteral(char initialChar, Token token) throws InvalidCharacterError, BadIdentifierError {
 		char nextChar = readWithoutConsumeChar();
 		while (isDigit(nextChar)) {
 			readConsumeChar();
 			token.appendLexema(nextChar);
 			nextChar = readWithoutConsumeChar();
 		}
-		token.setToken("lit_int");
+
+		if (isAlphabet(nextChar)) {
+			// Si luego del número hay una letra,
+			// se interpreta todo el conjunto como un identificador mal formado.
+			while (isAlphabet(nextChar) || isDigit(nextChar) || nextChar == '_') {
+				// Se lee el resto del identificador para mostrarlo en el mensaje de error.
+				token.appendLexema(readConsumeChar());
+				nextChar = readWithoutConsumeChar();
+			}
+			throw new BadIdentifierError(token.getLine(), token.getCol(), token.getLexema());
+		} else {
+			token.setToken("lit_int");
+		}
+
 		return true;
 	}
 
-	private boolean isStringLiteral(char initialChar, Token token) throws InvalidCharacterError, InvalidLiteralError {
-		if (initialChar != '"') {
-			return false;
-		}
-
+	private boolean matchStringLiteral(char initialChar, Token token) throws InvalidCharacterError, InvalidLiteralError {
 		char nextChar = readWithoutConsumeChar();
 		while (!isLineBreak(nextChar) && nextChar != '"') {
-			readConsumeChar();
-			token.appendLexema(nextChar);
+			token.appendLexema(readConsumeChar()); // consumimos finalmente el caracter.
+			if (nextChar == '\\') {
+				// Se encontró un caracter de escape en la cadena.
+				char escapedChar = readWithoutConsumeChar();
+				if (escapedChar == '0') {
+					// Se encontró un caracter NIL en la cadena.
+					throw new InvalidLiteralError(lineNumber, columnNumber, "SE ENCONTRO UN CARACTER NIL EN UNA CADENA");
+				}
+				if (escapedChar == '"' || escapedChar == '\\') {
+					// Se encontró un escape del caracter " o \. Se sigue leyendo la cadena.
+					token.appendLexema(readConsumeChar()); // consumimos el caracter posterior al escape.
+				}
+			}
 			nextChar = readWithoutConsumeChar();
 		}
 		if (nextChar == '"') {
@@ -311,36 +417,53 @@ public class LexicAnalyzer {
 			token.appendLexema(nextChar);
 			token.setToken("lit_string");
 		} else {
-			throw new InvalidLiteralError(token.getLine(), token.getCol(), "LITERAL CADENA SIN CERRAR.");
+			// Se encontró un salto de linea antes del cierre de la cadena.
+			throw new InvalidLiteralError(token.getLine(), token.getCol(), "CADENA SIN CERRAR");
 		}
-
 		return true;
 	}
 
-	private boolean isCharLiteral(char initialChar, Token token) {
+	private boolean matchCharLiteral(char initialChar, Token token) throws InvalidCharacterError, InvalidLiteralError {
+		char currentChar = readConsumeChar();
+
+		if (isLineBreak(currentChar) || currentChar == '\'') {
+			// El literal tiene cero caracteres o no está cerrado.
+			throw new InvalidLiteralError(token.getLine(), token.getCol(),
+					"EL LITERAL DEBE CONTENER EXACTAMENTE UN CARACTER");
+		}
+
+		// Se analiza el caracter dentro del literal.
+		if (currentChar == '\\') { // Se encontró un caracter de escape.
+			char escapedChar = readConsumeChar(); // consumimos el caracter posterior al escape.
+			if (escapedChar == '0') { // Se encontró un caracter NIL en la cadena.
+				throw new InvalidLiteralError(lineNumber, columnNumber, "SE ENCONTRO UN CARACTER NIL EN UN LITERAL");
+			}
+			// Se verifica cuál es el caracter escapado para guardar el número de caracter
+			// correspondiente en el token.
+			switch (escapedChar) {
+				case 't':
+					token.setLexema(String.valueOf(9)); // Caracter TAB.
+					break;
+				case 'n':
+					token.setLexema(String.valueOf(10)); // Caracter SALTO DE LINEA.
+					break;
+				default:
+					token.setLexema(String.valueOf((int) escapedChar));
+			}
+		} else {
+			// Si el caracter no fue de escape, se guarda su número de caracter en el token.
+			token.setLexema(String.valueOf((int) currentChar));
+		}
+
+		// Se verifica encontrar a continuación el caracter de cierre del literal.
+		if (readConsumeChar() == '\'') {
+			token.setToken("lit_char");
+		} else {
+			// Si el literal no está cerrado o tiene más de un caracter, se lanza un error.
+			throw new InvalidLiteralError(token.getLine(), token.getCol(),
+					"EL LITERAL DEBE CONTENER EXACTAMENTE UN CARACTER");
+		}
 		return true;
-	}
-
-	private boolean isOrToken(char initialChar, Token token) throws InvalidCharacterError {
-		char nextChar = readWithoutConsumeChar();
-		if (nextChar == '|') {
-			readConsumeChar();
-			token.setToken("op_or");
-			token.appendLexema(nextChar);
-			return true;
-		}
-		return false;
-	}
-
-	private boolean isAndToken(char initialChar, Token token) throws InvalidCharacterError {
-		char nextChar = readWithoutConsumeChar();
-		if (nextChar == '&') {
-			readConsumeChar();
-			token.setToken("op_and");
-			token.appendLexema(nextChar);
-			return true;
-		}
-		return false;
 	}
 
 	/**
@@ -348,7 +471,7 @@ public class LexicAnalyzer {
 	 * identificador.
 	 * Este método es básicamente un autómata con 4 estados
 	 * 0: siendo el inicial
-	 * 1: al que nos movemos si encontramos _ a letra minúscula - Aceptador
+	 * 1: al que nos movemos si encontramos _ o letra - Aceptador
 	 * 2: al que nos movemos si encontramos letra, dígito o _ - Aceptador
 	 * 3: el rechazador mediante el cual arrojaremos el error de que no es un
 	 * identificador.
@@ -362,7 +485,7 @@ public class LexicAnalyzer {
 	 * @return true si es un identificador, false si no lo es.
 	 */
 
-	private boolean isIdentifier(char initialChar, Token token) throws BadIdentifierError, InvalidCharacterError {
+	private boolean matchIdentifier(char initialChar, Token token) throws BadIdentifierError, InvalidCharacterError {
 		int initialState = 0;
 		int currentState = initialState;
 		Integer successStates[] = { 1, 2 };
@@ -370,7 +493,7 @@ public class LexicAnalyzer {
 		String lexema = "";
 
 		while (currentState != 3 && !isBlankSpace(currentChar) && !reachedEOF) {
-			if (currentState == 0 && (isLowercaseChar(currentChar) || currentChar == '_')) {
+			if (currentState == 0 && (isAlphabet(currentChar) || currentChar == '_')) {
 				currentState = 1;
 				lexema += currentChar;
 
@@ -414,6 +537,14 @@ public class LexicAnalyzer {
 		}
 	}
 
+	private boolean matchTypeIdentifier(Token token) {
+		if (isUppercaseChar(token.getLexema().charAt(0))) {
+			token.setToken("id_type");
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * A partir de un caracter inicial, verifica si lo que sigue es un
 	 * comentario de múltiples líneas.
@@ -445,7 +576,7 @@ public class LexicAnalyzer {
 	 *                    que es un comentario de una línea.
 	 * @return true si es un comentario de una línea, false si no lo es.
 	 */
-	private boolean isMultilineComment(char initialChar, Token token)
+	private boolean matchMultilineComment(char initialChar, Token token)
 			throws UnclosedMultiLineCommentError, InvalidCharacterError {
 		int initialState = 0;
 		int currentState = initialState;
@@ -526,7 +657,7 @@ public class LexicAnalyzer {
 		}
 	}
 
-	private boolean isComment(char initialChar, Token token) throws InvalidCharacterError {
+	private boolean matchComment(char initialChar, Token token) throws InvalidCharacterError {
 		int initialState = 0;
 		int currentState = initialState;
 		Integer successStates[] = { 2 };
@@ -571,59 +702,97 @@ public class LexicAnalyzer {
 		}
 	}
 
+	/**
+	 * Consume y descarta espacios en blanco del archivo de entrada.
+	 * Se considera espacios en blanco a tabulaciones, saltos de linea y espacios.
+	 * Se detiene al encontrar un caracter no blanco o al alcanzar el final del
+	 * archivo.
+	 * 
+	 * @throws InvalidCharacterError - si algún caracter leído no pertenece al
+	 *                               alfabeto de entrada.
+	 */
 	private void consumeSpaces() throws InvalidCharacterError {
 		char currentChar = readWithoutConsumeChar();
+		// Validamos que el caracter sea espacio en blanco y lo consumimos.
+		// Se detiene al llegar al final del archivo o leer un caracter significativo.
 		while (isBlankSpace(currentChar) && !reachedEOF) {
-			readConsumeChar();
+			readConsumeChar(); // consumimos finalmente el caracter.
 			currentChar = readWithoutConsumeChar();
 		}
 	}
 
+	/**
+	 * Lee el próximo caracter del archivo consumiendolo.
+	 * Si el archivo se terminó de leer por completo,
+	 * devuelve el caracter 3 (ETX - End of Text).
+	 * 
+	 * Al leer un caracter actualiza el registro de número de linea y columna
+	 * actuales.
+	 * 
+	 * @return Devuelve el próximo caracter del archivo.
+	 * @throws InvalidCharacterError si el caracter leído no pertenece al alfabeto
+	 *                               de entrada de TinyRust+
+	 */
 	private char readConsumeChar() throws InvalidCharacterError {
 		char currentChar;
 		if (reachedEOF) {
 			currentChar = (char) 3; // End of File - ETX
 		} else {
 			if (currentLine.length() > 0) {
+				// Lee el próximo caracter de la linea actual.
 				currentChar = currentLine.charAt(0);
 				currentLine = currentLine.substring(1);
 				columnNumber++;
 			} else {
 				if (file.hasNextLine()) {
+					// Si ya se consumió la linea actual, devuelve un salto de linea.
 					currentChar = (char) 13; // Carriage Return - ENTER
-					currentLine = file.nextLine();
+					currentLine = file.nextLine(); // Inicializa la siguiente linea.
 					lineNumber++;
 					columnNumber = 0;
 				} else {
-					reachedEOF = true;
+					// Se llegó al final del archivo.
 					currentChar = (char) 3; // End of File - ETX
+					reachedEOF = true;
 					file.close();
 				}
 			}
 		}
 
+		// Validar que el caracter pertenece al alfabeto de entrada.
 		if (!isValidChar(currentChar)) {
 			throw new InvalidCharacterError(lineNumber, columnNumber, currentChar);
 		}
 		return currentChar;
 	}
 
+	/**
+	 * Lee el próximo caracter del archivo sin consumirlo.
+	 * Si el archivo se terminó de leer por completo,
+	 * devuelve el caracter 3 (ETX - End of Text).
+	 * 
+	 * @return Devuelve el próximo caracter del archivo.
+	 */
 	private char readWithoutConsumeChar() {
 		char currentChar;
 		if (reachedEOF) {
 			currentChar = (char) 3; // End of File - ETX
 		} else {
 			if (currentLine.length() > 0) {
+				// Lee el próximo caracter de la linea actual.
 				currentChar = currentLine.charAt(0);
 			} else {
 				if (file.hasNextLine()) {
+					// Si ya se consumió la linea actual, devuelve un salto de linea.
 					currentChar = (char) 13; // Carriage Return - ENTER
 				} else {
+					// Se llegó al final del archivo.
 					currentChar = (char) 3; // End of File - ETX
+					reachedEOF = true;
+					file.close(); // Cierra el archivo.
 				}
 			}
 		}
-		// TODO - Evaluar si es necesario verificar isValidChar acá. Contra: line number
 		return currentChar;
 	}
 

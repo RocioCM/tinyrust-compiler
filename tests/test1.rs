@@ -9,10 +9,16 @@ buenas noches
 */
 
 one/zero:cuchau
-
+Hola
 unaFuncion -> type 
 
 cosa != pinpon
 
 an // Is this a single line comment?.
 a, coso;
+
+ass
+
+' '
+
+_hola

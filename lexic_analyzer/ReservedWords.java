@@ -1,7 +1,7 @@
 package lexic_analyzer;
 
 public class ReservedWords {
-	public static Token isReservedWord(Token token) {
+	public static Token matchReservedWord(Token token) {
 		if (token.getToken() != "id") {
 			// Si no es identificador, no es una palabra reservada.
 			// Verificamos por las dudas.
