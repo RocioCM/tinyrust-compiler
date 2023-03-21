@@ -547,7 +547,7 @@ public class LexicAnalyzer {
 		char currentChar = initialChar;
 		String lexema = "";
 
-		while (currentState != 2 && !isBlankSpace(currentChar) && !reachedEOF) {
+		while (currentState != 2 && currentState != 3 && !isBlankSpace(currentChar) && !reachedEOF) {
 			if (currentState == 0 && (isAlphabet(currentChar) || currentChar == '_')) {
 				currentState = 1;
 				lexema += currentChar;

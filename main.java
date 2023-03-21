@@ -12,7 +12,7 @@ class TinyRustCompiler {
 	public static void main(String[] args) {
 		try {
 			// Se leen las rutas de los archivos de los argumentos de entrada.
-			String inputPath = "./tests/test (27).rs";
+			String inputPath = args[0];
 			String outputPath = null;
 
 			// Si se especificó una segunda ruta, se inicializa el archivo de salida.
