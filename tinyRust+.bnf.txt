@@ -8,37 +8,35 @@ Clases ::= Clase Clases
     | "class" "idClase" "{" Miembros "}" 
     | "class" "idClase" Herencia "{" Miembros "}"
 
-Main ::= "{" "static fn main ()" Bloque "}" | "{" "static fn main ()" Bloque Miembros"}"
-Miembros ::= Miembro Miembros
-Miembros ::=  Tipo ":" Lista-Declaración-Variables ";" 
-    | Visibilidad Tipo ":" Lista-Declaración-Variables ";" 
-    | "create" Argumentos-Formales Bloque 
-    | "fn" "idMétodoVariable" "->" Tipo-Método Argumentos-Formales Bloque-Método 
-    | Forma-Método "fn" "idMétodoVariable" "->" Tipo-Método Argumentos-Formales Bloque-Método 
+Main ::= "{" "static fn main ()" Bloque "}" 
+    | "{" "static fn main ()" Bloque Miembros"}"
 
 Clase ::= "class" "idClase" "{" "}" 
     | "class" "idClase" Herencia "{" "}" 
     | "class" "idClase" "{" Miembros "}" 
     | "class" "idClase" Herencia "{" Miembros "}"
 Herencia ::= ":" "idClase" 
+Miembros ::= Miembro Miembros
+    | Tipo ":" Lista-Declaración-Variables ";" 
+    | Visibilidad Tipo ":" Lista-Declaración-Variables ";" 
+    | "create" Argumentos-Formales Bloque 
+    | "fn" "idMétodoVariable" "->" Tipo-Método Argumentos-Formales Bloque-Método 
+    | Forma-Método "fn" "idMétodoVariable" "->" Tipo-Método Argumentos-Formales Bloque-Método 
 Miembro ::= Tipo ":" Lista-Declaración-Variables ";" 
     | Visibilidad Tipo ":" Lista-Declaración-Variables ";" 
     | "create" Argumentos-Formales Bloque 
     | "fn" "idMétodoVariable" "->" Tipo-Método Argumentos-Formales Bloque-Método 
     | Forma-Método "fn" "idMétodoVariable" "->" Tipo-Método Argumentos-Formales Bloque-Método
 
-Argumentos-Formales ::= "(" ")"
-Argumentos-Formales ::= "(" Lista-Argumentos-Formales ")"
-
+Argumentos-Formales ::= "(" ")" | "(" Lista-Argumentos-Formales ")"
 Lista-Argumentos-Formales ::= Argumento-Formal "," Lista-Argumentos-Formales 
     | Tipo ":" "idMétodoVariable"
 Argumento-Formal ::= Tipo ":" "idMétodoVariable" 
 Forma-Método ::= "static"
 Visibilidad ::= "pub"
 Tipo-Método ::= "Bool" | "I32" | "Str" | "Char" | "idClase" | "Array" Tipo-Primitivo | "void"
-Tipo ::= "Bool" | "I32" | "Str" | "Char" | "idClase"  | "Array" Tipo-Primitivo
-Tipo-Primitivo ::= "Bool" | "I32" | "Str" | "Char"
-Lista-Declaración-Variables::= "idMétodoVariable" | "idMétodoVariable" "," Lista-Declaracion-Variables
+Lista-Declaración-Variables ::= "idMétodoVariable" 
+    | "idMétodoVariable" "," Lista-Declaracion-Variables
 Bloque-Método ::= "{" "}" 
     | "{" Sentencias "}"
     | "{" Decl-Var-LocalesN "}"
@@ -47,21 +45,10 @@ Bloque-Método ::= "{" "}"
 Decl-Var-LocalesN ::= Decl-Var-Locales Decl-Var-LocalesN | "var" Tipo Lista-Declaracion-Variables
 Decl-Var-Locales ::= "var" Tipo Lista-Declaracion-Variables
 
-Sentencia ::= ";"
-    | Asignacion ";" 
-    | Sentencia-Simple ";" 
-    | "if" "(" Expresion ")" Sentencia 
-    | "if" "(" Expresion ")" Sentencia "else" Sentencia
-    | "while" "(" Expresion ")" Sentencia
-    | "{" "}" 
-    | "{" Sentencias "}"
-    | "return" Expresion";"
-    | "return" ";"
-
 Bloque ::= "{" "}" | "{" Sentencias "}"
 
 Sentencias ::= ";"
-    | Asignacion ";" 
+    | Asignación ";" 
     | Sentencia-Simple ";" 
     | "if" "(" Expresion ")" Sentencia 
     | "if" "(" Expresion ")" Sentencia "else" Sentencia
@@ -72,17 +59,59 @@ Sentencias ::= ";"
     | "return" ";" 
     | Sentencia Sentencias
 
-Asignacion ::= Asignacion-Variable-Simple "="" Expresión | Asignación-Self-Simple "="" Expresion
-Asignacion-Variable-Simple  ::= "id" | "id" "[" Expresion "]"
-Asignacion-Variable-Simple  ::= "id" Encadenado-SimpleN | "id" "[" Expresion "]"
+Sentencia ::= ";"
+    | Asignación ";" 
+    | Sentencia-Simple ";" 
+    | "if" "(" Expresion ")" Sentencia 
+    | "if" "(" Expresion ")" Sentencia "else" Sentencia
+    | "while" "(" Expresion ")" Sentencia
+    | "{" "}" 
+    | "{" Sentencias "}"
+    | "return" Expresion";"
+    | "return" ";"
+
+Asignación ::= Asignación-Variable-Simple "="" Expresión | Asignación-Self-Simple "="" Expresion
+Asignación-Variable-Simple  ::= "id" 
+    | "id" "[" Expresion "]" 
+    | "id" Encadenado-SimpleN 
+    | "id" "[" Expresion "]"
+
+
+Asignación-Self-Simple ::= "self" | "self" Encadenado-SimpleN
 
 Encadenado-SimpleN ::= Encadenado-Simple Encadenado-SimpleN | "." "id"
-
-Asignacion-Self-Simple ::= "self" | "self" Encadenado-SimpleN
-
 Encadenado-Simple ::= "." "id"
 
 Sentencia-Simple ::= "(" Expresion ")" 
+
+Lista-Expresiones ::= ExpOr "||" ExpAnd 
+    | ExpAnd "&&" ExpIgual 
+    | ExpIgual OpIgual ExpCompuesta 
+    | ExpAdd OpCompuesto ExpAdd 
+    | ExpAdd OpAdd ExpMul 
+    | ExpMul OpMul ExpUn
+    | OpUnario ExpUn 
+    | "nil" 
+    | "true" 
+    | "false" 
+    | "intLiteral" 
+    | "stringLiteral" 
+    | "charLiteral" 
+    | "(" Expresion ")" Encadenado 
+    | "(" Expresion ")" 
+    | "self" Encadenado 
+    | "self"  
+    | "id" Encadenado 
+    | "id"   
+    | "id" Argumentos-Actuales Encadenado 
+    | "id" Argumentos-Actuales  
+    | "idClase" "." Llamada-Método Encadenado 
+    | "idClase" "." Llamada-Método 
+    | "new" "idClase" Argumentos-Actuales 
+    | "new" "idClase" Argumentos-Actuales Encadenado 
+    | "new" Tipo-Primitivo "[" Expresion "]" 
+    | Primario Encadenado
+    | Expresion "," Lista-Expresiones
 
 Expresion ::= ExpOr "||" ExpAnd 
     | ExpAnd "&&" ExpIgual 
@@ -103,8 +132,8 @@ Expresion ::= ExpOr "||" ExpAnd
     | "self"  
     | "id" Encadenado 
     | "id"   
-    | "id" ArgsActuales Encadenado 
-    | "id" ArgsActuales  
+    | "id" Argumentos-Actuales Encadenado 
+    | "id" Argumentos-Actuales  
     | "idClase" "." Llamada-Método Encadenado 
     | "idClase" "." Llamada-Método 
     | "new" "idClase" Argumentos-Actuales 
@@ -112,86 +141,89 @@ Expresion ::= ExpOr "||" ExpAnd
     | "new" Tipo-Primitivo "[" Expresion "]" 
     | Primario Encadenado
 
-ExpOr ::= ExpOr "||" ExpAnd 
-    | ExpAnd "&&" ExpIgual 
-    | ExpIgual OpIgual ExpCompuesta 
-    | ExpAdd OpCompuesto ExpAdd 
-    | ExpAdd OpAdd ExpMul 
-    | ExpMul OpMul ExpUn
-    | OpUnario ExpUn 
-    | "nil" 
-    | "true" 
-    | "false" 
-    | "intLiteral" 
-    | "stringLiteral" 
-    | "charLiteral" 
-    | "(" Expresion ")" Encadenado 
-    | "(" Expresion ")" 
-    | "self" Encadenado 
-    | "self"  
-    | "id" Encadenado 
-    | "id"   
-    | "id" ArgsActuales Encadenado 
-    | "id" ArgsActuales  
-    | "idClase" "." Llamada-Método Encadenado 
-    | "idClase" "." Llamada-Método 
-    | "new" "idClase" Argumentos-Actuales 
-    | "new" "idClase" Argumentos-Actuales Encadenado 
-    | "new" Tipo-Primitivo "[" Expresion "]" 
-    | Primario Encadenado
+ExpOr ::= ExpAnd "&&" ExpIgual ExpOrP
+    | ExpIgual OpIgual ExpCompuesta ExpOrP
+    | ExpAdd OpCompuesto ExpAdd ExpOrP
+    | ExpAdd OpAdd ExpMul ExpOrP
+    | ExpMul OpMul ExpUn ExpOrP
+    | OpUnario ExpUn ExpOrP
+    | "nil" ExpOrP
+    | "true" ExpOrP
+    | "false" ExpOrP
+    | "intLiteral" ExpOrP
+    | "stringLiteral" ExpOrP
+    | "charLiteral" ExpOrP
+    | "(" Expresion ")" Encadenado ExpOrP
+    | "(" Expresion ")" ExpOrP
+    | "self" Encadenado ExpOrP
+    | "self" ExpOrP
+    | "id" Encadenado ExpOrP
+    | "id" ExpOrP
+    | "id" Argumentos-Actuales Encadenado ExpOrP
+    | "id" Argumentos-Actuales ExpOrP
+    | "idClase" "." Llamada-Método Encadenado ExpOrP
+    | "idClase" "." Llamada-Método ExpOrP
+    | "new" "idClase" Argumentos-Actuales ExpOrP
+    | "new" "idClase" Argumentos-Actuales Encadenado ExpOrP
+    | "new" Tipo-Primitivo "[" Expresion "]" ExpOrP
+    | Primario Encadenado ExpOrP
 
-ExpAnd ::= ExpAnd "&&" ExpIgual 
-    | ExpIgual OpIgual ExpCompuesta 
-    | ExpAdd OpCompuesto ExpAdd 
-    | ExpAdd OpAdd ExpMul 
-    | ExpMul OpMul ExpUn
-    | OpUnario ExpUn 
-    | "nil" 
-    | "true" 
-    | "false" 
-    | "intLiteral" 
-    | "stringLiteral" 
-    | "charLiteral" 
-    | "(" Expresion ")" Encadenado 
-    | "(" Expresion ")" 
-    | "self" Encadenado 
-    | "self"  
-    | "id" Encadenado 
-    | "id"   
-    | "id" ArgsActuales Encadenado 
-    | "id" ArgsActuales  
-    | "idClase" "." Llamada-Método Encadenado 
-    | "idClase" "." Llamada-Método 
-    | "new" "idClase" Argumentos-Actuales 
-    | "new" "idClase" Argumentos-Actuales Encadenado 
-    | "new" Tipo-Primitivo "[" Expresion "]" 
-    | Primario Encadenado
+ExpOrP ::= "||" ExpAnd ExpOrP | LAMBDA
 
-ExpIgual ::= ExpIgual OpIgual ExpCompuesta 
-    | ExpAdd OpCompuesto ExpAdd 
-    | ExpAdd OpAdd ExpMul 
-    | ExpMul OpMul ExpUn
-    | OpUnario ExpUn 
-    | "nil" 
-    | "true" 
-    | "false" 
-    | "intLiteral" 
-    | "stringLiteral" 
-    | "charLiteral" 
-    | "(" Expresion ")" Encadenado 
-    | "(" Expresion ")" 
-    | "self" Encadenado 
-    | "self"  
-    | "id" Encadenado 
-    | "id"   
-    | "id" ArgsActuales Encadenado 
-    | "id" ArgsActuales  
-    | "idClase" "." Llamada-Método Encadenado 
-    | "idClase" "." Llamada-Método 
-    | "new" "idClase" Argumentos-Actuales 
-    | "new" "idClase" Argumentos-Actuales Encadenado 
-    | "new" Tipo-Primitivo "[" Expresion "]" 
-    | Primario Encadenado
+ExpAnd ::= ExpIgual OpIgual ExpCompuesta ExpAndP
+    | ExpAdd OpCompuesto ExpAdd ExpAndP
+    | ExpAdd OpAdd ExpMul ExpAndP
+    | ExpMul OpMul ExpUn ExpAndP
+    | OpUnario ExpUn ExpAndP
+    | "nil" ExpAndP
+    | "true" ExpAndP
+    | "false" ExpAndP
+    | "intLiteral" ExpAndP
+    | "stringLiteral" ExpAndP
+    | "charLiteral" ExpAndP
+    | "(" Expresion ")" Encadenado ExpAndP
+    | "(" Expresion ")" ExpAndP
+    | "self" Encadenado ExpAndP
+    | "self" ExpAndP
+    | "id" Encadenado ExpAndP
+    | "id" ExpAndP
+    | "id" Argumentos-Actuales Encadenado ExpAndP
+    | "id" Argumentos-Actuales ExpAndP
+    | "idClase" "." Llamada-Método Encadenado ExpAndP
+    | "idClase" "." Llamada-Método ExpAndP
+    | "new" "idClase" Argumentos-Actuales ExpAndP
+    | "new" "idClase" Argumentos-Actuales Encadenado ExpAndP
+    | "new" Tipo-Primitivo "[" Expresion "]" ExpAndP
+    | Primario Encadenado ExpAndP
+
+ExpAndP ::= "&&" ExpIgual ExpAndP | LAMBDA
+
+ExpIgual ::= ExpAdd OpCompuesto ExpAdd ExpIgualP
+    | ExpAdd OpAdd ExpMul ExpIgualP
+    | ExpMul OpMul ExpUnExpIgualP
+    | OpUnario ExpUn ExpIgualP
+    | "nil" ExpIgualP
+    | "true" ExpIgualP
+    | "false" ExpIgualP
+    | "intLiteral" ExpIgualP
+    | "stringLiteral" ExpIgualP
+    | "charLiteral" ExpIgualP
+    | "(" Expresion ")" Encadenado ExpIgualP
+    | "(" Expresion ")" ExpIgualP
+    | "self" Encadenado ExpIgualP
+    | "self"  ExpIgualP
+    | "id" Encadenado ExpIgualP
+    | "id"   ExpIgualP
+    | "id" Argumentos-Actuales Encadenado ExpIgualP
+    | "id" Argumentos-Actuales ExpIgualP
+    | "idClase" "." Llamada-Método Encadenado ExpIgualP
+    | "idClase" "." Llamada-Método ExpIgualP
+    | "new" "idClase" Argumentos-Actuales ExpIgualP
+    | "new" "idClase" Argumentos-Actuales Encadenado ExpIgualP
+    | "new" Tipo-Primitivo "[" Expresion "]" ExpIgualP
+    | Primario Encadenado ExpIgualP
+
+ExpIgualP ::= OpIgual ExpCompuesta ExpIgualP | LAMBDA
 
 ExpCompuesta ::= ExpAdd OpCompuesto ExpAdd 
     | ExpAdd OpAdd ExpMul 
@@ -209,8 +241,8 @@ ExpCompuesta ::= ExpAdd OpCompuesto ExpAdd
     | "self"  
     | "id" Encadenado 
     | "id"   
-    | "id" ArgsActuales Encadenado 
-    | "id" ArgsActuales  
+    | "id" Argumentos-Actuales Encadenado 
+    | "id" Argumentos-Actuales  
     | "idClase" "." Llamada-Método Encadenado 
     | "idClase" "." Llamada-Método 
     | "new" "idClase" Argumentos-Actuales 
@@ -218,52 +250,54 @@ ExpCompuesta ::= ExpAdd OpCompuesto ExpAdd
     | "new" Tipo-Primitivo "[" Expresion "]" 
     | Primario Encadenado
 
-ExpAdd ::= ExpAdd OpAdd ExpMul 
-    | ExpMul OpMul ExpUn
-    | OpUnario ExpUn 
-    | "nil" 
-    | "true" 
-    | "false" 
-    | "intLiteral" 
-    | "stringLiteral" 
-    | "charLiteral" 
-    | "(" Expresion ")" Encadenado 
-    | "(" Expresion ")" 
-    | "self" Encadenado 
-    | "self"  
-    | "id" Encadenado 
-    | "id"   
-    | "id" ArgsActuales Encadenado 
-    | "id" ArgsActuales  
-    | "idClase" "." Llamada-Método Encadenado 
-    | "idClase" "." Llamada-Método 
-    | "new" "idClase" Argumentos-Actuales 
-    | "new" "idClase" Argumentos-Actuales Encadenado 
-    | "new" Tipo-Primitivo "[" Expresion "]" 
-    | Primario Encadenado
+ExpAdd ::= ExpMul OpMul ExpUn ExpAddP
+    | OpUnario ExpUn ExpAddP
+    | "nil" ExpAddP
+    | "true" ExpAddP
+    | "false" ExpAddP
+    | "intLiteral" ExpAddP
+    | "stringLiteral" ExpAddP
+    | "charLiteral" ExpAddP
+    | "(" Expresion ")" Encadenado ExpAddP
+    | "(" Expresion ")" ExpAddP
+    | "self" Encadenado ExpAddP
+    | "self"  ExpAddP
+    | "id" Encadenado ExpAddP
+    | "id" ExpAddP
+    | "id" Argumentos-Actuales Encadenado ExpAddP
+    | "id" Argumentos-Actuales ExpAddP
+    | "idClase" "." Llamada-Método Encadenado ExpAddP
+    | "idClase" "." Llamada-Método ExpAddP
+    | "new" "idClase" Argumentos-Actuales ExpAddP
+    | "new" "idClase" Argumentos-Actuales Encadenado ExpAddP
+    | "new" Tipo-Primitivo "[" Expresion "]" ExpAddP
+    | Primario Encadenado ExpAddP
 
-ExpMul ::= ExpMul OpMul ExpUn
-    | OpUnario ExpUn 
-    | "nil" 
-    | "true" 
-    | "false" 
-    | "intLiteral" 
-    | "stringLiteral" 
-    | "charLiteral" 
-    | "(" Expresion ")" Encadenado 
-    | "(" Expresion ")" 
-    | "self" Encadenado 
-    | "self"  
-    | "id" Encadenado 
-    | "id"   
-    | "id" ArgsActuales Encadenado 
-    | "id" ArgsActuales  
-    | "idClase" "." Llamada-Método Encadenado 
-    | "idClase" "." Llamada-Método 
-    | "new" "idClase" Argumentos-Actuales 
-    | "new" "idClase" Argumentos-Actuales Encadenado 
-    | "new" Tipo-Primitivo "[" Expresion "]" 
-    | Primario Encadenado
+ExpAdd ::= OpAdd ExpMul ExpAddP | LAMBDA
+
+ExpMul ::= OpUnario ExpUn ExpMulP
+    | "nil" ExpMulP    
+    | "true" ExpMulP
+    | "false" ExpMulP
+    | "intLiteral" ExpMulP
+    | "stringLiteral" ExpMulP
+    | "charLiteral" ExpMulP
+    | "(" Expresion ")" Encadenado ExpMulP
+    | "(" Expresion ")" ExpMulP
+    | "self" Encadenado ExpMulP
+    | "self" ExpMulP
+    | "id" Encadenado ExpMulP
+    | "id" ExpMulP
+    | "id" Argumentos-Actuales Encadenado ExpMulP
+    | "id" Argumentos-Actuales ExpMulP
+    | "idClase" "." Llamada-Método Encadenado ExpMulP
+    | "idClase" "." Llamada-Método ExpMulP
+    | "new" "idClase" Argumentos-Actuales ExpMulP
+    | "new" "idClase" Argumentos-Actuales Encadenado ExpMulP 
+    | "new" Tipo-Primitivo "[" Expresion "]" ExpMulP
+    | Primario Encadenado ExpMulP
+
+ExpMul ::= OpMul ExpUn ExpMulP | LAMBDA
 
 ExpUn ::= OpUnario ExpUn 
     | "nil" 
@@ -278,8 +312,8 @@ ExpUn ::= OpUnario ExpUn
     | "self"  
     | "id" Encadenado 
     | "id"   
-    | "id" ArgsActuales Encadenado 
-    | "id" ArgsActuales  
+    | "id" Argumentos-Actuales Encadenado 
+    | "id" Argumentos-Actuales  
     | "idClase" "." Llamada-Método Encadenado 
     | "idClase" "." Llamada-Método 
     | "new" "idClase" Argumentos-Actuales 
@@ -304,14 +338,19 @@ Operando ::= "nil"
     | "self"  
     | "id" Encadenado 
     | "id"   
-    | "id" ArgsActuales Encadenado 
-    | "id" ArgsActuales  
+    | "id" Argumentos-Actuales Encadenado 
+    | "id" Argumentos-Actuales  
     | "idClase" "." Llamada-Método Encadenado 
     | "idClase" "." Llamada-Método 
     | "new" "idClase" Argumentos-Actuales 
     | "new" "idClase" Argumentos-Actuales Encadenado 
     | "new" Tipo-Primitivo "[" Expresion "]" 
     | Primario Encadenado
+
+Llamada-Método ::= "id" Argumentos-Actuales Encadenado | "id" Argumentos-Actuales
+
+Argumentos-Actuales ::= "(" ")"
+Argumentos-Actuales ::= "(" Lista-Expresiones ")"
 
 Primario ::= "(" Expresion ")" Encadenado 
     | "(" Expresion ")" 
@@ -319,51 +358,21 @@ Primario ::= "(" Expresion ")" Encadenado
     | "self"  
     | "id" Encadenado 
     | "id"   
-    | "id" ArgsActuales Encadenado 
-    | "id" ArgsActuales  
+    | "id" Argumentos-Actuales Encadenado 
+    | "id" Argumentos-Actuales  
     | "idClase" "." Llamada-Método Encadenado 
     | "idClase" "." Llamada-Método 
     | "new" "idClase" Argumentos-Actuales 
     | "new" "idClase" Argumentos-Actuales Encadenado 
     | "new" Tipo-Primitivo "[" Expresion "]"
-Llamada-Método ::= "id" ArgsActuales Encadenado | "id" ArgsActuales
 
-Argumentos-Actuales ::= "(" ")"
-Argumentos-Actuales ::= "(" Lista-Expresiones ")"
-Lista-Expresiones ::= ExpOr "||" ExpAnd 
-    | ExpAnd "&&" ExpIgual 
-    | ExpIgual OpIgual ExpCompuesta 
-    | ExpAdd OpCompuesto ExpAdd 
-    | ExpAdd OpAdd ExpMul 
-    | ExpMul OpMul ExpUn
-    | OpUnario ExpUn 
-    | "nil" 
-    | "true" 
-    | "false" 
-    | "intLiteral" 
-    | "stringLiteral" 
-    | "charLiteral" 
-    | "(" Expresion ")" Encadenado 
-    | "(" Expresion ")" 
-    | "self" Encadenado 
-    | "self"  
-    | "id" Encadenado 
-    | "id"   
-    | "id" ArgsActuales Encadenado 
-    | "id" ArgsActuales  
-    | "idClase" "." Llamada-Método Encadenado 
-    | "idClase" "." Llamada-Método 
-    | "new" "idClase" Argumentos-Actuales 
-    | "new" "idClase" Argumentos-Actuales Encadenado 
-    | "new" Tipo-Primitivo "[" Expresion "]" 
-    | Primario Encadenado
-    | Expresion "," Lista-Expresiones
+Tipo ::= "Bool" | "I32" | "Str" | "Char" | "idClase"  | "Array" Tipo-Primitivo
+Tipo-Primitivo ::= "Bool" | "I32" | "Str" | "Char"
 
 Encadenado ::= "." Llamada-Método-Encadenado 
     | "." Acceso-Variable-Encadenado
  
 Llamada-Método-Encadenado ::= "id" Argumentos-Actuales | "id" Argumentos-Actuales Encadenado
 Acceso-Variable-Encadenado ::= "id" | "id" Encadenado | id "[" Expresion "]"
-
 
 #----------------------------fin gramática tinyRust+---------------------------------
