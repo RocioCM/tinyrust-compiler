@@ -1,0 +1,77 @@
+#------------------------sintaxis completa de tinyRust+-------------------
+Start ::= Clase* Main
+Main ::= "{" "static fn main ()" Bloque Miembro*"}"
+Clase ::= "class" "idClase" Herencia? "{" Miembro* "}"
+Herencia ::= ":" "idClase" 
+Miembro ::= Atributo | Constructor | Metodo
+Atributo ::= Visibilidad? Tipo ":" Lista-Declaración-Variables ";"
+Constructor ::= "create" Argumentos-Formales Bloque
+Método ::= Forma-Metodo? "fn" "idMétodoVariable" "->" Tipo-Metodo Argumentos-Formales Bloque-Metodo
+Argumentos-Formales ::= "(" Lista-Argumentos-Formales? ")"
+Lista-Argumentos-Formales ::= Argumento-Formal "," Lista-Argumentos-Formales | Argumento-Formal
+Argumento-Formal ::= Tipo ":" "idMétodoVariable" 
+Forma-Método ::= "static"
+Visibilidad ::= "pub"
+Tipo-Método ::= Tipo | void
+Tipo ::= Tipo-Primitivo | Tipo-Referencia | Tipo-Array
+Tipo-Primitivo ::= "Bool" | "I32" | "Str" | "Char"
+Tipo-Referencia ::= "idClase" 
+Tipo-Array ::= "Array" Tipo-Primitivo 
+Lista-Declaración-Variables::= "idMétodoVariable" | "idMétodoVariable" "," Lista-Declaracion-Variables
+Bloque-Método ::= "{" Decl-Var-Locales* Sentencia* "}"
+Decl-Var-Locales ::= "var" Tipo Lista-Declaracion-Variables
+
+Sentencia ::= ";"
+    | Asignacion";" 
+    | Sentencia-Simple ";" 
+    | "if" "(" Expresion ")" Sentencia 
+    | "if" "(" Expresion ")" Sentencia "else" Sentencia
+    | "while" "(" Expresion ")" Sentencia
+    | Bloque
+    | "return" Expresion?";"
+
+Bloque ::= "{" Sentencia* "}"
+
+Asignacion ::= Asignacion-Variable-Simple "="" Expresión | Asignación-Self-Simple "="" Expresion
+Asignacion-Variable-Simple  ::= "id" Encadenado-Simple* | "id" "[" Expresion "]"
+Asignacion-Self-Simple ::= "self" Encadenado-Simple*
+
+Encadenado-Simple ::= "." "id"
+
+Sentencia-Simple ::= "(" Expresion ")" 
+
+Expresion ::= ExpOr
+ExpOr ::= ExpOr "||" ExpAnd | ExpAnd
+ExpAnd ::= ExpAnd "&&" ExpIgual | ExpIgual
+ExpIgual ::= ExpIgual OpIgual ExpCompuesta | ExpCompuesta
+ExpCompuesta ::= ExpAdd OpCompuesto ExpAdd | ExpAdd
+ExpAdd ::= ExpAdd OpAdd ExpMul | ExpMul
+ExpMul ::= ExpMul OpMul ExpUn | ExpUn
+ExpUn ::= OpUnario ExpUn | Operando
+
+OpIgual ::= "==" | "!="
+OpCompuesto ::= "<" | ">" | "<=" | ">="
+OpAd ::= "+" | "-"
+OpUnario ::= "+" | "-" | "!"
+OpMul ::= "*" | "/" | "%"
+Operando ::= Literal | Primario Encadenado?
+Literal ::= "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral"
+Primario ::= ExpresionParentizada | AccesoSelf | AccesoVar  | Llamada-Metodo  | Llamada-MetodoEstatico | Llamada-Constructor
+ExpresionParentizada ::= "(" Expresion ")" Encadenado?
+AccesoSelf ::= "self" Encadenado?
+AccesoVar ::= "id" Encadenado?
+Llamada-Método ::= "id" ArgsActuales  Encadenado?
+Llamada-Método-Estático ::= "idClase" "." Llamada-Metodo Encadenado?
+Llamada-Constructor ::= "new" "idClase" Argumentos-Actuales Encadenado? | "new" Tipo-Primitivo "[" Expresion "]"
+
+
+Argumentos-Actuales ::= "(" Lista-Expresiones? ")"
+Lista-Expresiones ::= Expresion | Expresion "," Lista-Expresiones
+Encadenado ::= "." Llamada-Metodo-Encadenado 
+    | "." Acceso-Variable-Encadenado
+ 
+Llamada-Método-Encadenado ::= "id" Argumentos-Actuales Encadenado?
+Acceso-Variable-Encadenado ::= "id" Encadenado? | id "[" Expresion "]"
+
+
+#----------------------------fin gramática tinyRust+---------------------------------
