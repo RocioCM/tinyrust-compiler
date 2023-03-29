@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Scanner;
 
-import error.*;
+import error.lexic.*;
 
 /**
  * Analizador Léxico de TinyRust+.

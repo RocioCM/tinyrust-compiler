@@ -1,4 +1,4 @@
-package error;
+package error.lexic;
 
 public class UnclosedMultiLineCommentError extends LexicalError {
 

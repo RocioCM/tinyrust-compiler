@@ -1,4 +1,4 @@
-package error;
+package error.lexic;
 
 public class UnmatchedTokenError extends LexicalError {
 	public UnmatchedTokenError(int line, int column, String lexema) {

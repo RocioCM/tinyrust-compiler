@@ -3,7 +3,7 @@ package lexic_analyzer;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
-import error.LexicalError;
+import error.lexic.LexicalError;
 import util.Logger;
 
 /**
