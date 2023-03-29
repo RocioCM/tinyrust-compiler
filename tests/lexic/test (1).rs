@@ -46,8 +46,11 @@ a, coso;
 
 _hola
 
+I32 Bool Char Str Void Array 	Hola Chau hOla 
+i32 bool char str void array Arr ARRAY
+ 	Hola Chau hOla 
+
 /**
-CORRECTO: ANALISIS LEXICO
 | TOKEN | LEXEMA | NUMERO DE LINEA (NUMERO DE COLUMNA) |
 | p_class | class | LINEA 1 | (COLUMNA 1) |
 | p_else | else | LINEA 1 | (COLUMNA 7) |
@@ -169,5 +172,25 @@ CORRECTO: ANALISIS LEXICO
 | id | coso | LINEA 45 | (COLUMNA 4) |
 | semicolon | ; | LINEA 45 | (COLUMNA 8) |
 | id | _hola | LINEA 47 | (COLUMNA 1) |
-| EOF |  | LINEA 48 | (COLUMNA 0) |
+| p_t_i32 | I32 | LINEA 49 | (COLUMNA 1) |
+| p_t_bool | Bool | LINEA 49 | (COLUMNA 5) |
+| p_t_char | Char | LINEA 49 | (COLUMNA 10) |
+| p_t_str | Str | LINEA 49 | (COLUMNA 15) |
+| id_type | Void | LINEA 49 | (COLUMNA 19) |
+| p_array | Array | LINEA 49 | (COLUMNA 24) |
+| id_type | Hola | LINEA 49 | (COLUMNA 31) |
+| id_type | Chau | LINEA 49 | (COLUMNA 36) |
+| id | hOla | LINEA 49 | (COLUMNA 41) |
+| id | i32 | LINEA 50 | (COLUMNA 1) |
+| id | bool | LINEA 50 | (COLUMNA 5) |
+| id | char | LINEA 50 | (COLUMNA 10) |
+| id | str | LINEA 50 | (COLUMNA 15) |
+| p_void | void | LINEA 50 | (COLUMNA 19) |
+| id | array | LINEA 50 | (COLUMNA 24) |
+| id_type | Arr | LINEA 50 | (COLUMNA 30) |
+| id_type | ARRAY | LINEA 50 | (COLUMNA 34) |
+| id_type | Hola | LINEA 51 | (COLUMNA 3) |
+| id_type | Chau | LINEA 51 | (COLUMNA 8) |
+| id | hOla | LINEA 51 | (COLUMNA 13) |
+| EOF |  | LINEA 177 | (COLUMNA 2) |
 */

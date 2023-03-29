@@ -64,4 +64,38 @@ public class ReservedWords {
 		}
 		return token;
 	}
+
+	/**
+	 * Recibe un token de identificador de tipo y actualiza su valor de forma acorde
+	 * si se trata de un tipo primitivo de TinyRust+.
+	 * 
+	 * @param token - token de identificador de tipo.
+	 * @return El mismo token modificado.
+	 */
+	public static Token matchPrimitiveType(Token token) {
+		// Solo puede ser tipo primitivo si es un identificador de tipo.
+		// Verificamos por las dudas.
+		if (token.getToken() == "id_type") {
+			switch (token.getLexema()) {
+				case "Char":
+					token.setToken("p_t_char");
+					break;
+				case "I32":
+					token.setToken("p_t_i32");
+					break;
+				case "Bool":
+					token.setToken("p_t_bool");
+					break;
+				case "Str":
+					token.setToken("p_t_str");
+					break;
+				case "Array":
+					token.setToken("p_array");
+					break;
+				default:
+					break;
+			}
+		}
+		return token;
+	}
 }

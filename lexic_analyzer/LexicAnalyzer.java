@@ -18,6 +18,7 @@ public class LexicAnalyzer {
 	private int lineNumber = 0; // Linea leída actual del archivo de entrada.
 	private int columnNumber = 0; // Columna leída actual del archivo de entrada.
 	private boolean reachedEOF = false; // Flag que indica si ya se consumió todo el archivo de entrada.
+	private boolean reachedEOFToken = false; // Flag que indica si ya se emitió al menos una vez el token EOF.
 
 	public LexicAnalyzer(String filePath) throws FileNotFoundException {
 		// Abrir el archivo de entrada.
@@ -56,6 +57,7 @@ public class LexicAnalyzer {
 			// se retorna un Token vacío representando el fin del archivo.
 			token.setToken("EOF");
 			token.setLexema("");
+			reachedEOFToken = true;
 
 		} else {
 			// Leer el primer caracter del token y continuar el match según qué caracter es.
@@ -224,7 +226,7 @@ public class LexicAnalyzer {
 	 * @return Devuelve true si ya se llegó al final del archivo de entrada.
 	 */
 	public boolean hasNextToken() {
-		return !reachedEOF;
+		return !reachedEOFToken;
 	}
 
 	/**
@@ -604,6 +606,7 @@ public class LexicAnalyzer {
 		boolean matched = false;
 		if (token.getToken() == "id" && isUppercaseChar(token.getLexema().charAt(0))) {
 			token.setToken("id_type");
+			ReservedWords.matchPrimitiveType(token);
 			matched = true;
 		}
 
