@@ -29,7 +29,7 @@ class TinyRustCompiler {
 			}
 
 			// Se inicializa la ejecución del compilador.
-			for (int i = 0; i < 28; i++) {
+			for (int i = 0; i < 31; i++) {
 				inputPath = "./tests/lexic/test (" + i + ").rs";
 				System.out.println("Ejecutando " + inputPath);
 				new Executor().run(inputPath, outputPath);

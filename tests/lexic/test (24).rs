@@ -3,5 +3,5 @@ buenIdentificador no_bueno@ups+2
 /*
 ERROR: LEXICO
 | NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
-| LINEA 1 | COLUMNA 19 | IDENTIFICADOR NO VALIDO: no_bueno@ |
+| LINEA 1 | COLUMNA 19 | IDENTIFICADOR NO VALIDO: no_bueno@ups |
 */

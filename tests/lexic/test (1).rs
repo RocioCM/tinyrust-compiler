@@ -3,7 +3,7 @@ class else false if return while
 	static pub  
  
 
-voidfnAt_123c while  _123asdtrue vOID asdASDA123 else hola _id _ 
+voidfnAt_123c while  a123asdtrue vOID asdASDA123 else hola i_id___________ 
 
 1+2-3*4/5%6=7
 5538493.1212.2121,9292 1010 /+*/-%
@@ -44,7 +44,7 @@ cosa !=pinpon
 an // Is this a single line comment?.
 a, coso;
 
-_hola
+hola
 
 I32 Bool Char Str Void Array 	Hola Chau hOla 
 i32 bool char str void array Arr ARRAY

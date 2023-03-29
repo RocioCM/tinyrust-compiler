@@ -550,7 +550,7 @@ public class LexicAnalyzer {
 		String lexema = "";
 
 		while (currentState != 2 && currentState != 3 && !isBlankSpace(currentChar) && !reachedEOF) {
-			if (currentState == 0 && (isAlphabet(currentChar) || currentChar == '_')) {
+			if (currentState == 0 && isAlphabet(currentChar)) {
 				currentState = 1;
 				lexema += currentChar;
 
@@ -560,8 +560,9 @@ public class LexicAnalyzer {
 					currentChar = readConsumeChar();
 				}
 			} else {
-				if (currentState == 0 && isDigit(currentChar)) {
+				if (currentState == 0 && (isDigit(currentChar) || currentChar == '_')) {
 					currentState = 3;
+					lexema += currentChar;
 				} else {
 					if (currentState == 1 && (isAlphabet(currentChar) || isDigit(currentChar) || currentChar == '_')) {
 						currentState = 1;
@@ -587,6 +588,14 @@ public class LexicAnalyzer {
 			token.setToken("id");
 			return true;
 		} else {
+			// Si luego del caracter ilegal continua un identificador,
+			// se interpreta todo el conjunto como un identificador mal formado.
+			currentChar = readWithoutConsumeChar();
+			while (isAlphabet(currentChar) || isDigit(currentChar) || currentChar == '_') {
+				// Se lee el resto del identificador para mostrarlo en el mensaje de error.
+				lexema += readConsumeChar();
+				currentChar = readWithoutConsumeChar();
+			}
 			throw new BadIdentifierError(token.getLine(), token.getCol(), lexema);
 		}
 	}
