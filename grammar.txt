@@ -2,8 +2,7 @@
 Start ::= Clases Main
 Clases ::= Clase Clases | LAMBDA
 
-Main ::= "{" "static fn main ()" Bloque MiembrosOp "}"
-MiembrosOp ::= Miembros | LAMBDA
+Main ::= "{" "static fn main ()" Bloque MiembrosOp
 Miembros ::= Miembro Miembros | Miembro
 
 Clase ::= "class" "idClase" Clase2

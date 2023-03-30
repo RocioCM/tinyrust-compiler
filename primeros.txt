@@ -1,0 +1,96 @@
+#------------------------sintaxis completa de tinyRust+-------------------
+Start = {"class" | "fn"}
+Clases = {"class" | LAMBDA}
+
+Main = "{" ¿¿¿"fn"???
+Miembros = {"Bool" | "I32" | "Str" | "Char" | "idClase" | "Array" | "pub" | "create" | "fn" | "static"}
+
+Clase = "class"
+Clase2 =  {"{" | ":"}
+MiembrosOp = {"}" | "Bool" | "I32" | "Str" | "Char" | "idClase" | "Array" | "pub" | "create" | "fn" | "static"}
+
+Herencia = ":"
+Miembro = {"Bool" | "I32" | "Str" | "Char" | "idClase" | "Array" | "pub" | "create" | "fn" | "static"}
+Atributo = {"Bool" | "I32" | "Str" | "Char" | "idClase" | "Array" | "pub"}
+
+Constructor = "create"
+Método = {"fn" | "static"}
+
+Argumentos-Formales = "("
+
+Lista-Argumentos-Formales = {"Bool" | "I32" | "Str" | "Char" | "idClase" | "Array"}
+Argumento-Formal = {"Bool" | "I32" | "Str" | "Char" | "idClase" | "Array"}
+Forma-Método = "static"
+Visibilidad = "pub"
+Tipo-Método = {"Bool" | "I32" | "Str" | "Char" | "idClase" | "Array" | "void"}
+Tipo = {"Bool" | "I32" | "Str" | "Char" | "idClase" | "Array"}
+Tipo-Primitivo = "Bool" | "I32" | "Str" | "Char"
+Tipo-Referencia = "idClase" 
+Tipo-Array = "Array"
+Lista-Declaración-Variables= "idMétodoVariable"
+Bloque-Método = "{"
+SentenciasOp = {";" | "id" | "self" | "(" | "if" | "while" | "{" | "return" | "}"}
+
+Decl-Var-LocalesN := "var"
+
+Decl-Var-Locales = "var"
+
+Sentencias = {";" | "id" | "self" | "(" | "if" | "while" | "{" | "return"}
+
+Sentencia = {";" | "id" | "self" | "(" | "if" | "while" | "{" | "return"}
+
+ElseOp = {"else" | LAMBDA}
+
+Bloque = "{"
+
+
+Asignación = {"id" | "self"}
+Asignación-Variable-Simple  = "id"
+
+Encadenado-SimpleN = "."
+
+Asignación-Self-Simple = "self"
+
+Encadenado-Simple = "."
+
+Sentencia-Simple = "("
+
+Lista-Expresiones = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new"}
+
+Expresión = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new"}
+ExpOr = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new"}
+ExpOrP = {"||" | LAMBDA}
+ExpAnd = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new"}
+ExpAndP = {"&&" | LAMBDA}
+ExpIgual = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new"}
+ExpIgualP = {"==" | "!=" | LAMBDA}
+ExpCompuesta = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new"}
+ExpAdd = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new"}
+ExpAddP = {"+" | "-" | LAMBDA}
+ExpMul = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new"}
+ExpMulP = {"*" | "/" | "%" | LAMBDA}
+ExpUn = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new"}
+
+OpIgual = "==" | "!="
+OpCompuesto = "<" | ">" | "<=" | ">="
+OpAdd = "+" | "-"
+OpUnario = "+" | "-" | "!"
+OpMul = "*" | "/" | "%"
+Operando = {"nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new" }
+Literal = {"nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral"}
+Primario = {"(" | "self" | "id"  | "idClase" | "new"}
+ExpresionParentizada = "("
+AccesoSelf = "self"
+AccesoVar = "id" 
+Llamada-Método = "id" 
+Llamada-Método-Estático = "idClase"
+Llamada-Constructor = "new"
+
+Argumentos-Actuales = "("
+Encadenado = "."
+
+Llamada-Método-Encadenado = "id"
+Acceso-Variable-Encadenado = "id" 
+EncadenadoOp = {"." | LAMBDA}
+
+#----------------------------fin gramática tinyRust+---------------------------------
