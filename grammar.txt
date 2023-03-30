@@ -1,0 +1,109 @@
+#------------------------sintaxis completa de tinyRust+-------------------
+Start ::= Clases Main
+Clases ::= Clase Clases | LAMBDA
+
+Main ::= "{" "static fn main ()" Bloque MiembrosOp "}"
+MiembrosOp ::= Miembros | LAMBDA
+Miembros ::= Miembro Miembros | Miembro
+
+Clase ::= "class" "idClase" Clase2
+Clase2 ::=  "{" "}" | Herencia "{" MiembrosOp  | "{" Miembros "}"
+MiembrosOp ::= "}" | Miembros "}"
+
+Herencia ::= ":" "idClase" 
+Miembro ::= Atributo | Constructor | Método
+Atributo ::= Tipo ":" Lista-Declaración-Variables ";"
+	| Visibilidad Tipo ":" Lista-Declaración-Variables ";"
+
+Constructor ::= "create" Argumentos-Formales Bloque
+Método ::= "fn" "idMétodoVariable" "->" Tipo-Método Argumentos-Formales Bloque-Método
+	| Forma-Método "fn" "idMétodoVariable" "->" Tipo-Método Argumentos-Formales Bloque-Método
+
+Argumentos-Formales ::= "(" ")"	| "(" Lista-Argumentos-Formales ")"
+
+Lista-Argumentos-Formales ::= Argumento-Formal "," Lista-Argumentos-Formales | Argumento-Formal
+Argumento-Formal ::= Tipo ":" "idMétodoVariable" 
+Forma-Método ::= "static"
+Visibilidad ::= "pub"
+Tipo-Método ::= Tipo | void
+Tipo ::= Tipo-Primitivo | Tipo-Referencia | Tipo-Array
+Tipo-Primitivo ::= "Bool" | "I32" | "Str" | "Char"
+Tipo-Referencia ::= "idClase" 
+Tipo-Array ::= "Array" Tipo-Primitivo 
+Lista-Declaración-Variables::= "idMétodoVariable" | "idMétodoVariable" "," Lista-Declaracion-Variables
+Bloque-Método ::= "{" "}"
+	| "{" Sentencias "}"
+	| "{" Decl-Var-LocalesN SentenciasOp
+SentenciasOp ::= "}" | Sentencias "}"
+
+Decl-Var-LocalesN := Decl-Var-Locales Decl-Var-LocalesN | Decl-Var-Locales
+
+Decl-Var-Locales ::= "var" Tipo Lista-Declaracion-Variables
+
+Sentencias ::= Sentencia | Sentencia Sentencias
+
+Sentencia ::= ";"
+    | Asignación";" 
+    | Sentencia-Simple ";" 
+    | "if" "(" Expresión ")" Sentencia ElseOp
+    | "while" "(" Expresión ")" Sentencia
+    | Bloque
+    | "return" Expresión ";"
+    | "return" ";"
+
+ElseOp ::= "else" Sentencia | LAMBDA
+
+Bloque ::= "{" "}" | "{" Sentencias "}"
+
+
+Asignación ::= Asignación-Variable-Simple "="" Expresión | Asignación-Self-Simple "="" Expresión
+Asignación-Variable-Simple  ::= "id" | "id" "[" Expresión "]"	| "id" Encadenado-SimpleN
+
+Encadenado-SimpleN ::= Encadenado-Simple Encadenado-SimpleN | Encadenado-Simple
+
+Asignación-Self-Simple ::= "self" | "self" Encadenado-SimpleN
+
+Encadenado-Simple ::= "." "id"
+
+Sentencia-Simple ::= "(" Expresión ")" 
+
+Lista-Expresiones ::= Expresión | Expresión "," Lista-Expresiones
+
+Expresión ::= ExpOr
+ExpOr ::= ExpAnd ExpOrP
+ExpOrP ::= "||" ExpAnd ExpOrP | LAMBDA
+ExpAnd ::= ExpIgual ExpAndP
+ExpAndP ::= "&&" ExpIgual ExpAndP | LAMBDA
+ExpIgual ::= ExpCompuesta ExpIgualP
+ExpIgualP ::= OpIgual ExpCompuesta ExpIgualP | LAMBDA
+ExpCompuesta ::= ExpAdd OpCompuesto ExpAdd | ExpAdd
+ExpAdd ::= ExpMul ExpAddP
+ExpAddP ::= OpAdd ExpMul ExpAddP | LAMBDA
+ExpMul ::= ExpUn ExpMulP
+ExpMulP ::= OpMul ExpUn ExpMulP | LAMBDA
+ExpUn ::= OpUnario ExpUn | Operando
+
+OpIgual ::= "==" | "!="
+OpCompuesto ::= "<" | ">" | "<=" | ">="
+OpAd ::= "+" | "-"
+OpUnario ::= "+" | "-" | "!"
+OpMul ::= "*" | "/" | "%"
+Operando ::= Literal | Primario | Primario Encadenado
+Literal ::= "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral"
+Primario ::= ExpresionParentizada | AccesoSelf | AccesoVar  | Llamada-Método  | Llamada-MétodoEstático | Llamada-Constructor
+ExpresionParentizada ::= "(" Expresión ")" EncadenadoOp
+AccesoSelf ::= "self" Encadenado | "self" 
+AccesoVar ::= "id" Encadenado | "id" 
+Llamada-Método ::= "id" Argumentos-Actuales EncadenadoOp 
+Llamada-Método-Estático ::= "idClase" "." Llamada-Método EncadenadoOp
+Llamada-Constructor ::= "new" "idClase" Argumentos-Actuales EncadenadoOp
+	| "new" Tipo-Primitivo "[" Expresión "]"
+
+Argumentos-Actuales ::= "(" ")" | "(" Lista-Expresiones ")"
+Encadenado ::= "." Llamada-Método-Encadenado | "." Acceso-Variable-Encadenado
+
+Llamada-Método-Encadenado ::= "id" Argumentos-Actuales EncadenadoOp
+Acceso-Variable-Encadenado ::= "id" | "id" Encadenado | id "[" Expresión "]"
+EncadenadoOp ::= Encadenado | LAMBDA
+
+#----------------------------fin gramática tinyRust+---------------------------------
