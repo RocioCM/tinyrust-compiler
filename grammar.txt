@@ -2,12 +2,11 @@
 Start ::= Clases Main
 Clases ::= Clase Clases | LAMBDA
 
-Main ::= "{" "static fn main ()" Bloque MiembrosOp
-Miembros ::= Miembro Miembros | Miembro
+Main ::=  "fn" "main" "(" ")" Bloque-Método
+Miembros ::= Miembro Miembros | LAMBDA
 
-Clase ::= "class" "idClase" Clase2
-Clase2 ::=  "{" "}" | Herencia "{" MiembrosOp  | "{" Miembros "}"
-MiembrosOp ::= "}" | Miembros "}"
+Clase ::= "class" "idClase" ClaseHerenciaOp
+ClaseHerenciaOp ::= Herencia "{" Miembros "}"  | "{" Miembros "}"
 
 Herencia ::= ":" "idClase" 
 Miembro ::= Atributo | Constructor | Método
@@ -84,7 +83,7 @@ ExpUn ::= OpUnario ExpUn | Operando
 
 OpIgual ::= "==" | "!="
 OpCompuesto ::= "<" | ">" | "<=" | ">="
-OpAd ::= "+" | "-"
+OpAdd ::= "+" | "-"
 OpUnario ::= "+" | "-" | "!"
 OpMul ::= "*" | "/" | "%"
 Operando ::= Literal | Primario | Primario Encadenado

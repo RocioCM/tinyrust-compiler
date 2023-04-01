@@ -2,12 +2,11 @@
 Start = {"class" | "fn"}
 Clases = {"class" | LAMBDA}
 
-Main = "{" ¿¿¿"fn"???
-Miembros = {"Bool" | "I32" | "Str" | "Char" | "idClase" | "Array" | "pub" | "create" | "fn" | "static"}
+Main = "fn"
+Miembros = {"Bool" | "I32" | "Str" | "Char" | "idClase" | "Array" | "pub" | "create" | "fn" | "static" | LAMBDA}
 
 Clase = "class"
 Clase2 =  {"{" | ":"}
-MiembrosOp = {"}" | "Bool" | "I32" | "Str" | "Char" | "idClase" | "Array" | "pub" | "create" | "fn" | "static"}
 
 Herencia = ":"
 Miembro = {"Bool" | "I32" | "Str" | "Char" | "idClase" | "Array" | "pub" | "create" | "fn" | "static"}

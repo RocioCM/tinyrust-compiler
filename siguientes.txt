@@ -1,5 +1,7 @@
 Clases = {"fn"}
 
+Miembros = {"}"}
+
 Expression = {";" | ")" | "]" | ","}
 
 ExpOrP = {";" | ")" | "]" | ","}
