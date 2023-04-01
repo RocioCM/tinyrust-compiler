@@ -115,6 +115,7 @@ public class SyntacticAnalizer {
 			matchLexema("main");
 			matchLexema("(");
 			matchLexema(")");
+			BloqueMetodo();
 		} else {
 			throw new UnexpectedToken(token, "fn");
 		}
@@ -157,27 +158,65 @@ public class SyntacticAnalizer {
 	}
 
 	private void Miembros() throws LexicalError, SyntacticalError {
-		// TODO
+		if (isFirstL("Bool", "I32", "Str", "Char", "Array", "pub", "fn", "static", "create") || isFirstT("id_type")) {
+			Miembro();
+			Miembros();
+		}
+		// Como Miembros deriva Lambda, se continúa la ejecución
+		// si el token no matchea con los primeros.
 	}
 
 	private void Miembro() throws LexicalError, SyntacticalError {
-		if (isFirstL("Bool", "I32", "Str", "Char", "Array", "pub", "fn", "static", "create") || isFirstT("id_type")) {
-			if (isFirstT("id_type")) {
-				matchToken("id_type");
+		if (isFirstL("create")) {
+			Constructor();
+		} else {
+			if (isFirstL("fn", "static")) {
+				Metodo();
 			} else {
-				matchLexema("Bool", "I32", "Str", "Char", "Array", "pub", "fn", "static", "create");
+				if (isFirstL("Bool", "I32", "Str", "Char", "Array", "pub") || isFirstT("id_type")) {
+					Atributo();
+				} else {
+					throw new UnexpectedToken(token, "CONSTRUCTOR, METODO O ATRIBUTO");
+				}
 			}
 		}
-		// TODO
 	}
 
 	private void Atributo() throws LexicalError, SyntacticalError {
+		// TODO
 	}
 
 	private void Constructor() throws LexicalError, SyntacticalError {
+		if (isFirstL("create")) {
+			matchLexema("create");
+			ArgumentosFormales();
+			Bloque();
+		} else {
+			throw new UnexpectedToken(token, "CONSTRUCTOR, METODO O ATRIBUTO");
+		}
 	}
 
 	private void Metodo() throws LexicalError, SyntacticalError {
+		if (isFirstL("fn")) {
+			matchLexema("fn");
+			matchToken("id");
+			matchLexema("->");
+			TipoMetodo();
+			ArgumentosFormales();
+			BloqueMetodo();
+		} else {
+			if (isFirstL("static")) {
+				FormaMetodo();
+				matchLexema("fn");
+				matchToken("id");
+				matchLexema("->");
+				TipoMetodo();
+				ArgumentosFormales();
+				BloqueMetodo();
+			} else {
+				throw new UnexpectedToken(token, "\"static\" O \"fn\" (METODO)");
+			}
+		}
 	}
 
 	private void ArgumentosFormales() throws LexicalError, SyntacticalError {
