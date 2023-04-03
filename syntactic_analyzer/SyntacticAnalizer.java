@@ -132,19 +132,15 @@ public class SyntacticAnalizer {
 	}
 
 	private void ClaseHerenciaOp() throws LexicalError, SyntacticalError {
+		if (isFirstL(":")) {
+			Herencia();
+		}
 		if (isFirstL("{")) {
 			matchLexema("{");
 			Miembros();
 			matchLexema("}");
 		} else {
-			if (isFirstL(":")) {
-				Herencia();
-				matchLexema("{");
-				Miembros();
-				matchLexema("}");
-			} else {
-				throw new UnexpectedToken(token, "\"{\" O \":\"");
-			}
+			throw new UnexpectedToken(token, "\"{\" O \":\"");
 		}
 	}
 
@@ -183,7 +179,17 @@ public class SyntacticAnalizer {
 	}
 
 	private void Atributo() throws LexicalError, SyntacticalError {
-		// TODO
+		if (isFirstL("pub")) {
+			Visibilidad();
+		}
+		if (isFirstL("Bool", "I32", "Str", "Char", "Array") || isFirstT("id_type")) {
+			Tipo();
+			matchLexema(":");
+			ListaDeclaracionVariables();
+			matchLexema(";");
+		} else {
+			throw new UnexpectedToken(token, "CONSTRUCTOR, METODO O ATRIBUTO");
+		}
 	}
 
 	private void Constructor() throws LexicalError, SyntacticalError {
@@ -197,6 +203,9 @@ public class SyntacticAnalizer {
 	}
 
 	private void Metodo() throws LexicalError, SyntacticalError {
+		if (isFirstL("static")) {
+			FormaMetodo();
+		}
 		if (isFirstL("fn")) {
 			matchLexema("fn");
 			matchToken("id");
@@ -205,48 +214,103 @@ public class SyntacticAnalizer {
 			ArgumentosFormales();
 			BloqueMetodo();
 		} else {
-			if (isFirstL("static")) {
-				FormaMetodo();
-				matchLexema("fn");
-				matchToken("id");
-				matchLexema("->");
-				TipoMetodo();
-				ArgumentosFormales();
-				BloqueMetodo();
-			} else {
-				throw new UnexpectedToken(token, "\"static\" O \"fn\" (METODO)");
-			}
+			throw new UnexpectedToken(token, "\"static\" O \"fn\" (METODO)");
 		}
 	}
 
 	private void ArgumentosFormales() throws LexicalError, SyntacticalError {
+		if (isFirstL("(")) {
+			matchLexema("(");
+			if (isFirstL(")")) {
+				matchLexema(")");
+			} else {
+				ListaArgumentosFormales();
+				matchLexema(")");
+			}
+		} else {
+			throw new UnexpectedToken(token, "\"(\"");
+		}
 	}
 
 	private void ListaArgumentosFormales() throws LexicalError, SyntacticalError {
+		if (isFirstL("Bool", "I32", "Str", "Char", "Array") || isFirstT("id_type")) {
+			ArgumentoFormal();
+			if (isFirstL(",")) {
+				matchLexema(",");
+				ListaArgumentosFormales();
+				// No se lanza un error si no matchea "," ya que
+				// sería el caso del último argumento de la lista.
+			}
+		} else {
+			throw new UnexpectedToken(token, "UN IDENTIFICADOR DE CLASE O TIPO PRIMITIVO");
+		}
 	}
 
 	private void ArgumentoFormal() throws LexicalError, SyntacticalError {
+		if (isFirstL("Bool", "I32", "Str", "Char", "Array") || isFirstT("id_type")) {
+			Tipo();
+			matchLexema(":");
+			matchToken("id");
+		}
 	}
 
 	private void ArgumentosActuales() throws LexicalError, SyntacticalError {
+		if (isFirstL("(")) {
+			matchLexema("(");
+			if (isFirstL(")")) {
+				matchLexema(")");
+			} else {
+				ListaExpresiones();
+				matchLexema(")");
+			}
+		} else {
+			throw new UnexpectedToken(token, "\"(\"");
+		}
 	}
 
 	private void FormaMetodo() throws LexicalError, SyntacticalError {
+		matchLexema("static"); // Si no matchea, este método arrojará la excepción.
 	}
 
 	private void Visibilidad() throws LexicalError, SyntacticalError {
+		matchLexema("pub"); // Si no matchea, este método arrojará la excepción.
 	}
 
 	private void TipoMetodo() throws LexicalError, SyntacticalError {
+		if (isFirstL("Bool", "I32", "Str", "Char", "Array", "void") || isFirstT("id_type")) {
+			if (isFirstL("void")) {
+				matchLexema("void");
+			} else {
+				Tipo();
+			}
+		} else {
+			throw new UnexpectedToken(token, "UN TIPO DE RETORNO (CLASE O VOID)");
+		}
+
 	}
 
 	private void Tipo() throws LexicalError, SyntacticalError {
+		if (isFirstL("Bool", "I32", "Str", "Char", "Array") || isFirstT("id_type")) {
+			if (isFirstL("Array")) {
+				TipoArray();
+			}
+			if (isFirstT("id_type")) {
+				TipoReferencia();
+			}
+			if (isFirstL("Bool", "I32", "Str", "Char")) {
+				TipoPrimitivo();
+			}
+		} else {
+			throw new UnexpectedToken(token, "UN IDENTIFICADOR DE CLASE O TIPO PRIMITIVO");
+		}
 	}
 
 	private void TipoPrimitivo() throws LexicalError, SyntacticalError {
+		matchLexema("Bool", "I32", "Str", "Char");
 	}
 
 	private void TipoReferencia() throws LexicalError, SyntacticalError {
+		matchToken("id_type");
 	}
 
 	private void TipoArray() throws LexicalError, SyntacticalError {
