@@ -456,33 +456,82 @@ public class SyntacticAnalizer {
 	}
 
 	private void ExpOr() throws LexicalError, SyntacticalError {
+		if(isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
+				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
+			ExpAnd();
+			ExpOrP();
+		}else{
+			throw new UnexpectedToken(token, "UNA EXPRESION");
+		}
 	}
 
 	private void ExpOrP() throws LexicalError, SyntacticalError {
+		if (isFirstL("||")) {
+			matchLexema("||");
+			ExpAnd();
+			ExpOrP();
+		}
+		// Como ExpOrP deriva Lambda, se continúa la ejecución
 	}
 
 	private void ExpAnd() throws LexicalError, SyntacticalError {
+		//ExpAnd = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"}
+		if(isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
+				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
+			ExpIgual();
+			ExpAndP();
+		}else{
+			throw new UnexpectedToken(token, "UNA EXPRESION");
+		}
 	}
 
 	private void ExpAndP() throws LexicalError, SyntacticalError {
+		if(isFirstL("&&")) {
+			matchLexema("&&");
+			ExpIgual();
+			ExpAndP();
+		}
 	}
 
 	private void ExpIgual() throws LexicalError, SyntacticalError {
+		//"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"
+		if( isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
+				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")){
+			ExpCompuesta();
+			ExpIgualP();
+		}else{
+			throw new UnexpectedToken(token, "UNA EXPRESION");
+		}
 	}
 
 	private void ExpIgualP() throws LexicalError, SyntacticalError {
+		OpIgual();
+		ExpCompuesta();
+		ExpIgualP();
+		//Como deriva Lambda, no se lanza excepción si no matchea
 	}
 
 	private void ExpCompuesta() throws LexicalError, SyntacticalError {
+		ExpAdd();
+		OpCompuesto();
+		ExpAdd(); //REVISE
 	}
 
 	private void ExpAdd() throws LexicalError, SyntacticalError {
+		ExpMul();
+		ExpAddP();
 	}
 
 	private void ExpAddP() throws LexicalError, SyntacticalError {
+		OpAdd();
+		ExpMul();
+		ExpAddP();
 	}
 
 	private void ExpMul() throws LexicalError, SyntacticalError {
+		OpMul();
+		ExpUn();
+		ExpMulP();
 	}
 
 	private void ExpMulP() throws LexicalError, SyntacticalError {
@@ -492,6 +541,7 @@ public class SyntacticAnalizer {
 	}
 
 	private void OpIgual() throws LexicalError, SyntacticalError {
+		matchLexema("==", "!=");
 	}
 
 	private void OpCompuesto() throws LexicalError, SyntacticalError {
