@@ -28,25 +28,24 @@ Tipo-Referencia = "idClase"
 Tipo-Array = "Array"
 Lista-Declaración-Variables= "idMétodoVariable"
 Bloque-Método = "{"
-SentenciasOp = {";" | "id" | "self" | "(" | "if" | "while" | "{" | "return" | "}"}
 
-Decl-Var-LocalesN := "var"
+Decl-Var-LocalesN := "var" | LAMBDA
 
 Decl-Var-Locales = "var"
 
-Sentencias = {";" | "id" | "self" | "(" | "if" | "while" | "{" | "return"}
+Sentencias = {";" | "idMétodoVariable" | "self" | "(" | "if" | "while" | "{" | "return" | LAMBDA}
 
-Sentencia = {";" | "id" | "self" | "(" | "if" | "while" | "{" | "return"}
+Sentencia = {";" | "idMétodoVariable" | "self" | "(" | "if" | "while" | "{" | "return"}
 
 ElseOp = {"else" | LAMBDA}
 
 Bloque = "{"
 
 
-Asignación = {"id" | "self"}
-Asignación-Variable-Simple  = "id"
+Asignación = {"idMétodoVariable" | "self"}
+Asignación-Variable-Simple  = "idMétodoVariable"
 
-Encadenado-SimpleN = "."
+Encadenado-SimpleN = "." | LAMBDA
 
 Asignación-Self-Simple = "self"
 
@@ -54,42 +53,42 @@ Encadenado-Simple = "."
 
 Sentencia-Simple = "("
 
-Lista-Expresiones = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new"}
+Lista-Expresiones = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"}
 
-Expresión = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new"}
-ExpOr = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new"}
+Expresión = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"}
+ExpOr = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"}
 ExpOrP = {"||" | LAMBDA}
-ExpAnd = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new"}
+ExpAnd = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"}
 ExpAndP = {"&&" | LAMBDA}
-ExpIgual = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new"}
+ExpIgual = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"}
 ExpIgualP = {"==" | "!=" | LAMBDA}
-ExpCompuesta = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new"}
-ExpAdd = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new"}
+ExpCompuesta = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"}
+ExpAdd = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"}
 ExpAddP = {"+" | "-" | LAMBDA}
-ExpMul = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new"}
+ExpMul = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"}
 ExpMulP = {"*" | "/" | "%" | LAMBDA}
-ExpUn = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new"}
+ExpUn = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"}
 
 OpIgual = "==" | "!="
 OpCompuesto = "<" | ">" | "<=" | ">="
 OpAdd = "+" | "-"
 OpUnario = "+" | "-" | "!"
 OpMul = "*" | "/" | "%"
-Operando = {"nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "id"  | "idClase" | "new" }
+Operando = {"nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new" }
 Literal = {"nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral"}
-Primario = {"(" | "self" | "id"  | "idClase" | "new"}
+Primario = {"(" | "self" | "idMétodoVariable"  | "idClase" | "new"}
 ExpresionParentizada = "("
 AccesoSelf = "self"
-AccesoVar = "id" 
-Llamada-Método = "id" 
+AccesoVar = "idMétodoVariable" 
+Llamada-Método = "idMétodoVariable" 
 Llamada-Método-Estático = "idClase"
 Llamada-Constructor = "new"
 
 Argumentos-Actuales = "("
 Encadenado = "."
 
-Llamada-Método-Encadenado = "id"
-Acceso-Variable-Encadenado = "id" 
+Llamada-Método-Encadenado = "idMétodoVariable"
+Acceso-Variable-Encadenado = "idMétodoVariable" 
 EncadenadoOp = {"." | LAMBDA}
 
 #----------------------------fin gramática tinyRust+---------------------------------

@@ -110,25 +110,17 @@ public class SyntacticAnalizer {
 	}
 
 	private void Main() throws LexicalError, SyntacticalError {
-		if (isFirstL("fn")) {
-			matchLexema("fn");
-			matchLexema("main");
-			matchLexema("(");
-			matchLexema(")");
-			BloqueMetodo();
-		} else {
-			throw new UnexpectedToken(token, "fn");
-		}
+		matchLexema("fn"); // Si no matchea, este método arrojará la excepción.
+		matchLexema("main");
+		matchLexema("(");
+		matchLexema(")");
+		BloqueMetodo();
 	}
 
 	private void Clase() throws LexicalError, SyntacticalError {
-		if (isFirstL("class")) {
-			matchLexema("class");
-			matchToken("id_type");
-			ClaseHerenciaOp();
-		} else {
-			throw new UnexpectedToken(token, "class");
-		}
+		matchLexema("class"); // Si no matchea, este método arrojará la excepción.
+		matchToken("id_type");
+		ClaseHerenciaOp();
 	}
 
 	private void ClaseHerenciaOp() throws LexicalError, SyntacticalError {
@@ -193,13 +185,10 @@ public class SyntacticAnalizer {
 	}
 
 	private void Constructor() throws LexicalError, SyntacticalError {
-		if (isFirstL("create")) {
-			matchLexema("create");
-			ArgumentosFormales();
-			Bloque();
-		} else {
-			throw new UnexpectedToken(token, "CONSTRUCTOR, METODO O ATRIBUTO");
-		}
+		matchLexema("create"); // Si no matchea, este método arrojará la excepción.
+		ArgumentosFormales();
+		Bloque();
+
 	}
 
 	private void Metodo() throws LexicalError, SyntacticalError {
@@ -219,16 +208,12 @@ public class SyntacticAnalizer {
 	}
 
 	private void ArgumentosFormales() throws LexicalError, SyntacticalError {
-		if (isFirstL("(")) {
-			matchLexema("(");
-			if (isFirstL(")")) {
-				matchLexema(")");
-			} else {
-				ListaArgumentosFormales();
-				matchLexema(")");
-			}
+		matchLexema("("); // Si no matchea, este método arrojará la excepción.
+		if (isFirstL(")")) {
+			matchLexema(")");
 		} else {
-			throw new UnexpectedToken(token, "\"(\"");
+			ListaArgumentosFormales();
+			matchLexema(")");
 		}
 	}
 
@@ -255,16 +240,12 @@ public class SyntacticAnalizer {
 	}
 
 	private void ArgumentosActuales() throws LexicalError, SyntacticalError {
-		if (isFirstL("(")) {
-			matchLexema("(");
-			if (isFirstL(")")) {
-				matchLexema(")");
-			} else {
-				ListaExpresiones();
-				matchLexema(")");
-			}
+		matchLexema("("); // Si no matchea, este método arrojará la excepción.
+		if (isFirstL(")")) {
+			matchLexema(")");
 		} else {
-			throw new UnexpectedToken(token, "\"(\"");
+			ListaExpresiones();
+			matchLexema(")");
 		}
 	}
 
@@ -286,7 +267,6 @@ public class SyntacticAnalizer {
 		} else {
 			throw new UnexpectedToken(token, "UN TIPO DE RETORNO (CLASE O VOID)");
 		}
-
 	}
 
 	private void Tipo() throws LexicalError, SyntacticalError {
@@ -314,51 +294,165 @@ public class SyntacticAnalizer {
 	}
 
 	private void TipoArray() throws LexicalError, SyntacticalError {
+		matchLexema("Array"); // Si no matchea, este método arrojará la excepción.
+		TipoPrimitivo();
 	}
 
 	private void ListaDeclaracionVariables() throws LexicalError, SyntacticalError {
+		matchToken("id"); // Si no matchea, este método arrojará la excepción.
+		if (isFirstL(",")) {
+			matchLexema(",");
+			ListaDeclaracionVariables();
+			// No se lanza un error si no matchea "," ya que
+			// sería el caso de la última variable de la lista.
+		}
 	}
 
 	private void DeclVarLocalesN() throws LexicalError, SyntacticalError {
+		if (isFirstL("var")) {
+			DeclVarLocales();
+			DeclVarLocalesN();
+		}
+		// Como DeclVarLocalesN deriva Lambda, se continúa la ejecución
+		// si el token no matchea con los primeros.
 	}
 
 	private void DeclVarLocales() throws LexicalError, SyntacticalError {
+		matchLexema("var"); // Si no matchea, este método arrojará la excepción.
+		Tipo();
+		ListaDeclaracionVariables();
 	}
 
 	private void Sentencia() throws LexicalError, SyntacticalError {
+		if (isFirstL(";", "self", "(", "if", "while", "{", "return") || isFirstT("id")) {
+			if (isFirstL(";")) {
+				matchLexema(";");
+			}
+			if (isFirstL("self") || isFirstT("id")) {
+				Asignacion();
+				matchLexema(";");
+			}
+			if (isFirstL("(")) {
+				SentenciaSimple();
+				matchLexema(";");
+			}
+			if (isFirstL("if")) {
+				matchLexema("if");
+				matchLexema("(");
+				Expresion();
+				matchLexema(")");
+				Sentencia();
+				ElseOp();
+			}
+			if (isFirstL("while")) {
+				matchLexema("while");
+				matchLexema("(");
+				Expresion();
+				matchLexema(")");
+				Sentencia();
+			}
+			if (isFirstL("{")) {
+				Bloque();
+			}
+			if (isFirstL("return")) {
+				matchLexema("return");
+				if (isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
+						|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
+					Expresion();
+				}
+				matchLexema(";");
+			}
+		} else {
+			throw new UnexpectedToken(token, "UNA SENTENCIA");
+		}
 	}
 
 	private void Sentencias() throws LexicalError, SyntacticalError {
-	}
-
-	private void SentenciasOp() throws LexicalError, SyntacticalError {
+		if (isFirstL(";", "self", "(", "if", "while", "{", "return") || isFirstT("id")) {
+			Sentencia();
+			Sentencias();
+		}
+		// Como Sentencias deriva Lambda, se continúa la ejecución
+		// si el token no matchea con los primeros.
 	}
 
 	private void SentenciaSimple() throws LexicalError, SyntacticalError {
+		matchLexema("("); // Si no matchea, este método arrojará la excepción.
+		Expresion();
+		matchLexema(")");
 	}
 
 	private void ElseOp() throws LexicalError, SyntacticalError {
+		if (isFirstL("else")) {
+			matchLexema("else");
+			Sentencia();
+		}
+		// Como ElseOp deriva Lambda, se continúa la ejecución
+		// si el token no matchea con los primeros.
 	}
 
 	private void Bloque() throws LexicalError, SyntacticalError {
+		matchLexema("{"); // Si no matchea, este método arrojará la excepción.
+		Sentencias();
+		matchLexema("}");
 	}
 
 	private void BloqueMetodo() throws LexicalError, SyntacticalError {
+		matchLexema("{"); // Si no matchea, este método arrojará la excepción.
+		DeclVarLocalesN();
+		Sentencias();
+		matchLexema("}");
 	}
 
 	private void Asignacion() throws LexicalError, SyntacticalError {
+		if (isFirstL("self", "var")) {
+			if (isFirstL("self")) {
+				AsignacionSelfSimple();
+			} else {
+				AsignacionVariableSimple();
+			}
+			matchLexema("=");
+			Expresion();
+		} else {
+			throw new UnexpectedToken(token, "\"self\" O \"var\"");
+		}
 	}
 
 	private void AsignacionVariableSimple() throws LexicalError, SyntacticalError {
+		matchToken("id"); // Si no matchea, este método arrojará la excepción.
+		if (isFirstL("[")) {
+			matchLexema("[");
+			Expresion();
+			matchLexema("]");
+		} else {
+			EncadenadoSimpleN();
+			// Como EncadenadoSimpleN deriva Lambda, no tirará excepción
+			// si el token no matchea con sus primeros.
+		}
 	}
 
 	private void AsignacionSelfSimple() throws LexicalError, SyntacticalError {
+		matchLexema("self"); // Si no matchea, este método arrojará la excepción.
+		EncadenadoSimpleN();
 	}
 
 	private void ListaExpresiones() throws LexicalError, SyntacticalError {
+		Expresion(); // Si no matchea, este método arrojará la excepción.
+		if (isFirstL(",")) {
+			matchLexema(",");
+			ListaExpresiones();
+			// No se lanza un error si no matchea "," ya que
+			// sería el caso de la última expresión de la lista.
+		}
 	}
 
 	private void Expresion() throws LexicalError, SyntacticalError {
+		if (isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
+				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
+			ExpOr();
+		} else {
+			throw new UnexpectedToken(token, "UNA EXPRESION");
+		}
 	}
 
 	private void ExpOr() throws LexicalError, SyntacticalError {

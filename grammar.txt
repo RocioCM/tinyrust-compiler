@@ -28,17 +28,14 @@ Tipo ::= Tipo-Primitivo | Tipo-Referencia | Tipo-Array
 Tipo-Primitivo ::= "Bool" | "I32" | "Str" | "Char"
 Tipo-Referencia ::= "idClase" 
 Tipo-Array ::= "Array" Tipo-Primitivo 
-Lista-Declaración-Variables::= "idMétodoVariable" | "idMétodoVariable" "," Lista-Declaracion-Variables
-Bloque-Método ::= "{" "}"
-	| "{" Sentencias "}"
-	| "{" Decl-Var-LocalesN SentenciasOp
-SentenciasOp ::= "}" | Sentencias "}"
+Lista-Declaración-Variables ::= "idMétodoVariable" | "idMétodoVariable" "," Lista-Declaracion-Variables
+Bloque-Método ::= "{" Decl-Var-LocalesN Sentencias "}"
 
-Decl-Var-LocalesN := Decl-Var-Locales Decl-Var-LocalesN | Decl-Var-Locales
+Decl-Var-LocalesN := Decl-Var-Locales Decl-Var-LocalesN | LAMBDA
 
 Decl-Var-Locales ::= "var" Tipo Lista-Declaracion-Variables
 
-Sentencias ::= Sentencia | Sentencia Sentencias
+Sentencias ::= Sentencia Sentencias | LAMBDA
 
 Sentencia ::= ";"
     | Asignación";" 
@@ -51,17 +48,17 @@ Sentencia ::= ";"
 
 ElseOp ::= "else" Sentencia | LAMBDA
 
-Bloque ::= "{" "}" | "{" Sentencias "}"
+Bloque ::= "{" Sentencias "}"
 
 
-Asignación ::= Asignación-Variable-Simple "="" Expresión | Asignación-Self-Simple "="" Expresión
-Asignación-Variable-Simple  ::= "id" | "id" "[" Expresión "]"	| "id" Encadenado-SimpleN
+Asignación ::= Asignación-Variable-Simple "=" Expresión | Asignación-Self-Simple "="" Expresión
+Asignación-Variable-Simple  ::= "idMétodoVariable" "[" Expresión "]" | "idMétodoVariable" Encadenado-SimpleN
 
-Encadenado-SimpleN ::= Encadenado-Simple Encadenado-SimpleN | Encadenado-Simple
+Encadenado-SimpleN ::= Encadenado-Simple Encadenado-SimpleN | LAMBDA
 
-Asignación-Self-Simple ::= "self" | "self" Encadenado-SimpleN
+Asignación-Self-Simple ::= "self" Encadenado-SimpleN
 
-Encadenado-Simple ::= "." "id"
+Encadenado-Simple ::= "." "idMétodoVariable"
 
 Sentencia-Simple ::= "(" Expresión ")" 
 
@@ -91,8 +88,8 @@ Literal ::= "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLit
 Primario ::= ExpresionParentizada | AccesoSelf | AccesoVar  | Llamada-Método  | Llamada-Método-Estático | Llamada-Constructor
 ExpresionParentizada ::= "(" Expresión ")" EncadenadoOp
 AccesoSelf ::= "self" Encadenado | "self" 
-AccesoVar ::= "id" Encadenado | "id" 
-Llamada-Método ::= "id" Argumentos-Actuales EncadenadoOp 
+AccesoVar ::= "idMétodoVariable" Encadenado | "idMétodoVariable" 
+Llamada-Método ::= "idMétodoVariable" Argumentos-Actuales EncadenadoOp 
 Llamada-Método-Estático ::= "idClase" "." Llamada-Método EncadenadoOp
 Llamada-Constructor ::= "new" "idClase" Argumentos-Actuales EncadenadoOp
 	| "new" Tipo-Primitivo "[" Expresión "]"
@@ -100,8 +97,8 @@ Llamada-Constructor ::= "new" "idClase" Argumentos-Actuales EncadenadoOp
 Argumentos-Actuales ::= "(" ")" | "(" Lista-Expresiones ")"
 Encadenado ::= "." Llamada-Método-Encadenado | "." Acceso-Variable-Encadenado
 
-Llamada-Método-Encadenado ::= "id" Argumentos-Actuales EncadenadoOp
-Acceso-Variable-Encadenado ::= "id" | "id" Encadenado | id "[" Expresión "]"
+Llamada-Método-Encadenado ::= "idMétodoVariable" Argumentos-Actuales EncadenadoOp
+Acceso-Variable-Encadenado ::= "idMétodoVariable" | "idMétodoVariable" Encadenado | "idMétodoVariable" "[" Expresión "]"
 EncadenadoOp ::= Encadenado | LAMBDA
 
 #----------------------------fin gramática tinyRust+---------------------------------

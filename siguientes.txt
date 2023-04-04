@@ -2,6 +2,12 @@ Clases = {"fn"}
 
 Miembros = {"}"}
 
+Sentencias = {"}"}
+
+Decl-Var-LocalesN = {";" | "idMétodoVariable" | "self" | "(" | "if" | "while" | "{" | "return" | "}"}
+
+Encadenado-SimpleN = {"="}
+
 Expression = {";" | ")" | "]" | ","}
 
 ExpOrP = {";" | ")" | "]" | ","}
@@ -16,4 +22,4 @@ ExpMulP = { "+" | "-" | "<" | ">" | "<=" | ">=" | "==" | "!=" | "&&" | "||" | ";
 
 EncadenadoOp = {"." | "*" | "/" | "%" | "+" | "-" | "<" | ">" | "<=" | ">=" | "==" | "!=" | "&&" | "||" | ";" | ")" | "]" | ","}
 
-ElseOp = {"else" | ";" | "id" | "self" | "(" | "if" | "while" | "{" | "return" | "}"}
+ElseOp = {"else" | ";" | "idMétodoVariable" | "self" | "(" | "if" | "while" | "{" | "return" | "}"}
