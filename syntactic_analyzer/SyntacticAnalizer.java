@@ -66,6 +66,18 @@ public class SyntacticAnalizer {
 		}
 	}
 
+	private void matchWithoutConsumeLexema(String... types) throws LexicalError, SyntacticalError {
+		if (!Arrays.asList(types).contains(token.getLexema())) {
+			throw new UnexpectedToken(token, types[0]); // TODO: show good error message with tokens type.
+		}
+	}
+
+	private void matchWithoutConsumeToken(String... types) throws LexicalError, SyntacticalError {
+		if (!Arrays.asList(types).contains(token.getToken())) {
+			throw new UnexpectedToken(token, types[0]); // TODO: show good error message with tokens type.
+		}
+	}
+
 	/**
 	 * Compara el lexema del token actual contra la lista de lexemas recibida.
 	 * Retorna true si coincide con algún elemento de la lista.
@@ -505,39 +517,97 @@ public class SyntacticAnalizer {
 	}
 
 	private void ExpIgualP() throws LexicalError, SyntacticalError {
-		OpIgual();
-		ExpCompuesta();
-		ExpIgualP();
+		if(isFirstL("==", "!=")) {
+			OpIgual();
+			ExpCompuesta();
+			ExpIgualP();
+		}
 		//Como deriva Lambda, no se lanza excepción si no matchea
 	}
 
 	private void ExpCompuesta() throws LexicalError, SyntacticalError {
-		ExpAdd();
-		OpCompuesto();
-		ExpAdd(); //REVISE
+		//"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"
+		if( isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
+				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")){
+			ExpAdd();
+			OpCompuesto();
+			ExpAdd();
+		} //REVISE THIS
+		else{
+			throw new UnexpectedToken(token, "UNA EXPRESION");
+		}
 	}
 
 	private void ExpAdd() throws LexicalError, SyntacticalError {
-		ExpMul();
-		ExpAddP();
+		//"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"
+		if(isFirstL(
+				"+", "-", "!", "nil", "true", "false", "(", "self", "new")
+				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type"
+		)){
+			ExpMul();
+			ExpAddP();
+		}else{
+			throw new UnexpectedToken(token, "UNA EXPRESION");
+		}
 	}
 
 	private void ExpAddP() throws LexicalError, SyntacticalError {
-		OpAdd();
-		ExpMul();
-		ExpAddP();
+		//"+" | "-" | LAMBDA
+		if(isFirstL("+", "-")) {
+			OpAdd();
+			ExpMul();
+			ExpAddP();
+		}
+		//Como deriva Lambda, no se lanza excepción si no matchea
 	}
 
 	private void ExpMul() throws LexicalError, SyntacticalError {
-		OpMul();
-		ExpUn();
-		ExpMulP();
+		//"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"
+		if(isFirstL(
+				"+", "-", "!", "nil", "true", "false", "(", "self", "new")
+				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type"
+		)){
+			ExpUn();
+			ExpMulP();
+		}else{
+			throw new UnexpectedToken(token, "UNA EXPRESION");
+		}
 	}
 
 	private void ExpMulP() throws LexicalError, SyntacticalError {
+		// "*" | "/" | "%" | LAMBDA
+		if(isFirstL("*", "/", "%")) {
+			OpMul();
+			ExpUn();
+			ExpMulP();
+		}
+		//Como deriva Lambda, no se lanza excepción si no matchea
 	}
 
 	private void ExpUn() throws LexicalError, SyntacticalError {
+		//"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" |
+		//"stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  |
+		// "idClase" | "new"
+		if(isFirstL(
+				"+", "-", "!", "nil", "true", "false", "(", "self", "new")
+				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type"
+		)){
+			OpUnario();
+			ExpUn();
+		}else{
+			//"nil" | "true" | "false" | "intLiteral" | "stringLiteral" 
+			//| "charLiteral" | "(" | "self" | "idMétodoVariable"  
+			//| "idClase" | "new"
+			if(isFirstL(
+					"!", "nil", "true", "false", "(", "self", "new")
+					|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type"
+			)){
+				Operando();
+			}else{
+				throw new UnexpectedToken(token, "UNA EXPRESION");
+			}
+		}
+		
 	}
 
 	private void OpIgual() throws LexicalError, SyntacticalError {
@@ -545,18 +615,23 @@ public class SyntacticAnalizer {
 	}
 
 	private void OpCompuesto() throws LexicalError, SyntacticalError {
+		matchLexema("<", ">", "<=", ">=", "is");
 	}
 
 	private void OpAdd() throws LexicalError, SyntacticalError {
+		matchLexema("+", "-");
 	}
 
 	private void OpUnario() throws LexicalError, SyntacticalError {
+		matchLexema("+", "-", "!");
 	}
 
 	private void OpMul() throws LexicalError, SyntacticalError {
+		matchLexema("*", "/", "%");
 	}
 
 	private void Operando() throws LexicalError, SyntacticalError {
+
 	}
 
 	private void Literal() throws LexicalError, SyntacticalError {
@@ -584,9 +659,17 @@ public class SyntacticAnalizer {
 	}
 
 	private void EncadenadoSimpleN() throws LexicalError, SyntacticalError {
+		if(isFirstL(".")){
+			matchLexema(".");
+			EncadenadoSimple();
+			EncadenadoSimpleN();
+		}
+		//Como deriva Lambda, no se lanza excepción si no matchea
 	}
 
 	private void EncadenadoSimple() throws LexicalError, SyntacticalError {
+		matchLexema(".");
+		matchToken("id");
 	}
 
 	private void Encadenado() throws LexicalError, SyntacticalError {

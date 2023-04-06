@@ -1,5 +1,5 @@
 class Hola {} 
 
 fn main() {
-		let x = Hola;
+	var Hola cuchau = 2;
 }
