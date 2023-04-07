@@ -536,9 +536,9 @@ public class SyntacticAnalizer {
 	private void ExpCompuesta() throws LexicalError, SyntacticalError {
 		// "+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" |
 		// "charLiteral" | "(" | "self" | "idMétodoVariable" | "idClase" | "new"
+		ExpAdd();
 		if (isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
 				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
-			ExpAdd();
 			OpCompuesto();
 			ExpAdd();
 		} // REVISE THIS
@@ -650,7 +650,7 @@ public class SyntacticAnalizer {
 		} else {
 			// "intLiteral" | "stringLiteral" | "charLiteral"
 			if (isFirstT("lit_int", "lit_string", "lit_char")) {
-				matchLexema("lit_int", "lit_string", "lit_char");
+				matchToken("lit_int", "lit_string", "lit_char");
 			} else {
 				throw new UnexpectedToken(token, "UN LITERAL");
 			}
