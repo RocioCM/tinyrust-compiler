@@ -629,31 +629,112 @@ public class SyntacticAnalizer {
 	}
 
 	private void Operando() throws LexicalError, SyntacticalError {
-
+		// "(" | "self" | "idMétodoVariable"  | "idClase" | "new"
+		if (isFirstL("(", "self", "new") || isFirstT("id", "id_type")) {
+			Primario();
+			Encadenado();
+		}else{
+			// "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral"
+			if ( isFirstL("nil", "true", "false") || isFirstT("lit_int", "lit_string", "lit_char")) {
+				Literal();
+			} else {
+				throw new UnexpectedToken(token, "UN OPERANDO");
+			}
+		}
 	}
 
 	private void Literal() throws LexicalError, SyntacticalError {
+		// "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral"
+		if (isFirstL("nil", "true", "false")) {
+			matchLexema("nil", "true", "false");
+		} else {
+			// "intLiteral" | "stringLiteral" | "charLiteral"
+			if (isFirstT("lit_int", "lit_string", "lit_char")) {
+				matchLexema("lit_int", "lit_string", "lit_char");
+			} else {
+				throw new UnexpectedToken(token, "UN LITERAL");
+			}
+		}
 	}
 
 	private void Primario() throws LexicalError, SyntacticalError {
+		//"(" | "self" | "idMétodoVariable"  | "idClase" | "new"
+		if(isFirstL("(")){
+			ExpresionParentizada();
+		}else{
+			if( isFirstL("self")){
+				AccesoSelf();
+			}else{
+				if( isFirstT("id")){
+					//Miramos qué hay después del identificador sin consumirlo
+					if(nextToken.getLexema() == "("){
+						LlamadaMetodo();
+					}else{
+						AccesoVar();
+					}
+				}else{
+					if( isFirstT("id_type")){
+						LlamadaMetodoEstatico();
+					}else{
+						if( isFirstL("new")){
+							LlamadaConstructor();
+						}else{
+							throw new UnexpectedToken(token, "( O self O id O id_type O new");
+						}
+					}
+				}
+			}
+		}
 	}
 
 	private void ExpresionParentizada() throws LexicalError, SyntacticalError {
+		matchLexema("(");
+		Expresion();
+		matchLexema(")");
+		EncadenadoOp();
 	}
 
 	private void AccesoSelf() throws LexicalError, SyntacticalError {
+		matchLexema("self");
+		EncadenadoOp();
 	}
 
 	private void AccesoVar() throws LexicalError, SyntacticalError {
+		matchToken("id");
+		if(nextToken.getLexema() == "["){
+			matchLexema("[");
+			Expresion();
+			matchLexema("]");
+		}else{
+			EncadenadoOp();
+		}
 	}
 
 	private void LlamadaMetodo() throws LexicalError, SyntacticalError {
+		matchToken("id");
+		ArgumentosActuales();
+		EncadenadoOp();
 	}
 
 	private void LlamadaMetodoEstatico() throws LexicalError, SyntacticalError {
+		matchToken("id_type");
+		matchLexema(".");
+		LlamadaMetodo();
+		EncadenadoOp();
 	}
 
 	private void LlamadaConstructor() throws LexicalError, SyntacticalError {
+		matchLexema("new");
+		if(nextToken.getToken() == "id_type"){
+			matchToken("id_type");
+			ArgumentosActuales();
+			EncadenadoOp();
+		}else{
+			TipoPrimitivo();
+			matchLexema("[");
+			Expresion();
+			matchLexema("]");
+		}
 	}
 
 	private void EncadenadoSimpleN() throws LexicalError, SyntacticalError {
@@ -671,11 +752,34 @@ public class SyntacticAnalizer {
 	}
 
 	private void Encadenado() throws LexicalError, SyntacticalError {
+		matchLexema(".");
+		matchToken("id");
+		if(nextToken.getLexema() == "("){
+			LlamadaMetodoEncadenado();
+		}else{
+			AccesoVariableEncadenado();
+		}
 	}
 
 	private void EncadenadoOp() throws LexicalError, SyntacticalError {
+		if (isFirstL(".")) {
+			Encadenado();
+		}
 	}
 
 	private void AccesoVariableEncadenado() throws LexicalError, SyntacticalError {
+		if(nextToken.getLexema() == "["){
+			matchLexema("[");
+			Expresion();
+			matchLexema("]");
+		}else{
+			EncadenadoOp();
+		}
 	}
+
+	private void LlamadaMetodoEncadenado() throws LexicalError, SyntacticalError {
+		ArgumentosActuales();
+		EncadenadoOp();
+	}
+
 }
