@@ -736,7 +736,7 @@ public class SyntacticAnalizer {
 	}
 
 	private void AccesoVariableEncadenado() throws LexicalError, SyntacticalError {
-		if (nextToken.getLexema().equals("[")) {
+		if (isFirstL("[")) {
 			matchLexema("[");
 			Expresion();
 			matchLexema("]");
