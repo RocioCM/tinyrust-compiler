@@ -1,0 +1,3 @@
+class Fn {
+	creater () {}
+}

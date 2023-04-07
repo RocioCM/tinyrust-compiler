@@ -29,9 +29,9 @@ class TinyRustCompiler {
 			}
 
 			// Se inicializa la ejecución del compilador.
-			for (int i = 0; i < 1; i++) {
+			for (int i = 0; i < 4; i++) {
 				inputPath = "./tests/syntactic/test (" + i + ").rs";
-				System.out.println("Ejecutando " + inputPath);
+				System.out.println("------------> \nEjecutando " + inputPath);
 				new Executor().run(inputPath, outputPath);
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
