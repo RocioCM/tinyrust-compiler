@@ -1,4 +1,3 @@
-class Hola -> Hola {
-} 
-
-fn main () {}
+class Fn {
+	create (, Hola: h ) {}
+}

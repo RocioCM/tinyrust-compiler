@@ -1,4 +1,3 @@
-class Hola -> Hola {
-} 
-
-fn main () {}
+class Fn {
+	create (Array Array I32: hola) {}
+}

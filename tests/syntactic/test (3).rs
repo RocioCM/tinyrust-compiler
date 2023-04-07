@@ -1,5 +1,10 @@
 class Hola {} 
-class Hola {} 
+class Hola {
+	static fn hola() -> void {}
+	fn hola32() -> Array I32 {}
+	static fn hola32() -> I32 {}
+	fn hola32() -> Cosa {}
+} 
 class Hola {
 	create () {}
 } 
@@ -17,9 +22,7 @@ class Fibonacci: Fibo {
 	create () {}
 
 	fn hola() -> void {}
-	fn hola32() -> I32 {}
-	fn hola32() -> Array I32 {}
-	fn hola32() -> Cosa {}
+	fn hola32(Hola: hola) -> I32 {}
 	
 	pub Hola: hola;
 	pub Hola: hola, hola, chau;
@@ -28,10 +31,8 @@ class Fibonacci: Fibo {
 	pub String: hola, chau, chau, chau, chaU2;
 	pub Str: hola, chau, chau, chau, chaU2;
 
-	static fn hola() -> void {}
-	fn hola32() -> I32 {}
-	fn hola32() -> Array I32 {}
-	fn hola32() -> Cosa {}
+	static fn hola32() -> Array I32 {}
+	static fn hola32(Array I32: hola, Chau: hola, I32: hola33_12, Str: ho_la, Hola: hola21) -> Cosa {}
 	pub Array I32: hola, hola, chau;
 	create (Array I32: hola, Chau: hola, I32: hola33_12, Str: ho_la, Hola: hola21) {
 	}

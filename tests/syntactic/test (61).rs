@@ -1,0 +1,4 @@
+class Fn {
+	create ( {
+	}
+}
