@@ -8,4 +8,4 @@ fn main() {
 }
 
 
-//CORRECTO
+// CORRECTO: ANALISIS SINTACTICO

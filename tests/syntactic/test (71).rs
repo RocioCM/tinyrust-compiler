@@ -7,4 +7,4 @@ fn main() {
 	buenas = buenas == 1;
 }
 
-/*CORRECTO*/
+/*CORRECTO: ANALISIS SINTACTICO*/
