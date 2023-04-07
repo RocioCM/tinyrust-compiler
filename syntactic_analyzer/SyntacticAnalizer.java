@@ -108,7 +108,7 @@ public class SyntacticAnalizer {
 			Clases();
 			Main();
 		} else {
-			throw new UnexpectedToken(token, "");
+			throw new UnexpectedToken(token, "DECLARACION DE CLASES O METODO MAIN");
 		}
 	}
 
@@ -594,24 +594,15 @@ public class SyntacticAnalizer {
 	}
 
 	private void ExpUn() throws LexicalError, SyntacticalError {
-		// "+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" |
-		// "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable" |
-		// "idClase" | "new"
-		if (isFirstL(
-				"+", "-", "!", "nil", "true", "false", "(", "self", "new")
-				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
+		if (isFirstL("+", "-", "!")) {
 			OpUnario();
 			ExpUn();
 		} else {
-			// "nil" | "true" | "false" | "intLiteral" | "stringLiteral"
-			// | "charLiteral" | "(" | "self" | "idMétodoVariable"
-			// | "idClase" | "new"
-			if (isFirstL(
-					"!", "nil", "true", "false", "(", "self", "new")
+			if (isFirstL("nil", "true", "false", "(", "self", "new")
 					|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
 				Operando();
 			} else {
-				throw new UnexpectedToken(token, "UNA EXPRESION");
+				throw new UnexpectedToken(token, "TODO");
 			}
 		}
 
@@ -622,7 +613,7 @@ public class SyntacticAnalizer {
 	}
 
 	private void OpCompuesto() throws LexicalError, SyntacticalError {
-		matchLexema("<", ">", "<=", ">=", "is");
+		matchLexema("<", ">", "<=", ">=");
 	}
 
 	private void OpAdd() throws LexicalError, SyntacticalError {

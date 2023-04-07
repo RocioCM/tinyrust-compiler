@@ -1,5 +1,7 @@
 class Hola {} 
 
 fn main() {
-	var Hola cuchau = 2;
+	Hola: hola;
+	Hola: hola, chau, chau2;
+	Array Hola: hola, chau, chau2;
 }

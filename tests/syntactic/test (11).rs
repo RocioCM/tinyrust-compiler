@@ -1,0 +1,5 @@
+class fibonacci {
+
+}
+
+fn main () {}

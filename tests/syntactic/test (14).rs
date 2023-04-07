@@ -1,0 +1,1 @@
+class Fibo: I32 {}
