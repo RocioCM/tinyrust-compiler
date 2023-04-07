@@ -29,9 +29,9 @@ Tipo-Array = "Array"
 Lista-Declaración-Variables= "idMétodoVariable"
 Bloque-Método = "{"
 
-Decl-Var-LocalesN := "var" | LAMBDA
+Decl-Var-LocalesN := {"Bool" | "I32" | "Str" | "Char" | "idClase" | "Array" | LAMBDA }
 
-Decl-Var-Locales = "var"
+Decl-Var-Locales = {"Bool" | "I32" | "Str" | "Char" | "idClase" | "Array"}
 
 Sentencias = {";" | "idMétodoVariable" | "self" | "(" | "if" | "while" | "{" | "return" | LAMBDA}
 

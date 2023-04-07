@@ -199,7 +199,7 @@ public class SyntacticAnalizer {
 	private void Constructor() throws LexicalError, SyntacticalError {
 		matchLexema("create"); // Si no matchea, este método arrojará la excepción.
 		ArgumentosFormales();
-		Bloque();
+		BloqueMetodo();
 
 	}
 
@@ -210,9 +210,9 @@ public class SyntacticAnalizer {
 		if (isFirstL("fn")) {
 			matchLexema("fn");
 			matchToken("id");
+			ArgumentosFormales();
 			matchLexema("->");
 			TipoMetodo();
-			ArgumentosFormales();
 			BloqueMetodo();
 		} else {
 			throw new UnexpectedToken(token, "\"static\" O \"fn\" (METODO)");
@@ -321,7 +321,7 @@ public class SyntacticAnalizer {
 	}
 
 	private void DeclVarLocalesN() throws LexicalError, SyntacticalError {
-		if (isFirstL("var")) {
+		if (isFirstL("Bool", "I32", "Str", "Char", "Array") || isFirstT("id_type")) {
 			DeclVarLocales();
 			DeclVarLocalesN();
 		}
@@ -330,9 +330,14 @@ public class SyntacticAnalizer {
 	}
 
 	private void DeclVarLocales() throws LexicalError, SyntacticalError {
-		matchLexema("var"); // Si no matchea, este método arrojará la excepción.
-		Tipo();
-		ListaDeclaracionVariables();
+		if (isFirstL("Bool", "I32", "Str", "Char", "Array") || isFirstT("id_type")) {
+			Tipo();
+			matchLexema(":");
+			ListaDeclaracionVariables();
+			matchLexema(";");
+		} else {
+			throw new UnexpectedToken(token, "UN IDENTIFICADOR DE CLASE O TIPO PRIMITIVO");
+		}
 	}
 
 	private void Sentencia() throws LexicalError, SyntacticalError {

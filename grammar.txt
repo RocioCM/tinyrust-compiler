@@ -13,9 +13,9 @@ Miembro ::= Atributo | Constructor | Método
 Atributo ::= Tipo ":" Lista-Declaración-Variables ";"
 	| Visibilidad Tipo ":" Lista-Declaración-Variables ";"
 
-Constructor ::= "create" Argumentos-Formales Bloque
-Método ::= "fn" "idMétodoVariable" "->" Tipo-Método Argumentos-Formales Bloque-Método
-	| Forma-Método "fn" "idMétodoVariable" "->" Tipo-Método Argumentos-Formales Bloque-Método
+Constructor ::= "create" Argumentos-Formales Bloque-Método
+Método ::= "fn" "idMétodoVariable" Argumentos-Formales "->" Tipo-Método Bloque-Método
+	| Forma-Método "fn" "idMétodoVariable" Argumentos-Formales "->" Tipo-Método Bloque-Método
 
 Argumentos-Formales ::= "(" ")"	| "(" Lista-Argumentos-Formales ")"
 
@@ -28,17 +28,17 @@ Tipo ::= Tipo-Primitivo | Tipo-Referencia | Tipo-Array
 Tipo-Primitivo ::= "Bool" | "I32" | "Str" | "Char"
 Tipo-Referencia ::= "idClase" 
 Tipo-Array ::= "Array" Tipo-Primitivo 
-Lista-Declaración-Variables ::= "idMétodoVariable" | "idMétodoVariable" "," Lista-Declaracion-Variables
+Lista-Declaración-Variables ::= "idMétodoVariable" | "idMétodoVariable" "," Lista-Declaración-Variables
 Bloque-Método ::= "{" Decl-Var-LocalesN Sentencias "}"
 
 Decl-Var-LocalesN := Decl-Var-Locales Decl-Var-LocalesN | LAMBDA
 
-Decl-Var-Locales ::= "var" Tipo Lista-Declaracion-Variables
+Decl-Var-Locales ::= Tipo ":" Lista-Declaración-Variables ";"
 
 Sentencias ::= Sentencia Sentencias | LAMBDA
 
 Sentencia ::= ";"
-    | Asignación";" 
+    | Asignación ";" 
     | Sentencia-Simple ";" 
     | "if" "(" Expresión ")" Sentencia ElseOp
     | "while" "(" Expresión ")" Sentencia
@@ -51,7 +51,7 @@ ElseOp ::= "else" Sentencia | LAMBDA
 Bloque ::= "{" Sentencias "}"
 
 
-Asignación ::= Asignación-Variable-Simple "=" Expresión | Asignación-Self-Simple "="" Expresión
+Asignación ::= Asignación-Variable-Simple "=" Expresión | Asignación-Self-Simple "=" Expresión
 Asignación-Variable-Simple  ::= "idMétodoVariable" "[" Expresión "]" | "idMétodoVariable" Encadenado-SimpleN
 
 Encadenado-SimpleN ::= Encadenado-Simple Encadenado-SimpleN | LAMBDA
@@ -87,8 +87,8 @@ Operando ::= Literal | Primario | Primario Encadenado
 Literal ::= "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral"
 Primario ::= ExpresionParentizada | AccesoSelf | AccesoVar  | Llamada-Método  | Llamada-Método-Estático | Llamada-Constructor
 ExpresionParentizada ::= "(" Expresión ")" EncadenadoOp
-AccesoSelf ::= "self" Encadenado | "self" 
-AccesoVar ::= "idMétodoVariable" Encadenado | "idMétodoVariable" 
+AccesoSelf ::= "self" EncadenadoOp
+AccesoVar ::= "idMétodoVariable" EncadenadoOp | "idMétodoVariable"  "[" Expresión "]"
 Llamada-Método ::= "idMétodoVariable" Argumentos-Actuales EncadenadoOp 
 Llamada-Método-Estático ::= "idClase" "." Llamada-Método EncadenadoOp
 Llamada-Constructor ::= "new" "idClase" Argumentos-Actuales EncadenadoOp
@@ -98,7 +98,7 @@ Argumentos-Actuales ::= "(" ")" | "(" Lista-Expresiones ")"
 Encadenado ::= "." Llamada-Método-Encadenado | "." Acceso-Variable-Encadenado
 
 Llamada-Método-Encadenado ::= "idMétodoVariable" Argumentos-Actuales EncadenadoOp
-Acceso-Variable-Encadenado ::= "idMétodoVariable" | "idMétodoVariable" Encadenado | "idMétodoVariable" "[" Expresión "]"
+Acceso-Variable-Encadenado ::= "idMétodoVariable" EncadenadoOp | "idMétodoVariable" "[" Expresión "]"
 EncadenadoOp ::= Encadenado | LAMBDA
 
 #----------------------------fin gramática tinyRust+---------------------------------
