@@ -558,7 +558,6 @@ public class SyntacticAnalizer {
 	}
 
 	private void ExpMulP() throws LexicalError, SyntacticalError {
-		// "*" | "/" | "%" | LAMBDA
 		if (isFirstL("*", "/", "%")) {
 			OpMul();
 			ExpUn();
@@ -603,12 +602,10 @@ public class SyntacticAnalizer {
 	}
 
 	private void Operando() throws LexicalError, SyntacticalError {
-		// "(" | "self" | "idMétodoVariable" | "idClase" | "new"
 		if (isFirstL("(", "self", "new") || isFirstT("id", "id_type")) {
 			Primario();
 			EncadenadoOp();
 		} else {
-			// "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral"
 			if (isFirstL("nil", "true", "false") || isFirstT("lit_int", "lit_string", "lit_char")) {
 				Literal();
 			} else {
