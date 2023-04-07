@@ -534,11 +534,8 @@ public class SyntacticAnalizer {
 	}
 
 	private void ExpCompuesta() throws LexicalError, SyntacticalError {
-		// "+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" |
-		// "charLiteral" | "(" | "self" | "idMétodoVariable" | "idClase" | "new"
 		ExpAdd();
-		if (isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
-				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
+		if (isFirstL("<", "<=", ">", ">=")) {
 			OpCompuesto();
 			ExpAdd();
 		}
@@ -629,7 +626,7 @@ public class SyntacticAnalizer {
 		// "(" | "self" | "idMétodoVariable" | "idClase" | "new"
 		if (isFirstL("(", "self", "new") || isFirstT("id", "id_type")) {
 			Primario();
-			Encadenado();
+			EncadenadoOp();
 		} else {
 			// "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral"
 			if (isFirstL("nil", "true", "false") || isFirstT("lit_int", "lit_string", "lit_char")) {
@@ -664,7 +661,7 @@ public class SyntacticAnalizer {
 			} else {
 				if (isFirstT("id")) {
 					// Miramos qué hay después del identificador sin consumirlo
-					if (nextToken.getLexema() == "(") {
+					if (nextToken.getLexema().equals("(")) {
 						LlamadaMetodo();
 					} else {
 						AccesoVar();
@@ -698,7 +695,7 @@ public class SyntacticAnalizer {
 
 	private void AccesoVar() throws LexicalError, SyntacticalError {
 		matchToken("id");
-		if (nextToken.getLexema() == "[") {
+		if (nextToken.getLexema().equals("[")) {
 			matchLexema("[");
 			Expresion();
 			matchLexema("]");
@@ -722,7 +719,7 @@ public class SyntacticAnalizer {
 
 	private void LlamadaConstructor() throws LexicalError, SyntacticalError {
 		matchLexema("new");
-		if (nextToken.getToken() == "id_type") {
+		if (isFirstT("id_type")) {
 			matchToken("id_type");
 			ArgumentosActuales();
 			EncadenadoOp();
@@ -751,7 +748,7 @@ public class SyntacticAnalizer {
 	private void Encadenado() throws LexicalError, SyntacticalError {
 		matchLexema(".");
 		matchToken("id");
-		if (nextToken.getLexema() == "(") {
+		if (isFirstL("(")) {
 			LlamadaMetodoEncadenado();
 		} else {
 			AccesoVariableEncadenado();
@@ -765,7 +762,7 @@ public class SyntacticAnalizer {
 	}
 
 	private void AccesoVariableEncadenado() throws LexicalError, SyntacticalError {
-		if (nextToken.getLexema() == "[") {
+		if (nextToken.getLexema().equals("[")) {
 			matchLexema("[");
 			Expresion();
 			matchLexema("]");
