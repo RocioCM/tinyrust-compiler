@@ -44,3 +44,5 @@ fn main(){
 	n = IO.in_i32();
 	(fib.sucesion_fib(n));
 }
+
+/* CORRECTO: ANALISIS SINTACTICO */

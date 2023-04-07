@@ -1,3 +1,6 @@
 class Fn {
-	fn coso (I32: cosa, I32: coso, Coso:, ) {}
+	fn coso (I32: cosa, I32: coso ) {}
 }
+/*ERROR: SINTACTICO
+| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
+| LINEA 2 | COLUMNA 34 | TOKEN INESPERADO: SE ESPERABA -> Y SE ENCONTRO "{" |*/

@@ -3,3 +3,7 @@ class fibonacci {
 }
 
 fn main () {}
+
+/*ERROR: SINTACTICO
+| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
+| LINEA 1 | COLUMNA 7 | TOKEN INESPERADO: SE ESPERABA TOKEN DE TIPO: id_type Y SE ENCONTRO "fibonacci" |*/

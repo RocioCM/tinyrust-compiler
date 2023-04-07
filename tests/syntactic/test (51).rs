@@ -1,3 +1,6 @@
 class Fn {
-	create (: Hola) {}
+	static fn create (hola: Hola) -> void {}
 }
+/*ERROR: SINTACTICO
+| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
+| LINEA 2 | COLUMNA 20 | TOKEN INESPERADO: SE ESPERABA UN IDENTIFICADOR DE CLASE O TIPO PRIMITIVO Y SE ENCONTRO "hola" |*/

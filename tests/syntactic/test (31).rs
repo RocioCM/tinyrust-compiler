@@ -2,3 +2,6 @@ class Hola -> Hola {
 } 
 
 fn main () {}
+/*ERROR: SINTACTICO
+| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
+| LINEA 1 | COLUMNA 12 | TOKEN INESPERADO: SE ESPERABA "{" O ":" Y SE ENCONTRO "->" |*/

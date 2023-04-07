@@ -1,3 +1,6 @@
 class Fn {
-	create (Hola: 21 ) {}
+	static fn coso ( Hola: h ) ->  32 {}
 }
+/*ERROR: SINTACTICO
+| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
+| LINEA 2 | COLUMNA 33 | TOKEN INESPERADO: SE ESPERABA UN TIPO DE RETORNO (CLASE O VOID) Y SE ENCONTRO "32" |*/

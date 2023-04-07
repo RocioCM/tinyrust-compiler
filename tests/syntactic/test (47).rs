@@ -1,3 +1,6 @@
 class Fn {
 	create (Array Array I32: hola) {}
 }
+/*ERROR: SINTACTICO
+| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
+| LINEA 2 | COLUMNA 16 | TOKEN INESPERADO: SE ESPERABA Bool, I32, Str, Char Y SE ENCONTRO "Array" |*/

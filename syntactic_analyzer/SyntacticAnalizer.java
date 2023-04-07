@@ -129,13 +129,14 @@ public class SyntacticAnalizer {
 		if (isFirstL(":")) {
 			Herencia();
 		}
-		if (isFirstL("{")) {
-			matchLexema("{");
-			Miembros();
+		matchLexema("{");
+		Miembros();
+		if (isFirstL("}")) {
 			matchLexema("}");
 		} else {
-			throw new UnexpectedToken(token, "\"{\" O \":\"");
+			throw new UnexpectedToken(token, "UN CONSTRUCTOR, METODO, ATRIBUTO O \"}\"");
 		}
+
 	}
 
 	private void Herencia() throws LexicalError, SyntacticalError {
@@ -182,7 +183,7 @@ public class SyntacticAnalizer {
 			ListaDeclaracionVariables();
 			matchLexema(";");
 		} else {
-			throw new UnexpectedToken(token, "CONSTRUCTOR, METODO O ATRIBUTO");
+			throw new UnexpectedToken(token, "UN IDENTIFICADOR DE CLASE O TIPO PRIMITIVO");
 		}
 	}
 
@@ -205,7 +206,7 @@ public class SyntacticAnalizer {
 			TipoMetodo();
 			BloqueMetodo();
 		} else {
-			throw new UnexpectedToken(token, "\"static\" O \"fn\" (METODO)");
+			throw new UnexpectedToken(token, "\"fn\" (METODO)");
 		}
 	}
 
@@ -229,7 +230,7 @@ public class SyntacticAnalizer {
 				// sería el caso del último argumento de la lista.
 			}
 		} else {
-			throw new UnexpectedToken(token, "UN IDENTIFICADOR DE CLASE O TIPO PRIMITIVO");
+			throw new UnexpectedToken(token, "UN IDENTIFICADOR DE CLASE, TIPO PRIMITIVO O \")\"");
 		}
 	}
 

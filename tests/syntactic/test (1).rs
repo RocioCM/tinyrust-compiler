@@ -5,3 +5,5 @@ fn main() {
 	Hola: hola, chau, chau2;
 	Array I32: hola, chau, chau2;
 }
+
+/* CORRECTO: ANALISIS SINTACTICO */

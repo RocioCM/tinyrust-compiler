@@ -56,7 +56,7 @@ public class LexicAnalyzer {
 			// Si ya se consumió todo el archivo,
 			// se retorna un Token vacío representando el fin del archivo.
 			token.setToken("EOF");
-			token.setLexema("");
+			token.setLexema("End Of File");
 			reachedEOFToken = true;
 
 		} else {

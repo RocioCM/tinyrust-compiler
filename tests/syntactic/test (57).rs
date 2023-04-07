@@ -1,3 +1,6 @@
 class Fn {
-	create (Array Array I32: hola) {}
+	pub fn coso (I32: cosa, I32: coso ): Coso {}
 }
+/*ERROR: SINTACTICO
+| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
+| LINEA 2 | COLUMNA 6 | TOKEN INESPERADO: SE ESPERABA UN IDENTIFICADOR DE CLASE O TIPO PRIMITIVO Y SE ENCONTRO "fn" |*/  

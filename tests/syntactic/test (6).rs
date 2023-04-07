@@ -1,3 +1,8 @@
 class Hola {} 
 
 fn moin() {}
+
+/* ERROR: SINTACTICO
+| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
+| LINEA 3 | COLUMNA 4 | TOKEN INESPERADO: SE ESPERABA main Y SE ENCONTRO "moin" |
+ */

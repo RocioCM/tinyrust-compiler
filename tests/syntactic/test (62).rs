@@ -1,3 +1,6 @@
 class Fn {
-	create (id: Id) {}
-}
+	fn void (Str: hola) -> Str {}
+ }
+/*ERROR: SINTACTICO
+| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
+| LINEA 2 | COLUMNA 5 | TOKEN INESPERADO: SE ESPERABA TOKEN DE TIPO: id Y SE ENCONTRO "void" |*/
