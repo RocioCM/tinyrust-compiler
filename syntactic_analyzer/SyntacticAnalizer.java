@@ -44,7 +44,8 @@ public class SyntacticAnalizer {
 			token = nextToken;
 			nextToken = lexic.nextToken();
 		} else {
-			throw new UnexpectedToken(token, types[0]); // TODO: show good error message with tokens type.
+			String typesAsString = String.join(", ", types);
+			throw new UnexpectedToken(token, "TOKEN DE TIPO: " + typesAsString);
 		}
 	}
 
@@ -62,19 +63,8 @@ public class SyntacticAnalizer {
 			token = nextToken;
 			nextToken = lexic.nextToken();
 		} else {
-			throw new UnexpectedToken(token, types[0]); // TODO: show good error message with tokens type.
-		}
-	}
-
-	private void matchWithoutConsumeLexema(String... types) throws LexicalError, SyntacticalError {
-		if (!Arrays.asList(types).contains(token.getLexema())) {
-			throw new UnexpectedToken(token, types[0]); // TODO: show good error message with tokens type.
-		}
-	}
-
-	private void matchWithoutConsumeToken(String... types) throws LexicalError, SyntacticalError {
-		if (!Arrays.asList(types).contains(token.getToken())) {
-			throw new UnexpectedToken(token, types[0]); // TODO: show good error message with tokens type.
+			String typesAsString = String.join(", ", types);
+			throw new UnexpectedToken(token, typesAsString);
 		}
 	}
 
@@ -492,9 +482,6 @@ public class SyntacticAnalizer {
 	}
 
 	private void ExpAnd() throws LexicalError, SyntacticalError {
-		// ExpAnd = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" |
-		// "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable" |
-		// "idClase" | "new"}
 		if (isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
 				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
 			ExpIgual();
@@ -513,8 +500,6 @@ public class SyntacticAnalizer {
 	}
 
 	private void ExpIgual() throws LexicalError, SyntacticalError {
-		// "+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" |
-		// "charLiteral" | "(" | "self" | "idMétodoVariable" | "idClase" | "new"
 		if (isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
 				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
 			ExpCompuesta();
@@ -542,8 +527,6 @@ public class SyntacticAnalizer {
 	}
 
 	private void ExpAdd() throws LexicalError, SyntacticalError {
-		// "+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" |
-		// "charLiteral" | "(" | "self" | "idMétodoVariable" | "idClase" | "new"
 		if (isFirstL(
 				"+", "-", "!", "nil", "true", "false", "(", "self", "new")
 				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
@@ -555,7 +538,6 @@ public class SyntacticAnalizer {
 	}
 
 	private void ExpAddP() throws LexicalError, SyntacticalError {
-		// "+" | "-" | LAMBDA
 		if (isFirstL("+", "-")) {
 			OpAdd();
 			ExpMul();
@@ -565,8 +547,6 @@ public class SyntacticAnalizer {
 	}
 
 	private void ExpMul() throws LexicalError, SyntacticalError {
-		// "+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" |
-		// "charLiteral" | "(" | "self" | "idMétodoVariable" | "idClase" | "new"
 		if (isFirstL(
 				"+", "-", "!", "nil", "true", "false", "(", "self", "new")
 				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
@@ -596,7 +576,7 @@ public class SyntacticAnalizer {
 					|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
 				Operando();
 			} else {
-				throw new UnexpectedToken(token, "TODO");
+				throw new UnexpectedToken(token, "UNA EXPRESION");
 			}
 		}
 
@@ -638,11 +618,9 @@ public class SyntacticAnalizer {
 	}
 
 	private void Literal() throws LexicalError, SyntacticalError {
-		// "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral"
 		if (isFirstL("nil", "true", "false")) {
 			matchLexema("nil", "true", "false");
 		} else {
-			// "intLiteral" | "stringLiteral" | "charLiteral"
 			if (isFirstT("lit_int", "lit_string", "lit_char")) {
 				matchToken("lit_int", "lit_string", "lit_char");
 			} else {
@@ -652,7 +630,6 @@ public class SyntacticAnalizer {
 	}
 
 	private void Primario() throws LexicalError, SyntacticalError {
-		// "(" | "self" | "idMétodoVariable" | "idClase" | "new"
 		if (isFirstL("(")) {
 			ExpresionParentizada();
 		} else {
