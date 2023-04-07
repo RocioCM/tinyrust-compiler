@@ -473,11 +473,11 @@ public class SyntacticAnalizer {
 	}
 
 	private void ExpOr() throws LexicalError, SyntacticalError {
-		if(isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
+		if (isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
 				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
 			ExpAnd();
 			ExpOrP();
-		}else{
+		} else {
 			throw new UnexpectedToken(token, "UNA EXPRESION");
 		}
 	}
@@ -492,18 +492,20 @@ public class SyntacticAnalizer {
 	}
 
 	private void ExpAnd() throws LexicalError, SyntacticalError {
-		//ExpAnd = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"}
-		if(isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
+		// ExpAnd = {"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" |
+		// "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable" |
+		// "idClase" | "new"}
+		if (isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
 				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
 			ExpIgual();
 			ExpAndP();
-		}else{
+		} else {
 			throw new UnexpectedToken(token, "UNA EXPRESION");
 		}
 	}
 
 	private void ExpAndP() throws LexicalError, SyntacticalError {
-		if(isFirstL("&&")) {
+		if (isFirstL("&&")) {
 			matchLexema("&&");
 			ExpIgual();
 			ExpAndP();
@@ -511,108 +513,108 @@ public class SyntacticAnalizer {
 	}
 
 	private void ExpIgual() throws LexicalError, SyntacticalError {
-		//"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"
-		if( isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
-				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")){
+		// "+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" |
+		// "charLiteral" | "(" | "self" | "idMétodoVariable" | "idClase" | "new"
+		if (isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
+				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
 			ExpCompuesta();
 			ExpIgualP();
-		}else{
+		} else {
 			throw new UnexpectedToken(token, "UNA EXPRESION");
 		}
 	}
 
 	private void ExpIgualP() throws LexicalError, SyntacticalError {
-		if(isFirstL("==", "!=")) {
+		if (isFirstL("==", "!=")) {
 			OpIgual();
 			ExpCompuesta();
 			ExpIgualP();
 		}
-		//Como deriva Lambda, no se lanza excepción si no matchea
+		// Como deriva Lambda, no se lanza excepción si no matchea
 	}
 
 	private void ExpCompuesta() throws LexicalError, SyntacticalError {
-		//"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"
-		if( isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
-				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")){
+		// "+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" |
+		// "charLiteral" | "(" | "self" | "idMétodoVariable" | "idClase" | "new"
+		if (isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
+				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
 			ExpAdd();
 			OpCompuesto();
 			ExpAdd();
-		} //REVISE THIS
-		else{
+		} // REVISE THIS
+		else {
 			throw new UnexpectedToken(token, "UNA EXPRESION");
 		}
 	}
 
 	private void ExpAdd() throws LexicalError, SyntacticalError {
-		//"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"
-		if(isFirstL(
+		// "+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" |
+		// "charLiteral" | "(" | "self" | "idMétodoVariable" | "idClase" | "new"
+		if (isFirstL(
 				"+", "-", "!", "nil", "true", "false", "(", "self", "new")
-				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type"
-		)){
+				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
 			ExpMul();
 			ExpAddP();
-		}else{
+		} else {
 			throw new UnexpectedToken(token, "UNA EXPRESION");
 		}
 	}
 
 	private void ExpAddP() throws LexicalError, SyntacticalError {
-		//"+" | "-" | LAMBDA
-		if(isFirstL("+", "-")) {
+		// "+" | "-" | LAMBDA
+		if (isFirstL("+", "-")) {
 			OpAdd();
 			ExpMul();
 			ExpAddP();
 		}
-		//Como deriva Lambda, no se lanza excepción si no matchea
+		// Como deriva Lambda, no se lanza excepción si no matchea
 	}
 
 	private void ExpMul() throws LexicalError, SyntacticalError {
-		//"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  | "idClase" | "new"
-		if(isFirstL(
+		// "+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" | "stringLiteral" |
+		// "charLiteral" | "(" | "self" | "idMétodoVariable" | "idClase" | "new"
+		if (isFirstL(
 				"+", "-", "!", "nil", "true", "false", "(", "self", "new")
-				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type"
-		)){
+				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
 			ExpUn();
 			ExpMulP();
-		}else{
+		} else {
 			throw new UnexpectedToken(token, "UNA EXPRESION");
 		}
 	}
 
 	private void ExpMulP() throws LexicalError, SyntacticalError {
 		// "*" | "/" | "%" | LAMBDA
-		if(isFirstL("*", "/", "%")) {
+		if (isFirstL("*", "/", "%")) {
 			OpMul();
 			ExpUn();
 			ExpMulP();
 		}
-		//Como deriva Lambda, no se lanza excepción si no matchea
+		// Como deriva Lambda, no se lanza excepción si no matchea
 	}
 
 	private void ExpUn() throws LexicalError, SyntacticalError {
-		//"+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" |
-		//"stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable"  |
+		// "+" | "-" | "!" | "nil" | "true" | "false" | "intLiteral" |
+		// "stringLiteral" | "charLiteral" | "(" | "self" | "idMétodoVariable" |
 		// "idClase" | "new"
-		if(isFirstL(
+		if (isFirstL(
 				"+", "-", "!", "nil", "true", "false", "(", "self", "new")
-				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type"
-		)){
+				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
 			OpUnario();
 			ExpUn();
-		}else{
-			//"nil" | "true" | "false" | "intLiteral" | "stringLiteral" 
-			//| "charLiteral" | "(" | "self" | "idMétodoVariable"  
-			//| "idClase" | "new"
-			if(isFirstL(
+		} else {
+			// "nil" | "true" | "false" | "intLiteral" | "stringLiteral"
+			// | "charLiteral" | "(" | "self" | "idMétodoVariable"
+			// | "idClase" | "new"
+			if (isFirstL(
 					"!", "nil", "true", "false", "(", "self", "new")
-					|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type"
-			)){
+					|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
 				Operando();
-			}else{
+			} else {
 				throw new UnexpectedToken(token, "UNA EXPRESION");
 			}
 		}
-		
+
 	}
 
 	private void OpIgual() throws LexicalError, SyntacticalError {
@@ -664,12 +666,12 @@ public class SyntacticAnalizer {
 	}
 
 	private void EncadenadoSimpleN() throws LexicalError, SyntacticalError {
-		if(isFirstL(".")){
+		if (isFirstL(".")) {
 			matchLexema(".");
 			EncadenadoSimple();
 			EncadenadoSimpleN();
 		}
-		//Como deriva Lambda, no se lanza excepción si no matchea
+		// Como deriva Lambda, no se lanza excepción si no matchea
 	}
 
 	private void EncadenadoSimple() throws LexicalError, SyntacticalError {
