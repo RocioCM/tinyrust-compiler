@@ -422,7 +422,7 @@ public class SyntacticAnalizer {
 	}
 
 	private void Asignacion() throws LexicalError, SyntacticalError {
-		if (isFirstL("self", "var")) {
+		if (isFirstL("self") || isFirstT("id")) {
 			if (isFirstL("self")) {
 				AsignacionSelfSimple();
 			} else {
@@ -431,7 +431,7 @@ public class SyntacticAnalizer {
 			matchLexema("=");
 			Expresion();
 		} else {
-			throw new UnexpectedToken(token, "\"self\" O \"var\"");
+			throw new UnexpectedToken(token, "\"self\"");
 		}
 	}
 
