@@ -9,6 +9,12 @@ import error.syntactic.UnexpectedToken;
 import lexic_analyzer.LexicAnalyzer;
 import lexic_analyzer.Token;
 
+/**
+ * Analizador Sintáctico descendente predictivo recursivo de TinyRust+.
+ * Consume un archivo de entrada y determina si la estructura sintáctica del
+ * archivo se corresponde con un programa válido de TinyRust+.
+ * Hace uso de la clase LexicAnalyzer para identificar los tokens del archivo.
+ */
 public class SyntacticAnalizer {
 	private LexicAnalyzer lexic;
 	private Token token;
@@ -17,9 +23,16 @@ public class SyntacticAnalizer {
 	public SyntacticAnalizer(String inputPath) throws FileNotFoundException {
 		// Patrón Singleton: se utiliza una única instancia de la clase LexicAnalyzer.
 		lexic = new LexicAnalyzer(inputPath);
-
 	}
 
+	/**
+	 * Inicia el análisis sintáctico del archivo provisto al analizador sintáctico.
+	 * 
+	 * @return true si el análisis fue exitoso. Caso contrario lanzará una excepción
+	 * @throws LexicalError     - Si algún token del archivo no es válido.
+	 * @throws SyntacticalError - Si la estructura sintáctica del archivo no se
+	 *                          corresponde con un programa válido de TinyRust+.
+	 */
 	public boolean run() throws LexicalError, SyntacticalError {
 		// Se obtienen los dos primeros tokens del archivo.
 		token = lexic.nextToken();
@@ -239,6 +252,8 @@ public class SyntacticAnalizer {
 			Tipo();
 			matchLexema(":");
 			matchToken("id");
+		} else {
+			throw new UnexpectedToken(token, "UN IDENTIFICADOR DE CLASE, TIPO PRIMITIVO O \")\"");
 		}
 	}
 
@@ -276,11 +291,9 @@ public class SyntacticAnalizer {
 		if (isFirstL("Bool", "I32", "Str", "Char", "Array") || isFirstT("id_type")) {
 			if (isFirstL("Array")) {
 				TipoArray();
-			}
-			if (isFirstT("id_type")) {
+			} else if (isFirstT("id_type")) {
 				TipoReferencia();
-			}
-			if (isFirstL("Bool", "I32", "Str", "Char")) {
+			} else if (isFirstL("Bool", "I32", "Str", "Char")) {
 				TipoPrimitivo();
 			}
 		} else {
@@ -335,34 +348,28 @@ public class SyntacticAnalizer {
 		if (isFirstL(";", "self", "(", "if", "while", "{", "return") || isFirstT("id")) {
 			if (isFirstL(";")) {
 				matchLexema(";");
-			}
-			if (isFirstL("self") || isFirstT("id")) {
+			} else if (isFirstL("self") || isFirstT("id")) {
 				Asignacion();
 				matchLexema(";");
-			}
-			if (isFirstL("(")) {
+			} else if (isFirstL("(")) {
 				SentenciaSimple();
 				matchLexema(";");
-			}
-			if (isFirstL("if")) {
+			} else if (isFirstL("if")) {
 				matchLexema("if");
 				matchLexema("(");
 				Expresion();
 				matchLexema(")");
 				Sentencia();
 				ElseOp();
-			}
-			if (isFirstL("while")) {
+			} else if (isFirstL("while")) {
 				matchLexema("while");
 				matchLexema("(");
 				Expresion();
 				matchLexema(")");
 				Sentencia();
-			}
-			if (isFirstL("{")) {
+			} else if (isFirstL("{")) {
 				Bloque();
-			}
-			if (isFirstL("return")) {
+			} else if (isFirstL("return")) {
 				matchLexema("return");
 				if (isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
 						|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
@@ -402,14 +409,22 @@ public class SyntacticAnalizer {
 	private void Bloque() throws LexicalError, SyntacticalError {
 		matchLexema("{"); // Si no matchea, este método arrojará la excepción.
 		Sentencias();
-		matchLexema("}");
+		if (isFirstL("}")) {
+			matchLexema("}");
+		} else {
+			throw new UnexpectedToken(token, "UNA SENTENCIA O \"}\"");
+		}
 	}
 
 	private void BloqueMetodo() throws LexicalError, SyntacticalError {
 		matchLexema("{"); // Si no matchea, este método arrojará la excepción.
 		DeclVarLocalesN();
 		Sentencias();
-		matchLexema("}");
+		if (isFirstL("}")) {
+			matchLexema("}");
+		} else {
+			throw new UnexpectedToken(token, "EN ORDEN O UNA DECLARACION DE VARIABLE O UNA SENTENCIA O \"}\"");
+		}
 	}
 
 	private void Asignacion() throws LexicalError, SyntacticalError {
@@ -422,7 +437,7 @@ public class SyntacticAnalizer {
 			matchLexema("=");
 			Expresion();
 		} else {
-			throw new UnexpectedToken(token, "\"self\"");
+			throw new UnexpectedToken(token, "\"self\" O UN IDENTIFICADOR DE VARIABLE O METODO");
 		}
 	}
 
@@ -479,7 +494,7 @@ public class SyntacticAnalizer {
 			ExpAnd();
 			ExpOrP();
 		}
-		// Como ExpOrP deriva Lambda, se continúa la ejecución
+		// Como ExpOrP deriva Lambda, se continúa la ejecución si no matchea
 	}
 
 	private void ExpAnd() throws LexicalError, SyntacticalError {
@@ -498,6 +513,7 @@ public class SyntacticAnalizer {
 			ExpIgual();
 			ExpAndP();
 		}
+		// Como deriva Lambda, no se lanza excepción si no matchea
 	}
 
 	private void ExpIgual() throws LexicalError, SyntacticalError {
@@ -520,7 +536,7 @@ public class SyntacticAnalizer {
 	}
 
 	private void ExpCompuesta() throws LexicalError, SyntacticalError {
-		ExpAdd();
+		ExpAdd(); // Si no matchea, este método arrojará la excepción.
 		if (isFirstL("<", "<=", ">", ">=")) {
 			OpCompuesto();
 			ExpAdd();
@@ -648,7 +664,8 @@ public class SyntacticAnalizer {
 						if (isFirstL("new")) {
 							LlamadaConstructor();
 						} else {
-							throw new UnexpectedToken(token, "( O self O id O id_type O new");
+							throw new UnexpectedToken(token,
+									"\"(\", \"self\", \"new\" O UN IDENTIFICADOR DE CLASE O DE METODO/VARIABLE");
 						}
 					}
 				}
@@ -657,19 +674,19 @@ public class SyntacticAnalizer {
 	}
 
 	private void ExpresionParentizada() throws LexicalError, SyntacticalError {
-		matchLexema("(");
+		matchLexema("("); // Si no matchea, este método arrojará la excepción.
 		Expresion();
 		matchLexema(")");
 		EncadenadoOp();
 	}
 
 	private void AccesoSelf() throws LexicalError, SyntacticalError {
-		matchLexema("self");
+		matchLexema("self"); // Si no matchea, este método arrojará la excepción.
 		EncadenadoOp();
 	}
 
 	private void AccesoVar() throws LexicalError, SyntacticalError {
-		matchToken("id");
+		matchToken("id"); // Si no matchea, este método arrojará la excepción.
 		if (isFirstL("[")) {
 			matchLexema("[");
 			Expresion();
@@ -680,35 +697,38 @@ public class SyntacticAnalizer {
 	}
 
 	private void LlamadaMetodo() throws LexicalError, SyntacticalError {
-		matchToken("id");
+		matchToken("id"); // Si no matchea, este método arrojará la excepción.
 		ArgumentosActuales();
 		EncadenadoOp();
 	}
 
 	private void LlamadaMetodoEstatico() throws LexicalError, SyntacticalError {
-		matchToken("id_type");
+		matchToken("id_type"); // Si no matchea, este método arrojará la excepción.
 		matchLexema(".");
 		LlamadaMetodo();
 		EncadenadoOp();
 	}
 
 	private void LlamadaConstructor() throws LexicalError, SyntacticalError {
-		matchLexema("new");
+		matchLexema("new"); // Si no matchea, este método arrojará la excepción.
 		if (isFirstT("id_type")) {
 			matchToken("id_type");
 			ArgumentosActuales();
 			EncadenadoOp();
 		} else {
-			TipoPrimitivo();
-			matchLexema("[");
-			Expresion();
-			matchLexema("]");
+			if (isFirstL("Bool", "I32", "Str", "Char")) {
+				TipoPrimitivo();
+				matchLexema("[");
+				Expresion();
+				matchLexema("]");
+			} else {
+				throw new UnexpectedToken(token, "UN IDENTIFICADOR DE CLASE O TIPO PRIMITIVO");
+			}
 		}
 	}
 
 	private void EncadenadoSimpleN() throws LexicalError, SyntacticalError {
 		if (isFirstL(".")) {
-			matchLexema(".");
 			EncadenadoSimple();
 			EncadenadoSimpleN();
 		}
@@ -722,11 +742,15 @@ public class SyntacticAnalizer {
 
 	private void Encadenado() throws LexicalError, SyntacticalError {
 		matchLexema(".");
-		matchToken("id");
-		if (isFirstL("(")) {
-			LlamadaMetodoEncadenado();
+		if (isFirstT("id")) {
+			// Miramos qué hay después del identificador sin consumirlo
+			if (nextToken.getLexema().equals("(")) {
+				LlamadaMetodoEncadenado();
+			} else {
+				AccesoVariableEncadenado();
+			}
 		} else {
-			AccesoVariableEncadenado();
+			throw new UnexpectedToken(token, "UN IDENTIFICADOR DE METODO O VARIABLE");
 		}
 	}
 
@@ -734,9 +758,11 @@ public class SyntacticAnalizer {
 		if (isFirstL(".")) {
 			Encadenado();
 		}
+		// Como deriva Lambda, no se lanza excepción si no matchea
 	}
 
 	private void AccesoVariableEncadenado() throws LexicalError, SyntacticalError {
+		matchToken("id"); // Si no matchea, este método arrojará la excepción.
 		if (isFirstL("[")) {
 			matchLexema("[");
 			Expresion();
@@ -747,6 +773,7 @@ public class SyntacticAnalizer {
 	}
 
 	private void LlamadaMetodoEncadenado() throws LexicalError, SyntacticalError {
+		matchToken("id"); // Si no matchea, este método arrojará la excepción.
 		ArgumentosActuales();
 		EncadenadoOp();
 	}
