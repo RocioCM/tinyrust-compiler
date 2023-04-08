@@ -38,7 +38,7 @@ public class Logger {
 		} else {
 			try {
 				// Se abre el archivo de salida especificado y se escribe el output.
-				FileWriter fileWriter = new FileWriter(outputPath);
+				FileWriter fileWriter = new FileWriter(outputPath, true);
 
 				fileWriter.write("CORRECTO: ANALISIS LEXICO\n");
 				fileWriter.write("| TOKEN | LEXEMA | NUMERO DE LINEA (NUMERO DE COLUMNA) |\n");
@@ -77,7 +77,7 @@ public class Logger {
 		} else {
 			try {
 				// Se abre el archivo de salida especificado y se escribe el output.
-				FileWriter fileWriter = new FileWriter(outputPath);
+				FileWriter fileWriter = new FileWriter(outputPath, true);
 				fileWriter.write("ERROR: LEXICO\n");
 				fileWriter.write("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |\n");
 				fileWriter.write(error.getMessage() + "\n");
@@ -101,7 +101,7 @@ public class Logger {
 		} else {
 			try {
 				// Se abre el archivo de salida especificado y se escribe el output.
-				FileWriter fileWriter = new FileWriter(outputPath);
+				FileWriter fileWriter = new FileWriter(outputPath, true);
 				fileWriter.write("CORRECTO: ANALISIS SINTACTICO\n");
 				fileWriter.close();
 
@@ -127,7 +127,7 @@ public class Logger {
 		} else {
 			try {
 				// Se abre el archivo de salida especificado y se escribe el output.
-				FileWriter fileWriter = new FileWriter(outputPath);
+				FileWriter fileWriter = new FileWriter(outputPath, true);
 				fileWriter.write("ERROR: SINTACTICO\n");
 				fileWriter.write("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |\n");
 				fileWriter.write(error.getMessage() + "\n");

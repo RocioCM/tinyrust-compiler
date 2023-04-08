@@ -20,11 +20,11 @@ class TinyRustCompiler {
 				outputPath = args[1];
 
 				File outputFile = new File(outputPath);
-				// Si el archivo ya existe, lo sobreescribimos
+				// Si el archivo ya existe, se escribe el output al final del archivo existente.
 				if (outputFile.createNewFile()) {
 					System.out.println("ARCHIVO DE SALIDA CREADO EN " + outputPath);
 				} else {
-					System.out.println("ARCHIVO DE SALIDA SOBREESCRITO EN " + outputPath);
+					System.out.println("ARCHIVO DE SALIDA ESCRITO EN " + outputPath);
 				}
 			}
 
