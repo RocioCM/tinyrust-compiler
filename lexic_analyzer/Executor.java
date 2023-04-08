@@ -31,7 +31,7 @@ public class Executor {
 			System.exit(1);
 		} catch (LexicalError error) {
 			Logger.lexicError(error, outputPath);
-			// System.exit(1); /// TODO: uncomment this line.
+			System.exit(1);
 		}
 	}
 }

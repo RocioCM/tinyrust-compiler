@@ -12,7 +12,7 @@ class TinyRustCompiler {
 	public static void main(String[] args) {
 		try {
 			// Se leen las rutas de los archivos de los argumentos de entrada.
-			String inputPath = "args[0]"; /// TODO: des-hardcodear los tests.
+			String inputPath = args[0];
 			String outputPath = null;
 
 			// Si se especificó una segunda ruta, se inicializa el archivo de salida.
@@ -29,11 +29,7 @@ class TinyRustCompiler {
 			}
 
 			// Se inicializa la ejecución del compilador.
-			for (int i = 60; i < 82; i++) {
-				inputPath = "./tests/syntactic/test (" + i + ").rs";
-				System.out.println("------------> \nEjecutando " + inputPath);
-				new Executor().run(inputPath, outputPath);
-			}
+			new Executor().run(inputPath, outputPath);
 		} catch (ArrayIndexOutOfBoundsException e) {
 			System.out.println("ERROR: DEBE ESPECIFICARSE UN ARCHIVO DE ENTRADA EN EL COMANDO.");
 			System.exit(1);

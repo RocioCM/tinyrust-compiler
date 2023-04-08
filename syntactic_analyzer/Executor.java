@@ -28,13 +28,13 @@ public class Executor {
 			}
 		} catch (FileNotFoundException error) {
 			System.out.println("\nERROR IO: NO SE ENCONTRO UN ARCHIVO DE ENTRADA EN LA RUTA " + inputPath);
-			// System.exit(1); /// TODO: uncomment these exits.
+			System.exit(1);
 		} catch (LexicalError error) {
 			Logger.lexicError(error, outputPath);
-			// System.exit(1);
+			System.exit(1);
 		} catch (SyntacticalError error) {
 			Logger.syntacticError(error, outputPath);
-			// System.exit(1);
+			System.exit(1);
 		}
 	}
 }
