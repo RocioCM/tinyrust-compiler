@@ -483,6 +483,7 @@ public class LexicAnalyzer {
 	 */
 	private boolean matchCharLiteral(char initialChar, Token token) throws InvalidCharacterError, InvalidLiteralError {
 		char currentChar = readConsumeChar();
+		token.appendLexema(currentChar);
 
 		if (isLineBreak(currentChar) || currentChar == '\'') {
 			// El literal tiene cero caracteres o no está cerrado.
@@ -492,29 +493,17 @@ public class LexicAnalyzer {
 
 		// Se analiza el caracter dentro del literal.
 		if (currentChar == '\\') { // Se encontró un caracter de escape.
-			char escapedChar = readConsumeChar(); // consumimos el caracter posterior al escape.
+			char escapedChar = readConsumeChar(); // Consumimos también el caracter posterior al escape.
+			token.appendLexema(escapedChar);
 			if (escapedChar == '0') { // Se encontró un caracter NIL en la cadena.
 				throw new InvalidLiteralError(lineNumber, columnNumber, "SE ENCONTRO UN CARACTER NIL EN UN LITERAL");
 			}
-			// Se verifica cuál es el caracter escapado para guardar el número de caracter
-			// correspondiente en el token.
-			switch (escapedChar) {
-				case 't':
-					token.setLexema(String.valueOf(9)); // Caracter TAB.
-					break;
-				case 'n':
-					token.setLexema(String.valueOf(10)); // Caracter SALTO DE LINEA.
-					break;
-				default:
-					token.setLexema(String.valueOf((int) escapedChar));
-			}
-		} else {
-			// Si el caracter no fue de escape, se guarda su número de caracter en el token.
-			token.setLexema(String.valueOf((int) currentChar));
 		}
 
 		// Se verifica encontrar a continuación el caracter de cierre del literal.
-		if (readConsumeChar() == '\'') {
+		currentChar = readConsumeChar();
+		if (currentChar == '\'') {
+			token.appendLexema(currentChar);
 			token.setToken("lit_char");
 		} else {
 			// Si el literal no está cerrado o tiene más de un caracter, se lanza un error.
