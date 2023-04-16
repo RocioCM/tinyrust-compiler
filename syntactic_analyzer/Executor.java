@@ -8,8 +8,9 @@ import error.syntactic.SyntacticalError;
 import util.Logger;
 
 /**
- * Ejecutor provisional que instancia el analizador sintáctico y solicita tokens
- * hasta agotar el archivo fuente.
+ * Ejecutor que instancia el analizador sintáctico e inicia su ejecución.
+ * Muestra los resultados de la ejecución, interceptando todas las posibles
+ * excepciones que se puedan lanzar durante el proceso.
  */
 public class Executor {
 	public void run(String inputPath, String outputPath) {
