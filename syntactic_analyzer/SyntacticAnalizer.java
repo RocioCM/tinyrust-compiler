@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.util.Arrays;
 
 import error.lexic.LexicalError;
+import error.semantic.SemanticalError;
 import error.syntactic.SyntacticalError;
 import error.syntactic.UnexpectedToken;
 import lexic_analyzer.LexicAnalyzer;
@@ -33,7 +34,7 @@ public class SyntacticAnalizer {
 	 * @throws SyntacticalError - Si la estructura sintáctica del archivo no se
 	 *                          corresponde con un programa válido de TinyRust+.
 	 */
-	public boolean run() throws LexicalError, SyntacticalError {
+	public boolean run() throws LexicalError, SyntacticalError, SemanticalError {
 		// Se obtienen los dos primeros tokens del archivo.
 		token = lexic.nextToken();
 		nextToken = lexic.nextToken();

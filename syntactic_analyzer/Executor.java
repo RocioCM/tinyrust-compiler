@@ -3,6 +3,7 @@ package syntactic_analyzer;
 import java.io.FileNotFoundException;
 
 import error.lexic.LexicalError;
+import error.semantic.SemanticalError;
 import error.syntactic.PlaceholderError;
 import error.syntactic.SyntacticalError;
 import util.Logger;
@@ -21,7 +22,7 @@ public class Executor {
 			boolean succeed = syntactic.run();
 
 			if (succeed) {
-				Logger.syntacticSuccess(outputPath);
+				Logger.semanticDeclSuccess(outputPath);
 			} else {
 				// Esto nunca va a ejecutar,
 				// porque el método run() lanza una excepción en caso de error.
@@ -35,6 +36,9 @@ public class Executor {
 			System.exit(1);
 		} catch (SyntacticalError error) {
 			Logger.syntacticError(error, outputPath);
+			System.exit(1);
+		} catch (SemanticalError error) {
+			Logger.semanticDeclError(error, outputPath);
 			System.exit(1);
 		}
 	}

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import error.lexic.LexicalError;
+import error.semantic.SemanticalError;
 import error.syntactic.SyntacticalError;
 import lexic_analyzer.Token;
 
@@ -129,6 +130,57 @@ public class Logger {
 				// Se abre el archivo de salida especificado y se escribe el output.
 				FileWriter fileWriter = new FileWriter(outputPath, true);
 				fileWriter.write("ERROR: SINTACTICO\n");
+				fileWriter.write("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |\n");
+				fileWriter.write(error.getMessage() + "\n");
+				fileWriter.close();
+			} catch (IOException e) {
+				System.out.println("ERROR IO: NO SE PUDO ESCRIBIR EN EL ARCHIVO DE SALIDA.");
+				System.exit(1);
+			}
+		}
+	}
+
+	/**
+	 * Imprime un mensaje de éxito en del análisis semántico de declaraciones.
+	 * 
+	 * @param outputPath (Opcional) - Ruta del archivo de salida
+	 */
+	public static void semanticDeclSuccess(String outputPath) {
+		if (outputPath == null) { // No se especificó archivo de salida.
+			// Se escribe el output en la terminal.
+			System.out.println("\nCORRECTO: SEMANTICO - DECLARACIONES");
+		} else {
+			try {
+				// Se abre el archivo de salida especificado y se escribe el output.
+				FileWriter fileWriter = new FileWriter(outputPath, true);
+				fileWriter.write("\nCORRECTO: SEMANTICO - DECLARACIONES\n");
+				fileWriter.close();
+
+			} catch (IOException e) {
+				System.out.println("ERROR IO: NO SE PUDO ESCRIBIR EN EL ARCHIVO DE SALIDA.");
+				System.exit(1);
+			}
+		}
+	}
+
+	/**
+	 * Muestra con formato un error generado durante el análisis semántico de
+	 * declaraciones.
+	 * 
+	 * @param error      - error generado por el analizador sintáctico
+	 * @param outputPath (Opcional) - Ruta del archivo de salida
+	 */
+	public static void semanticDeclError(SemanticalError error, String outputPath) {
+		if (outputPath == null) { // No se especificó archivo de salida.
+			// Se escribe el output en la terminal.
+			System.out.println("\nERROR: SEMANTICO - DECLARACIONES ");
+			System.out.println("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |");
+			System.out.println(error.getMessage());
+		} else {
+			try {
+				// Se abre el archivo de salida especificado y se escribe el output.
+				FileWriter fileWriter = new FileWriter(outputPath, true);
+				fileWriter.write("\nERROR: SEMANTICO - DECLARACIONES\n");
 				fileWriter.write("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |\n");
 				fileWriter.write(error.getMessage() + "\n");
 				fileWriter.close();
