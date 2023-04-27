@@ -9,6 +9,7 @@ import error.syntactic.SyntacticalError;
 import error.syntactic.UnexpectedToken;
 import lexic_analyzer.LexicAnalyzer;
 import lexic_analyzer.Token;
+import semantic_analyzer.symbol_table.SymbolTable;
 
 /**
  * Analizador Sintáctico descendente predictivo recursivo de TinyRust+.
@@ -20,10 +21,12 @@ public class SyntacticAnalizer {
 	private LexicAnalyzer lexic;
 	private Token token;
 	private Token nextToken;
+	private SymbolTable ts;
 
 	public SyntacticAnalizer(String inputPath) throws FileNotFoundException {
 		// Patrón Singleton: se utiliza una única instancia de la clase LexicAnalyzer.
 		lexic = new LexicAnalyzer(inputPath);
+		ts = new SymbolTable(inputPath);
 	}
 
 	/**
@@ -43,6 +46,10 @@ public class SyntacticAnalizer {
 		// por lo se asume que si termina de ejecutarse, la entrada es correcta.
 		Program();
 		return true;
+	}
+
+	public String getTsJson() {
+		return ts.toJson();
 	}
 
 	/**

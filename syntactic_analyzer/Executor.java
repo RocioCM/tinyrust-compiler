@@ -23,6 +23,7 @@ public class Executor {
 
 			if (succeed) {
 				Logger.semanticDeclSuccess(outputPath);
+				Logger.createTsJson(syntactic.getTsJson(), outputPath);
 			} else {
 				// Esto nunca va a ejecutar,
 				// porque el método run() lanza una excepción en caso de error.

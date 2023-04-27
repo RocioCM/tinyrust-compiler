@@ -191,4 +191,23 @@ public class Logger {
 		}
 	}
 
+	/**
+	 * Guarda en el archivo destino el JSON generado a partir de la Tabla de
+	 * Símbolos.
+	 * 
+	 * @param json       - Cadena en formato JSON
+	 * @param outputPath - Ruta del archivo de salida.
+	 */
+	public static void createTsJson(String json, String outputPath) {
+		try {
+			// Se abre el archivo de salida especificado y se escribe el output.
+			FileWriter fileWriter = new FileWriter(outputPath, true);
+			fileWriter.write(json);
+			fileWriter.close();
+		} catch (IOException e) {
+			System.out.println("ERROR IO: NO SE PUDO ESCRIBIR EN EL ARCHIVO DE SALIDA.");
+			System.exit(1);
+		}
+	}
+
 }
