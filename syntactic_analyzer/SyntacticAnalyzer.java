@@ -53,10 +53,19 @@ public class SyntacticAnalyzer {
 		token = lexic.nextToken();
 		nextToken = lexic.nextToken();
 
+		try {
+			Program();
+		} catch (SemanticalError e) {
+			// En este punto, los errores semánticos no incluyen linea y columna donde
+			// ocurrieron. Antes de elevarlos al invocador, se agrega esta información a la
+			// excepción.
+			throw new SemanticalError(token.getLine(), token.getCol(), e.getMessage());
+		}
+
 		// Si la entrada no es sintácticamente correcta, Program lanza una excepción,
-		// por lo que si termina de ejecutarse, la entrada es correcta y
+		// por lo que si termina de ejecutarse, implica que la entrada es correcta y
 		// la tabla de símbolos se construyó por completo.
-		Program();
+		ts.consolidate();
 		return ts.toJson();
 	}
 

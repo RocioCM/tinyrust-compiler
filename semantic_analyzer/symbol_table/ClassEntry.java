@@ -5,23 +5,21 @@ import util.Json;
 
 public class ClassEntry implements TableElement {
 	private String name;
-	private int position;
 	private String extendsFrom = "Object";
 	private boolean extendable = true;
 	private ConstructorEntry constructor;
 	private TableList<MethodEntry> methods;
 	private TableList<AttributeEntry> attributes;
 
-	public ClassEntry(String name, int position) {
+	public ClassEntry(String name) {
 		this.name = name;
-		this.position = position;
 		this.constructor = new ConstructorEntry();
 		this.methods = new TableList<MethodEntry>();
 		this.attributes = new TableList<AttributeEntry>();
 	}
 
-	public ClassEntry(String name, int position, boolean extendable) {
-		this(name, position);
+	public ClassEntry(String name, boolean extendable) {
+		this(name);
 		this.extendable = extendable;
 	}
 
@@ -29,7 +27,6 @@ public class ClassEntry implements TableElement {
 	public String toJson() {
 		Json json = new Json();
 		json.addAttr("nombre", name);
-		json.addAttr("posicion", position);
 		json.addAttr("heredaDe", extendsFrom);
 		json.addAttr("heredable", extendable);
 		json.addAttr("atributos", attributes);

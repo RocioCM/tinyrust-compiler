@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 
 import error.lexic.LexicalError;
 import error.semantic.SemanticalError;
-import error.syntactic.PlaceholderError;
 import error.syntactic.SyntacticalError;
 import util.Logger;
 
@@ -15,7 +14,8 @@ import util.Logger;
  */
 public class Executor {
 	public void run(String inputPath) {
-		String outputPath = inputPath.substring(0, inputPath.length() - 3).concat(".ts.json");
+		String outputPath = inputPath.substring(0, inputPath.length() - 3).concat(".j");
+		String jsonPath = inputPath.substring(0, inputPath.length() - 3).concat(".ts.json");
 		System.out.println(outputPath);
 
 		try {
@@ -24,8 +24,8 @@ public class Executor {
 
 			String tsJson = syntactic.run();
 
-			Logger.semanticDeclSuccess(null);
-			Logger.createTsJson(tsJson, outputPath);
+			Logger.semanticDeclSuccess(outputPath);
+			Logger.createTsJson(tsJson, jsonPath);
 		} catch (FileNotFoundException error) {
 			System.out.println("\nERROR IO: NO SE ENCONTRO UN ARCHIVO DE ENTRADA EN LA RUTA " + inputPath);
 			System.exit(1);

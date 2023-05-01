@@ -1,6 +1,7 @@
 package semantic_analyzer.symbol_table;
 
 import error.semantic.InternalError;
+import error.semantic.SemanticalError;
 import semantic_analyzer.symbol_table.types.Type;
 import util.Json;
 
@@ -13,6 +14,7 @@ public class SymbolTable implements TableElement {
 	public SymbolTable(String name) {
 		this.name = name;
 		classes = new TableList<ClassEntry>();
+		// addPredefinedClasses();
 	}
 
 	public String toJson() {
@@ -22,8 +24,12 @@ public class SymbolTable implements TableElement {
 		return json.toString();
 	}
 
+	public void consolidate() throws SemanticalError {
+		/// TODO: agregar clases predefinidas y consolidar.
+	}
+
 	public void addClass(String name) {
-		ClassEntry newClass = new ClassEntry(name, classes.size() + 1);
+		ClassEntry newClass = new ClassEntry(name);
 		classes.put(name, newClass);
 		currentClass = newClass;
 	}
@@ -43,7 +49,7 @@ public class SymbolTable implements TableElement {
 	}
 
 	public void addMain() {
-		ClassEntry phantomClass = new ClassEntry("main", 0);
+		ClassEntry phantomClass = new ClassEntry("main");
 		classes.put(name, phantomClass);
 		currentClass = phantomClass;
 	}
@@ -64,16 +70,14 @@ public class SymbolTable implements TableElement {
 
 	public ClassEntry currentClass() throws InternalError {
 		if (currentClass == null) {
-			// throw new InternalError(0, 0, "SE INTENTO ACCEDER A LA CLASE ACTUAL Y NO
-			// EXISTE."); // TODO: line and column.
+			throw new InternalError("SE INTENTO ACCEDER A LA CLASE ACTUAL Y NO EXISTE.");
 		}
 		return currentClass;
 	}
 
 	public MethodEntry currentMethod() throws InternalError {
 		if (currentMethod == null) {
-			// throw new InternalError(0, 0, "SE INTENTO ACCEDER AL METODO ACTUAL Y NO
-			// EXISTE."); // TODO: line and column.
+			throw new InternalError("SE INTENTO ACCEDER AL METODO ACTUAL Y NO EXISTE.");
 		}
 		return currentMethod;
 	}

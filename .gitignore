@@ -3,4 +3,5 @@
 
 # Output files
 *.o
+*.j
 *.ts.json
