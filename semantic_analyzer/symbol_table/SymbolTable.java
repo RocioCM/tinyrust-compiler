@@ -1,12 +1,14 @@
 package semantic_analyzer.symbol_table;
 
+import error.semantic.InternalError;
 import semantic_analyzer.symbol_table.types.Type;
+import util.Json;
 
 public class SymbolTable implements TableElement {
-	private TableList<ClassEntry> classes;
-	private ClassEntry currentClass;
-	private TableElement currentMethod;
 	private String name;
+	private TableList<ClassEntry> classes;
+	private ClassEntry currentClass = null;
+	private MethodEntry currentMethod = null;
 
 	public SymbolTable(String name) {
 		this.name = name;
@@ -14,46 +16,65 @@ public class SymbolTable implements TableElement {
 	}
 
 	public String toJson() {
-		String json = "";
-		json += "\"clases\": \n";
-		json += classes.toJson();
-		json += ", \"main\": \n";
-		ClassEntry main = classes.get("main");
-		if (main != null) {
-			json += main.toJson();
-		} else {
-			json += "{}";
-		}
-		return json;
+		Json json = new Json();
+		json.addAttr("nombre", name);
+		json.addAttr("clases", classes);
+		return json.toString();
 	}
 
 	public void addClass(String name) {
 		ClassEntry newClass = new ClassEntry(name, classes.size() + 1);
+		classes.put(name, newClass);
 		currentClass = newClass;
+	}
+
+	public void endClass() {
+		currentClass = null;
+		currentMethod = null;
+	}
+
+	public void addMethod(String name, boolean isStatic) {
+		MethodEntry newMethod = currentClass.addMethod(name, isStatic);
+		currentMethod = newMethod;
+	}
+
+	public void endMethod() {
+		currentMethod = null;
 	}
 
 	public void addMain() {
 		ClassEntry phantomClass = new ClassEntry("main", 0);
+		classes.put(name, phantomClass);
 		currentClass = phantomClass;
 	}
 
-	public void addConstructor(String name, Type returnType) {
-		ConstructorEntry constructor = new ConstructorEntry();
-		currentClass.setConstructor(constructor);
+	public void addConstructor() {
+		MethodEntry constructor = currentClass.addConstructor();
 		currentMethod = constructor;
 	}
 
-	public void addMethod(String name, Type returnType) {
-		MethodEntry newMethod = new MethodEntry(name, returnType);
-		currentClass.addMethod(name, newMethod);
-		currentMethod = newMethod;
+	public void addVar(String name, Type type, boolean isPublic) throws InternalError {
+		if (currentMethod == null) {
+			// Si la variable se declaró dentro de un método, no se agrega a la TS.
+			// Si se declaró en la raiz de una clase, se guarda como atributo de la clase.
+			// Si se declaró fuera de una clase, se lanza una excepción.
+			currentClass().addAttribute(name, type, isPublic);
+		}
 	}
 
-	public ClassEntry currentClass() {
+	public ClassEntry currentClass() throws InternalError {
+		if (currentClass == null) {
+			// throw new InternalError(0, 0, "SE INTENTO ACCEDER A LA CLASE ACTUAL Y NO
+			// EXISTE."); // TODO: line and column.
+		}
 		return currentClass;
 	}
 
-	public TableElement currentMethod() {
+	public MethodEntry currentMethod() throws InternalError {
+		if (currentMethod == null) {
+			// throw new InternalError(0, 0, "SE INTENTO ACCEDER AL METODO ACTUAL Y NO
+			// EXISTE."); // TODO: line and column.
+		}
 		return currentMethod;
 	}
 }

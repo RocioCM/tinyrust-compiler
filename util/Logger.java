@@ -1,5 +1,6 @@
 package util;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class Logger {
 	public static void lexicSuccess(ArrayList<Token> tokensList, String outputPath) {
 		if (outputPath == null) { // No se especificó archivo de salida.
 			// Se escribe el output en la terminal.
-			System.out.println("\nCORRECTO: ANALISIS LEXICO");
+			System.out.println("CORRECTO: ANALISIS LEXICO");
 			System.out.println("| TOKEN | LEXEMA | NUMERO DE LINEA (NUMERO DE COLUMNA) |");
 
 			tokensList
@@ -39,7 +40,7 @@ public class Logger {
 		} else {
 			try {
 				// Se abre el archivo de salida especificado y se escribe el output.
-				FileWriter fileWriter = new FileWriter(outputPath, true);
+				FileWriter fileWriter = getOutputFileWriter(outputPath, true);
 
 				fileWriter.write("CORRECTO: ANALISIS LEXICO\n");
 				fileWriter.write("| TOKEN | LEXEMA | NUMERO DE LINEA (NUMERO DE COLUMNA) |\n");
@@ -72,13 +73,13 @@ public class Logger {
 	public static void lexicError(LexicalError error, String outputPath) {
 		if (outputPath == null) { // No se especificó archivo de salida.
 			// Se escribe el output en la terminal.
-			System.out.println("\nERROR: LEXICO ");
+			System.out.println("ERROR: LEXICO ");
 			System.out.println("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |");
 			System.out.println(error.getMessage());
 		} else {
 			try {
 				// Se abre el archivo de salida especificado y se escribe el output.
-				FileWriter fileWriter = new FileWriter(outputPath, true);
+				FileWriter fileWriter = getOutputFileWriter(outputPath, true);
 				fileWriter.write("ERROR: LEXICO\n");
 				fileWriter.write("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |\n");
 				fileWriter.write(error.getMessage() + "\n");
@@ -98,11 +99,11 @@ public class Logger {
 	public static void syntacticSuccess(String outputPath) {
 		if (outputPath == null) { // No se especificó archivo de salida.
 			// Se escribe el output en la terminal.
-			System.out.println("\nCORRECTO: ANALISIS SINTACTICO");
+			System.out.println("CORRECTO: ANALISIS SINTACTICO");
 		} else {
 			try {
 				// Se abre el archivo de salida especificado y se escribe el output.
-				FileWriter fileWriter = new FileWriter(outputPath, true);
+				FileWriter fileWriter = getOutputFileWriter(outputPath, true);
 				fileWriter.write("CORRECTO: ANALISIS SINTACTICO\n");
 				fileWriter.close();
 
@@ -122,13 +123,13 @@ public class Logger {
 	public static void syntacticError(SyntacticalError error, String outputPath) {
 		if (outputPath == null) { // No se especificó archivo de salida.
 			// Se escribe el output en la terminal.
-			System.out.println("\nERROR: SINTACTICO ");
+			System.out.println("ERROR: SINTACTICO ");
 			System.out.println("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |");
 			System.out.println(error.getMessage());
 		} else {
 			try {
 				// Se abre el archivo de salida especificado y se escribe el output.
-				FileWriter fileWriter = new FileWriter(outputPath, true);
+				FileWriter fileWriter = getOutputFileWriter(outputPath, true);
 				fileWriter.write("ERROR: SINTACTICO\n");
 				fileWriter.write("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |\n");
 				fileWriter.write(error.getMessage() + "\n");
@@ -148,12 +149,12 @@ public class Logger {
 	public static void semanticDeclSuccess(String outputPath) {
 		if (outputPath == null) { // No se especificó archivo de salida.
 			// Se escribe el output en la terminal.
-			System.out.println("\nCORRECTO: SEMANTICO - DECLARACIONES");
+			System.out.println("CORRECTO: SEMANTICO - DECLARACIONES");
 		} else {
 			try {
 				// Se abre el archivo de salida especificado y se escribe el output.
-				FileWriter fileWriter = new FileWriter(outputPath, true);
-				fileWriter.write("\nCORRECTO: SEMANTICO - DECLARACIONES\n");
+				FileWriter fileWriter = getOutputFileWriter(outputPath, true);
+				fileWriter.write("CORRECTO: SEMANTICO - DECLARACIONES\n");
 				fileWriter.close();
 
 			} catch (IOException e) {
@@ -173,14 +174,14 @@ public class Logger {
 	public static void semanticDeclError(SemanticalError error, String outputPath) {
 		if (outputPath == null) { // No se especificó archivo de salida.
 			// Se escribe el output en la terminal.
-			System.out.println("\nERROR: SEMANTICO - DECLARACIONES ");
+			System.out.println("ERROR: SEMANTICO - DECLARACIONES ");
 			System.out.println("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |");
 			System.out.println(error.getMessage());
 		} else {
 			try {
 				// Se abre el archivo de salida especificado y se escribe el output.
-				FileWriter fileWriter = new FileWriter(outputPath, true);
-				fileWriter.write("\nERROR: SEMANTICO - DECLARACIONES\n");
+				FileWriter fileWriter = getOutputFileWriter(outputPath, true);
+				fileWriter.write("ERROR: SEMANTICO - DECLARACIONES\n");
 				fileWriter.write("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |\n");
 				fileWriter.write(error.getMessage() + "\n");
 				fileWriter.close();
@@ -201,7 +202,7 @@ public class Logger {
 	public static void createTsJson(String json, String outputPath) {
 		try {
 			// Se abre el archivo de salida especificado y se escribe el output.
-			FileWriter fileWriter = new FileWriter(outputPath, true);
+			FileWriter fileWriter = getOutputFileWriter(outputPath, false);
 			fileWriter.write(json);
 			fileWriter.close();
 		} catch (IOException e) {
@@ -210,4 +211,25 @@ public class Logger {
 		}
 	}
 
+	/**
+	 * Crea el archivo de salida si aun no existe e inicializa un FileWriter para
+	 * ese archivo.
+	 * 
+	 * @param outputPath - Ruta del archivo de salida.
+	 * @param append     - true para escribir al final del archivo de entrada,
+	 *                   false para sobreescribirlo.
+	 * @return FileWriter para el archivo de salida.
+	 * @throws IOException - Si el archivo no pudo ser creado o abierto.
+	 */
+	private static FileWriter getOutputFileWriter(String outputPath, boolean append) throws IOException {
+		File outputFile = new File(outputPath);
+		if (outputFile.createNewFile()) {
+			System.out.println("ARCHIVO DE SALIDA CREADO EN " + outputPath);
+		} else {
+			System.out.println("ARCHIVO DE SALIDA ESCRITO EN " + outputPath);
+		}
+
+		// Si el archivo ya existe, se escribe el output al final del archivo existente.
+		return new FileWriter(outputPath, append);
+	}
 }

@@ -10,6 +10,14 @@ import error.syntactic.UnexpectedToken;
 import lexic_analyzer.LexicAnalyzer;
 import lexic_analyzer.Token;
 import semantic_analyzer.symbol_table.SymbolTable;
+import semantic_analyzer.symbol_table.types.Array;
+import semantic_analyzer.symbol_table.types.Bool;
+import semantic_analyzer.symbol_table.types.Char;
+import semantic_analyzer.symbol_table.types.ClassType;
+import semantic_analyzer.symbol_table.types.I32;
+import semantic_analyzer.symbol_table.types.Str;
+import semantic_analyzer.symbol_table.types.Type;
+import semantic_analyzer.symbol_table.types.Void;
 
 /**
  * Analizador Sintáctico descendente predictivo recursivo de TinyRust+.
@@ -17,13 +25,13 @@ import semantic_analyzer.symbol_table.SymbolTable;
  * archivo se corresponde con un programa válido de TinyRust+.
  * Hace uso de la clase LexicAnalyzer para identificar los tokens del archivo.
  */
-public class SyntacticAnalizer {
+public class SyntacticAnalyzer {
 	private LexicAnalyzer lexic;
 	private Token token;
 	private Token nextToken;
 	private SymbolTable ts;
 
-	public SyntacticAnalizer(String inputPath) throws FileNotFoundException {
+	public SyntacticAnalyzer(String inputPath) throws FileNotFoundException {
 		// Patrón Singleton: se utiliza una única instancia de la clase LexicAnalyzer.
 		lexic = new LexicAnalyzer(inputPath);
 		ts = new SymbolTable(inputPath);
@@ -32,23 +40,23 @@ public class SyntacticAnalizer {
 	/**
 	 * Inicia el análisis sintáctico del archivo provisto al analizador sintáctico.
 	 * 
-	 * @return true si el análisis fue exitoso. Caso contrario lanzará una excepción
+	 * @return la tabla de símbolos si el análisis fue exitoso.
+	 *         Caso contrario lanzará una excepción.
 	 * @throws LexicalError     - Si algún token del archivo no es válido.
 	 * @throws SyntacticalError - Si la estructura sintáctica del archivo no se
 	 *                          corresponde con un programa válido de TinyRust+.
+	 * @throws SemanticalError  - Si alguna sentencia del archivo no respeta la
+	 *                          semántica de TinyRust+.
 	 */
-	public boolean run() throws LexicalError, SyntacticalError, SemanticalError {
+	public String run() throws LexicalError, SyntacticalError, SemanticalError {
 		// Se obtienen los dos primeros tokens del archivo.
 		token = lexic.nextToken();
 		nextToken = lexic.nextToken();
 
 		// Si la entrada no es sintácticamente correcta, Program lanza una excepción,
-		// por lo se asume que si termina de ejecutarse, la entrada es correcta.
+		// por lo que si termina de ejecutarse, la entrada es correcta y
+		// la tabla de símbolos se construyó por completo.
 		Program();
-		return true;
-	}
-
-	public String getTsJson() {
 		return ts.toJson();
 	}
 
@@ -57,10 +65,12 @@ public class SyntacticAnalizer {
 	 * Si coincide con algún elemento de la lista, consume el token.
 	 * 
 	 * @param types Tipos posibles esperados del token.
+	 * @return el token consumido.
 	 * @throws LexicalError     - Si el siguiente token no es válido.
 	 * @throws SyntacticalError - Si el token no coincide con ningún tipo esperado.
 	 */
-	private void matchToken(String... types) throws LexicalError, SyntacticalError {
+	private Token matchToken(String... types) throws LexicalError, SyntacticalError {
+		Token consumedToken = token;
 		if (Arrays.asList(types).contains(token.getToken())) {
 			token = nextToken;
 			nextToken = lexic.nextToken();
@@ -68,6 +78,7 @@ public class SyntacticAnalizer {
 			String typesAsString = String.join(", ", types);
 			throw new UnexpectedToken(token, "TOKEN DE TIPO: " + typesAsString);
 		}
+		return consumedToken;
 	}
 
 	/**
@@ -75,11 +86,13 @@ public class SyntacticAnalizer {
 	 * Si coincide con algún elemento de la lista, consume el token.
 	 * 
 	 * @param lexema Lexemas posibles esperados del token.
+	 * @return el token consumido.
 	 * @throws LexicalError     - Si el siguiente token no es válido.
 	 * @throws SyntacticalError - Si el token no coincide con ningún lexema
 	 *                          esperado.
 	 */
-	private void matchLexema(String... types) throws LexicalError, SyntacticalError {
+	private Token matchLexema(String... types) throws LexicalError, SyntacticalError {
+		Token consumedToken = token;
 		if (Arrays.asList(types).contains(token.getLexema())) {
 			token = nextToken;
 			nextToken = lexic.nextToken();
@@ -87,6 +100,7 @@ public class SyntacticAnalizer {
 			String typesAsString = String.join(", ", types);
 			throw new UnexpectedToken(token, typesAsString);
 		}
+		return consumedToken;
 	}
 
 	/**
@@ -109,12 +123,12 @@ public class SyntacticAnalizer {
 		return Arrays.asList(firsts).contains(token.getToken());
 	}
 
-	private void Program() throws LexicalError, SyntacticalError {
+	private void Program() throws LexicalError, SyntacticalError, SemanticalError {
 		Start();
 		matchToken("EOF");
 	}
 
-	private void Start() throws LexicalError, SyntacticalError {
+	private void Start() throws LexicalError, SyntacticalError, SemanticalError {
 		if (isFirstL("class", "fn")) {
 			Clases();
 			Main();
@@ -123,7 +137,7 @@ public class SyntacticAnalizer {
 		}
 	}
 
-	private void Clases() throws LexicalError, SyntacticalError {
+	private void Clases() throws LexicalError, SyntacticalError, SemanticalError {
 		if (isFirstL("class")) {
 			Clase();
 			Clases();
@@ -132,21 +146,25 @@ public class SyntacticAnalizer {
 		// si el token no matchea con los primeros.
 	}
 
-	private void Main() throws LexicalError, SyntacticalError {
+	private void Main() throws LexicalError, SyntacticalError, SemanticalError {
 		matchLexema("fn"); // Si no matchea, este método arrojará la excepción.
 		matchLexema("main");
 		matchLexema("(");
 		matchLexema(")");
+		ts.addMain();
 		BloqueMetodo();
+		ts.endClass();
 	}
 
-	private void Clase() throws LexicalError, SyntacticalError {
+	private void Clase() throws LexicalError, SyntacticalError, SemanticalError {
 		matchLexema("class"); // Si no matchea, este método arrojará la excepción.
-		matchToken("id_type");
+		Token classIdToken = matchToken("id_type");
+		ts.addClass(classIdToken.getLexema());
 		ClaseHerenciaOp();
+		ts.endClass();
 	}
 
-	private void ClaseHerenciaOp() throws LexicalError, SyntacticalError {
+	private void ClaseHerenciaOp() throws LexicalError, SyntacticalError, SemanticalError {
 		if (isFirstL(":")) {
 			Herencia();
 		}
@@ -160,16 +178,17 @@ public class SyntacticAnalizer {
 
 	}
 
-	private void Herencia() throws LexicalError, SyntacticalError {
+	private void Herencia() throws LexicalError, SyntacticalError, SemanticalError {
 		if (isFirstL(":")) {
 			matchLexema(":");
-			matchToken("id_type");
+			Token typeToken = matchToken("id_type");
+			ts.currentClass().setExtendsFrom(typeToken.getLexema());
 		} else {
 			throw new UnexpectedToken(token, "\":\" (HERENCIA)");
 		}
 	}
 
-	private void Miembros() throws LexicalError, SyntacticalError {
+	private void Miembros() throws LexicalError, SyntacticalError, SemanticalError {
 		if (isFirstL("Bool", "I32", "Str", "Char", "Array", "pub", "fn", "static", "create") || isFirstT("id_type")) {
 			Miembro();
 			Miembros();
@@ -178,7 +197,7 @@ public class SyntacticAnalizer {
 		// si el token no matchea con los primeros.
 	}
 
-	private void Miembro() throws LexicalError, SyntacticalError {
+	private void Miembro() throws LexicalError, SyntacticalError, SemanticalError {
 		if (isFirstL("create")) {
 			Constructor();
 		} else {
@@ -194,44 +213,50 @@ public class SyntacticAnalizer {
 		}
 	}
 
-	private void Atributo() throws LexicalError, SyntacticalError {
+	private void Atributo() throws LexicalError, SyntacticalError, SemanticalError {
+		boolean isPublic = false;
 		if (isFirstL("pub")) {
-			Visibilidad();
+			isPublic = Visibilidad();
 		}
 		if (isFirstL("Bool", "I32", "Str", "Char", "Array") || isFirstT("id_type")) {
-			Tipo();
+			Type type = Tipo();
 			matchLexema(":");
-			ListaDeclaracionVariables();
+			ListaDeclaracionVariables(type, isPublic);
 			matchLexema(";");
 		} else {
 			throw new UnexpectedToken(token, "UN IDENTIFICADOR DE CLASE O TIPO PRIMITIVO");
 		}
 	}
 
-	private void Constructor() throws LexicalError, SyntacticalError {
+	private void Constructor() throws LexicalError, SyntacticalError, SemanticalError {
 		matchLexema("create"); // Si no matchea, este método arrojará la excepción.
+		ts.addConstructor();
 		ArgumentosFormales();
 		BloqueMetodo();
-
+		ts.endMethod();
 	}
 
-	private void Metodo() throws LexicalError, SyntacticalError {
+	private void Metodo() throws LexicalError, SyntacticalError, SemanticalError {
+		boolean isStatic = false;
 		if (isFirstL("static")) {
-			FormaMetodo();
+			isStatic = FormaMetodo();
 		}
 		if (isFirstL("fn")) {
 			matchLexema("fn");
-			matchToken("id");
+			Token nameToken = matchToken("id");
+			ts.addMethod(nameToken.getLexema(), isStatic);
 			ArgumentosFormales();
 			matchLexema("->");
-			TipoMetodo();
+			Type returnType = TipoMetodo();
+			ts.currentMethod().setReturnType(returnType);
 			BloqueMetodo();
+			ts.endMethod();
 		} else {
 			throw new UnexpectedToken(token, "\"fn\" (METODO)");
 		}
 	}
 
-	private void ArgumentosFormales() throws LexicalError, SyntacticalError {
+	private void ArgumentosFormales() throws LexicalError, SyntacticalError, SemanticalError {
 		matchLexema("("); // Si no matchea, este método arrojará la excepción.
 		if (isFirstL(")")) {
 			matchLexema(")");
@@ -241,7 +266,7 @@ public class SyntacticAnalizer {
 		}
 	}
 
-	private void ListaArgumentosFormales() throws LexicalError, SyntacticalError {
+	private void ListaArgumentosFormales() throws LexicalError, SyntacticalError, SemanticalError {
 		if (isFirstL("Bool", "I32", "Str", "Char", "Array") || isFirstT("id_type")) {
 			ArgumentoFormal();
 			if (isFirstL(",")) {
@@ -255,11 +280,12 @@ public class SyntacticAnalizer {
 		}
 	}
 
-	private void ArgumentoFormal() throws LexicalError, SyntacticalError {
+	private void ArgumentoFormal() throws LexicalError, SyntacticalError, SemanticalError {
 		if (isFirstL("Bool", "I32", "Str", "Char", "Array") || isFirstT("id_type")) {
-			Tipo();
+			Type type = Tipo();
 			matchLexema(":");
-			matchToken("id");
+			Token nameToken = matchToken("id");
+			ts.currentMethod().addArgument(nameToken.getLexema(), type);
 		} else {
 			throw new UnexpectedToken(token, "UN IDENTIFICADOR DE CLASE, TIPO PRIMITIVO O \")\"");
 		}
@@ -275,64 +301,96 @@ public class SyntacticAnalizer {
 		}
 	}
 
-	private void FormaMetodo() throws LexicalError, SyntacticalError {
+	private boolean FormaMetodo() throws LexicalError, SyntacticalError {
 		matchLexema("static"); // Si no matchea, este método arrojará la excepción.
+		return true;
 	}
 
-	private void Visibilidad() throws LexicalError, SyntacticalError {
+	private boolean Visibilidad() throws LexicalError, SyntacticalError {
 		matchLexema("pub"); // Si no matchea, este método arrojará la excepción.
+		return true;
 	}
 
-	private void TipoMetodo() throws LexicalError, SyntacticalError {
+	private Type TipoMetodo() throws LexicalError, SyntacticalError {
+		Type tsType;
 		if (isFirstL("Bool", "I32", "Str", "Char", "Array", "void") || isFirstT("id_type")) {
 			if (isFirstL("void")) {
 				matchLexema("void");
+				tsType = new Void();
 			} else {
-				Tipo();
+				tsType = Tipo();
 			}
 		} else {
 			throw new UnexpectedToken(token, "UN TIPO DE RETORNO (CLASE O VOID)");
 		}
+		return tsType; // Para este punto tsType siempre tendrá un valor asignado,
+		// en cualquier otro caso, se lanza una excepción antes.
 	}
 
-	private void Tipo() throws LexicalError, SyntacticalError {
+	private Type Tipo() throws LexicalError, SyntacticalError {
+		Type tsType = null;
 		if (isFirstL("Bool", "I32", "Str", "Char", "Array") || isFirstT("id_type")) {
 			if (isFirstL("Array")) {
-				TipoArray();
+				tsType = TipoArray();
 			} else if (isFirstT("id_type")) {
-				TipoReferencia();
+				tsType = TipoReferencia();
 			} else if (isFirstL("Bool", "I32", "Str", "Char")) {
-				TipoPrimitivo();
+				tsType = TipoPrimitivo();
 			}
 		} else {
 			throw new UnexpectedToken(token, "UN IDENTIFICADOR DE CLASE O TIPO PRIMITIVO");
 		}
+		return tsType;
 	}
 
-	private void TipoPrimitivo() throws LexicalError, SyntacticalError {
-		matchLexema("Bool", "I32", "Str", "Char");
+	private Type TipoPrimitivo() throws LexicalError, SyntacticalError {
+		Type tsType;
+		Token typeToken = matchLexema("Bool", "I32", "Str", "Char");
+
+		switch (typeToken.getLexema()) {
+			case "Bool":
+				tsType = new Bool();
+				break;
+			case "I32":
+				tsType = new I32();
+				break;
+			case "Str":
+				tsType = new Str();
+				break;
+			case "Char":
+				tsType = new Char();
+				break;
+			default:
+				tsType = null; // Nunca se llega a este caso, porque matchLexema arrojaría una excepción si el
+												// tipo no fuera uno de los 4 casos del switch, pero se deja por prolijidad.
+		}
+		return tsType;
 	}
 
-	private void TipoReferencia() throws LexicalError, SyntacticalError {
-		matchToken("id_type");
+	private Type TipoReferencia() throws LexicalError, SyntacticalError {
+		Token classToken = matchToken("id_type");
+		return new ClassType(classToken.getLexema());
 	}
 
-	private void TipoArray() throws LexicalError, SyntacticalError {
+	private Array TipoArray() throws LexicalError, SyntacticalError {
 		matchLexema("Array"); // Si no matchea, este método arrojará la excepción.
-		TipoPrimitivo();
+		Type type = TipoPrimitivo();
+		return new Array(type);
 	}
 
-	private void ListaDeclaracionVariables() throws LexicalError, SyntacticalError {
-		matchToken("id"); // Si no matchea, este método arrojará la excepción.
+	private void ListaDeclaracionVariables(Type varType, boolean isPublic)
+			throws LexicalError, SyntacticalError, SemanticalError {
+		Token nameToken = matchToken("id"); // Si no matchea, este método arrojará la excepción.
+		ts.addVar(nameToken.getLexema(), varType, isPublic);
 		if (isFirstL(",")) {
 			matchLexema(",");
-			ListaDeclaracionVariables();
+			ListaDeclaracionVariables(varType, isPublic);
 			// No se lanza un error si no matchea "," ya que
 			// sería el caso de la última variable de la lista.
 		}
 	}
 
-	private void DeclVarLocalesN() throws LexicalError, SyntacticalError {
+	private void DeclVarLocalesN() throws LexicalError, SyntacticalError, SemanticalError {
 		if (isFirstL("Bool", "I32", "Str", "Char", "Array") || isFirstT("id_type")) {
 			DeclVarLocales();
 			DeclVarLocalesN();
@@ -341,11 +399,11 @@ public class SyntacticAnalizer {
 		// si el token no matchea con los primeros.
 	}
 
-	private void DeclVarLocales() throws LexicalError, SyntacticalError {
+	private void DeclVarLocales() throws LexicalError, SyntacticalError, SemanticalError {
 		if (isFirstL("Bool", "I32", "Str", "Char", "Array") || isFirstT("id_type")) {
-			Tipo();
+			Type type = Tipo();
 			matchLexema(":");
-			ListaDeclaracionVariables();
+			ListaDeclaracionVariables(type, false);
 			matchLexema(";");
 		} else {
 			throw new UnexpectedToken(token, "UN IDENTIFICADOR DE CLASE O TIPO PRIMITIVO");
@@ -424,7 +482,7 @@ public class SyntacticAnalizer {
 		}
 	}
 
-	private void BloqueMetodo() throws LexicalError, SyntacticalError {
+	private void BloqueMetodo() throws LexicalError, SyntacticalError, SemanticalError {
 		matchLexema("{"); // Si no matchea, este método arrojará la excepción.
 		DeclVarLocalesN();
 		Sentencias();

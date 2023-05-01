@@ -1,23 +1,33 @@
 package semantic_analyzer.symbol_table;
 
 import semantic_analyzer.symbol_table.types.Type;
+import semantic_analyzer.symbol_table.types.Void;
+import util.Json;
 
 public class MethodEntry implements TableElement {
 	private String name;
 	private int position;
 	private Type returnType;
-	private boolean isPublic = false;
+	private boolean isStatic = false;
 	private TableList<ArgumentEntry> arguments;
 
-	public MethodEntry(String name, Type returnType) {
+	public MethodEntry(String name, boolean isStatic, int position) {
 		this.name = name;
-		this.returnType = returnType;
+		this.position = position;
+		this.isStatic = isStatic;
+		this.returnType = new Void();
+		this.arguments = new TableList<ArgumentEntry>();
 	}
 
 	@Override
 	public String toJson() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'toJson'");
+		Json json = new Json();
+		json.addAttr("nombre", name);
+		json.addAttr("posicion", position);
+		json.addAttr("static", isStatic);
+		json.addAttr("tipoRetorno", returnType);
+		json.addAttr("argumentosFormales", arguments);
+		return json.toString();
 	}
 
 	public void addArgument(String name, Type type) {
@@ -25,15 +35,15 @@ public class MethodEntry implements TableElement {
 		arguments.put(name, arg);
 	}
 
-	public void setPublic(boolean isPublic) {
-		this.isPublic = isPublic;
-	}
-
-	public void setPosition(int position) {
-		this.position = position;
+	public void setStatic(boolean isStatic) {
+		this.isStatic = isStatic;
 	}
 
 	public void setReturnType(Type returnType) {
 		this.returnType = returnType;
+	}
+
+	protected TableList<ArgumentEntry> getArguments() {
+		return arguments;
 	}
 }

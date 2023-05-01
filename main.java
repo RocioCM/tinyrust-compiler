@@ -1,4 +1,3 @@
-import java.io.File;
 import java.io.IOException;
 
 import syntactic_analyzer.Executor;
@@ -11,30 +10,21 @@ import syntactic_analyzer.Executor;
 class TinyRustCompiler {
 	public static void main(String[] args) {
 		try {
-			// Se leen las rutas de los archivos de los argumentos de entrada.
-			String inputPath = "./tests/syntactic/test (3).rs"; /// TODO: RESTORE args[0]
-			String outputPath = null;
+			// Se lee la ruta del archivo de los argumentos de entrada.
+			String inputPath = "./tests/semantic/test (1).rs"; /// TODO: RESTORE args[0];
 
-			// Si se especificó una segunda ruta, se inicializa el archivo de salida.
-			if (args.length > 1) {
-				outputPath = args[1];
-
-				File outputFile = new File(outputPath);
-				// Si el archivo ya existe, se escribe el output al final del archivo existente.
-				if (outputFile.createNewFile()) {
-					System.out.println("ARCHIVO DE SALIDA CREADO EN " + outputPath);
-				} else {
-					System.out.println("ARCHIVO DE SALIDA ESCRITO EN " + outputPath);
-				}
+			if (!inputPath.endsWith(".rs")) {
+				throw new IOException("ERROR: EL ARCHIVO DE ENTRADA DEBE TENER EXTENSION .rs");
 			}
 
 			// Se inicializa la ejecución del compilador.
-			new Executor().run(inputPath, outputPath);
+			new Executor().run(inputPath);
+
 		} catch (ArrayIndexOutOfBoundsException e) {
 			System.out.println("ERROR: DEBE ESPECIFICARSE UN ARCHIVO DE ENTRADA EN EL COMANDO.");
 			System.exit(1);
 		} catch (IOException e) {
-			System.out.println("ERROR IO: NO SE PUDO CREAR EL ARCHIVO DE SALIDA.");
+			System.out.println(e.getMessage());
 			System.exit(1);
 		}
 	}

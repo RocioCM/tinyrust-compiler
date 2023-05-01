@@ -14,21 +14,18 @@ import util.Logger;
  * excepciones que se puedan lanzar durante el proceso.
  */
 public class Executor {
-	public void run(String inputPath, String outputPath) {
+	public void run(String inputPath) {
+		String outputPath = inputPath.substring(0, inputPath.length() - 3).concat(".ts.json");
+		System.out.println(outputPath);
+
 		try {
 			// Patrón Singleton: se utiliza una única instancia del analizador.
-			SyntacticAnalizer syntactic = new SyntacticAnalizer(inputPath);
+			SyntacticAnalyzer syntactic = new SyntacticAnalyzer(inputPath);
 
-			boolean succeed = syntactic.run();
+			String tsJson = syntactic.run();
 
-			if (succeed) {
-				Logger.semanticDeclSuccess(outputPath);
-				Logger.createTsJson(syntactic.getTsJson(), outputPath);
-			} else {
-				// Esto nunca va a ejecutar,
-				// porque el método run() lanza una excepción en caso de error.
-				Logger.syntacticError(new PlaceholderError(1, 1), outputPath);
-			}
+			Logger.semanticDeclSuccess(null);
+			Logger.createTsJson(tsJson, outputPath);
 		} catch (FileNotFoundException error) {
 			System.out.println("\nERROR IO: NO SE ENCONTRO UN ARCHIVO DE ENTRADA EN LA RUTA " + inputPath);
 			System.exit(1);

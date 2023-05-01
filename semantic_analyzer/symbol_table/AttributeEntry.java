@@ -1,6 +1,7 @@
 package semantic_analyzer.symbol_table;
 
 import semantic_analyzer.symbol_table.types.Type;
+import util.Json;
 
 public class AttributeEntry extends VariableEntry {
 	private boolean isPublic = false;
@@ -12,7 +13,11 @@ public class AttributeEntry extends VariableEntry {
 
 	@Override
 	public String toJson() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'toJson'");
+		Json json = new Json();
+		json.addAttr("nombre", name);
+		json.addAttr("posicion", position);
+		json.addAttr("public", isPublic);
+		json.addAttr("tipo", type);
+		return json.toString();
 	}
 }
