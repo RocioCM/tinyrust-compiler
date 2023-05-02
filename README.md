@@ -34,7 +34,7 @@ La clase de entrada del proyecto se encuentra en el archivo [main.java](./main.j
 Para cada etapa del análisis, se incluye una clase Executor distinta que será la encargada de instanciar el analizador de esa etapa de compilado de TinyRust+ (ya sea análisis léxico, sintáctico o semántico). Esta clase permite ejecutar el análisis hasta esa etapa únicamente (incluyendo etapas inferiores, dado que son parte necesaria del análisis). Por ejemplo, el Executor del análisis sintáctico aprobará archivos que son correctos léxica y sintácticamente, pero no necesariamente lo son a nivel semántico.
 Cada clase Executor provee al analizador una ruta de archivo de entrada y se encarga de mostrar la salida en el formato y medio correcto. En caso de que el analizador arrojara una excepción durante su ejecución, el ejecutor automáticamente procede a mostrar el error hallado y finalizar la ejecución.
 
-#### Logger
+### Logger
 
 La clase Logger provee métodos estáticos para hacer output de información. Executor se vale del Logger para datos y mensajes de éxito o los errores antes de finalizar su ejecución. Esta clase provee distintos métodos para mostrar con distinto formato los mensajes de éxito y falla en la ejecución de cada etapa de análisis: léxico, sintáctico y semántico.
 
