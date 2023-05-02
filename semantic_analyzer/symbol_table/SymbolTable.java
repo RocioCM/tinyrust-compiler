@@ -1,7 +1,9 @@
 package semantic_analyzer.symbol_table;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
+import error.semantic.ConsolidationError;
 import error.semantic.DuplicatedEntityIdError;
 import error.semantic.InternalError;
 import error.semantic.SemanticalError;
@@ -37,24 +39,26 @@ public class SymbolTable implements TableElement {
 	public void consolidate() throws SemanticalError {
 		// Key: subclass name, Value: superclass entry.
 		HashMap<String, ClassEntry> ancestorsTree = new HashMap<String, ClassEntry>();
-		classes.forEach((name, classEntry) -> {
+		Iterator<ClassEntry> classesIter = classes.values().iterator();
+
+		while (classesIter.hasNext()) {
+			ClassEntry entry = classesIter.next();
 			// 1. Validar que no exista herencia circular.
-			ancestorsTree.put(name, null);
-			ClassEntry entry = classEntry;
-			while (entry.extendsFrom() != null || !entry.isConsolidated()) {
+			ancestorsTree.put(entry.name(), null);
+			while (entry.extendsFrom() != null && !entry.isConsolidated()) {
 				String superClassName = entry.extendsFrom();
 				// Validar que la superclase exista:
 				ClassEntry superClass = classes.get(superClassName);
 				if (superClass == null) {
-					System.out.println("Clase inexistente");
-					// throw new InternalError("Clase inexistente");
+					throw new ConsolidationError(
+							"LA CLASE " + entry.name() + " HEREDA DE LA CLASE INEXISTENTE " + superClassName);
 				}
 
 				// Validar que no haya dependencia circular:
 				ClassEntry ancestorFromTree = ancestorsTree.get(superClassName);
 				if (ancestorFromTree != null && !ancestorFromTree.isConsolidated()) {
-					System.out.println("Herencia circular");
-					// throw new InternalError("Herencia circular");
+					throw new ConsolidationError("HERENCIA CIRCULAR: LA CLASE " + entry.name() + " HEREDA DE LA CLASE "
+							+ superClassName + " QUE HEREDA DIRECTA O INDIRECTAMENTE DE " + entry.name());
 				}
 
 				// Agregar la relacion de herencia al árbol de ancestros:
@@ -63,8 +67,8 @@ public class SymbolTable implements TableElement {
 			}
 
 			// 2. Consolidar atributos y métodos de cada ancestro en el árbol.
-			classEntry.consolidate(ancestorsTree);
-		});
+			entry.consolidate(ancestorsTree);
+		}
 	}
 
 	public void addClass(String name) throws DuplicatedEntityIdError {

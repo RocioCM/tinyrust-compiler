@@ -2,6 +2,8 @@ package semantic_analyzer.symbol_table;
 
 import java.util.HashMap;
 
+import java.util.Iterator;
+
 import error.semantic.ConsolidationError;
 import error.semantic.DuplicatedEntityIdError;
 import error.semantic.IllegalBaseExtendError;
@@ -82,25 +84,28 @@ public class ClassEntry implements TableElement {
 			superClass.consolidate(superClassesTree);
 
 			// Consolidar atributos.
-			superClass.attributes().forEach((name, superAttr) -> {
-				if (attributes.containsKey(name)) {
+			Iterator<AttributeEntry> superAttrsIter = superClass.attributes().values().iterator();
+			while (superAttrsIter.hasNext()) { // Iterar sobre cada atributo de la supercalse.
+				AttributeEntry superAttr = superAttrsIter.next();
+				if (attributes.containsKey(superAttr.name())) {
 					// No es válido redeclarar atributos.
-					/// TODO throw new ConsolidationError("no se puede redefinir attrs");
+					throw new ConsolidationError("NO ESTA PERMITIDO REDEFINIR ATRIBUTOS DE UNA SUPERCLASE");
 				} else {
-					// Se agrega a la subclase el atributo de la superclase.
+					// El atributo no se redefine, entonces Se agrega a la subclase.
 					attributes.put(name, superAttr);
 				}
-			});
+			}
 
 			// Consolidar métodos.
-			superClass.methods().forEach((name, superMethod) -> {
+			Iterator<MethodEntry> superMethodsIter = superClass.methods().values().iterator();
+			while (superMethodsIter.hasNext()) { // Iterar sobre cada método de la superclase.
+				MethodEntry superMethod = superMethodsIter.next();
 				if (methods.containsKey(name)) {
 					// Si la subclase redeclara un método, se valida que la firma coincida.
 					MethodEntry subMethod = methods.get(name);
 					if (superMethod.isStatic()) {
 						// No es válido redeclarar métodos estáticos.
-						/// TODO throw new ConsolidationError("no se puede redefinir un metodo
-						/// estatico");
+						throw new ConsolidationError("NO ESTA PERMITIDO REDEFINIR METODOS ESTATICOS DE UNA SUPERCLASE");
 					}
 
 					if (!(superMethod.returnType().equals(subMethod.returnType()) // Mismo tipo de retorno.
@@ -115,15 +120,16 @@ public class ClassEntry implements TableElement {
 						if (superMethod.arguments().values().stream() // Validar misma posición y tipo de cada argumento.
 								.allMatch((superArgument) -> subMethodArgTypes.get(superArgument.position()) == superArgument.type())) {
 							// No es válido redeclarar métodos del mismo nombre con distinta firma.
-							/// TODO throw new ConsolidationError("no se puede redefinir un metodo
-							/// con distinta firma);
+							throw new ConsolidationError(
+									"NO ESTA PERMITIDO REDEFINIR METODOS DE UNA SUPERCLASE CON DISTINTA FIRMA (TIPO DE RETORNO Y CANTIDAD, TIPO Y ORDEN DE ARGUMENTOS)");
 						}
 					}
 				} else {
-					// Se agrega a la subclase el método de la superclase.
+					// El método no se redefine, entonces se agrega a la subclase.
 					methods.put(name, superMethod);
 				}
-			});
+
+			}
 		}
 		setConsolidated(true);
 	}
