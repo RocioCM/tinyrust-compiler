@@ -1,5 +1,7 @@
 package semantic_analyzer.symbol_table;
 
+import error.semantic.DuplicatedEntityIdError;
+import error.semantic.IllegalSelfDeclarationError;
 import semantic_analyzer.symbol_table.types.Type;
 import semantic_analyzer.symbol_table.types.Void;
 import util.Json;
@@ -30,9 +32,24 @@ public class MethodEntry implements TableElement {
 		return json.toString();
 	}
 
-	public void addArgument(String name, Type type) {
+	public void addArgument(String name, Type type) throws IllegalSelfDeclarationError, DuplicatedEntityIdError {
+		if (name == "self") {
+			throw new IllegalSelfDeclarationError();
+		}
+		if (arguments.containsKey(name)) {
+			throw new DuplicatedEntityIdError("L PARAMETRO FORMAL", name);
+		}
+
 		ArgumentEntry arg = new ArgumentEntry(name, type, arguments.size() + 1);
 		arguments.put(name, arg);
+	}
+
+	public Type returnType() {
+		return returnType;
+	}
+
+	public boolean isStatic() {
+		return isStatic;
 	}
 
 	public void setStatic(boolean isStatic) {
@@ -43,7 +60,7 @@ public class MethodEntry implements TableElement {
 		this.returnType = returnType;
 	}
 
-	protected TableList<ArgumentEntry> getArguments() {
+	protected TableList<ArgumentEntry> arguments() {
 		return arguments;
 	}
 }

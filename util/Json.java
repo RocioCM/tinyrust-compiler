@@ -17,8 +17,11 @@ public class Json {
 	}
 
 	public void addAttr(String key, String value) {
-		attributes.add(Json.join("\"", key, "\": \"", value, "\""));
-
+		String json = "null";
+		if (value != null) {
+			json = '"' + value + '"';
+		}
+		attributes.add(Json.join("\"", key, "\": ", json));
 	}
 
 	public void addAttr(String key, Number value) {
@@ -30,7 +33,11 @@ public class Json {
 	}
 
 	public void addAttr(String key, TableElement value) {
-		attributes.add(Json.join("\"", key, "\": ", value.toJson()));
+		String json = "null";
+		if (value != null) {
+			json = value.toJson();
+		}
+		attributes.add(Json.join("\"", key, "\": ", json));
 	}
 
 	public String toString() {

@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.util.Arrays;
 
 import error.lexic.LexicalError;
+import error.semantic.InternalError;
 import error.semantic.SemanticalError;
 import error.syntactic.SyntacticalError;
 import error.syntactic.UnexpectedToken;
@@ -31,7 +32,7 @@ public class SyntacticAnalyzer {
 	private Token nextToken;
 	private SymbolTable ts;
 
-	public SyntacticAnalyzer(String inputPath) throws FileNotFoundException {
+	public SyntacticAnalyzer(String inputPath) throws FileNotFoundException, InternalError {
 		// Patrón Singleton: se utiliza una única instancia de la clase LexicAnalyzer.
 		lexic = new LexicAnalyzer(inputPath);
 		ts = new SymbolTable(inputPath);
@@ -162,7 +163,6 @@ public class SyntacticAnalyzer {
 		matchLexema(")");
 		ts.addMain();
 		BloqueMetodo();
-		ts.endClass();
 	}
 
 	private void Clase() throws LexicalError, SyntacticalError, SemanticalError {

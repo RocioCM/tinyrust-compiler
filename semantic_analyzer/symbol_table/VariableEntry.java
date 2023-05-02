@@ -22,4 +22,16 @@ public class VariableEntry implements TableElement {
 		json.addAttr("tipo", type);
 		return json.toString();
 	}
+
+	public String name() {
+		return name;
+	}
+
+	public Type type() {
+		return type;
+	}
+
+	public int position() {
+		return position;
+	}
 }

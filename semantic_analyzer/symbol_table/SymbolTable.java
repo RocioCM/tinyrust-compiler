@@ -1,7 +1,17 @@
 package semantic_analyzer.symbol_table;
 
+import java.util.HashMap;
+
+import error.semantic.DuplicatedEntityIdError;
 import error.semantic.InternalError;
 import error.semantic.SemanticalError;
+import semantic_analyzer.symbol_table.predefined_classes.Array;
+import semantic_analyzer.symbol_table.predefined_classes.Bool;
+import semantic_analyzer.symbol_table.predefined_classes.Char;
+import semantic_analyzer.symbol_table.predefined_classes.I32;
+import semantic_analyzer.symbol_table.predefined_classes.IO;
+import semantic_analyzer.symbol_table.predefined_classes.Object;
+import semantic_analyzer.symbol_table.predefined_classes.Str;
 import semantic_analyzer.symbol_table.types.Type;
 import util.Json;
 
@@ -11,10 +21,10 @@ public class SymbolTable implements TableElement {
 	private ClassEntry currentClass = null;
 	private MethodEntry currentMethod = null;
 
-	public SymbolTable(String name) {
+	public SymbolTable(String name) throws InternalError {
 		this.name = name;
 		classes = new TableList<ClassEntry>();
-		// addPredefinedClasses();
+		addPredefinedClasses();
 	}
 
 	public String toJson() {
@@ -25,10 +35,43 @@ public class SymbolTable implements TableElement {
 	}
 
 	public void consolidate() throws SemanticalError {
-		/// TODO: agregar clases predefinidas y consolidar.
+		// Key: subclass name, Value: superclass entry.
+		HashMap<String, ClassEntry> ancestorsTree = new HashMap<String, ClassEntry>();
+		classes.forEach((name, classEntry) -> {
+			// 1. Validar que no exista herencia circular.
+			ancestorsTree.put(name, null);
+			ClassEntry entry = classEntry;
+			while (entry.extendsFrom() != null || !entry.isConsolidated()) {
+				String superClassName = entry.extendsFrom();
+				// Validar que la superclase exista:
+				ClassEntry superClass = classes.get(superClassName);
+				if (superClass == null) {
+					System.out.println("Clase inexistente");
+					// throw new InternalError("Clase inexistente");
+				}
+
+				// Validar que no haya dependencia circular:
+				ClassEntry ancestorFromTree = ancestorsTree.get(superClassName);
+				if (ancestorFromTree != null && !ancestorFromTree.isConsolidated()) {
+					System.out.println("Herencia circular");
+					// throw new InternalError("Herencia circular");
+				}
+
+				// Agregar la relacion de herencia al árbol de ancestros:
+				ancestorsTree.put(entry.name(), superClass);
+				entry = superClass;
+			}
+
+			// 2. Consolidar atributos y métodos de cada ancestro en el árbol.
+			classEntry.consolidate(ancestorsTree);
+		});
 	}
 
-	public void addClass(String name) {
+	public void addClass(String name) throws DuplicatedEntityIdError {
+		if (classes.containsKey(name)) {
+			throw new DuplicatedEntityIdError("LA CLASE", name);
+		}
+
 		ClassEntry newClass = new ClassEntry(name);
 		classes.put(name, newClass);
 		currentClass = newClass;
@@ -39,7 +82,7 @@ public class SymbolTable implements TableElement {
 		currentMethod = null;
 	}
 
-	public void addMethod(String name, boolean isStatic) {
+	public void addMethod(String name, boolean isStatic) throws DuplicatedEntityIdError {
 		MethodEntry newMethod = currentClass.addMethod(name, isStatic);
 		currentMethod = newMethod;
 	}
@@ -49,9 +92,8 @@ public class SymbolTable implements TableElement {
 	}
 
 	public void addMain() {
-		ClassEntry phantomClass = new ClassEntry("main");
+		ClassEntry phantomClass = new ClassEntry("main", false, null);
 		classes.put(name, phantomClass);
-		currentClass = phantomClass;
 	}
 
 	public void addConstructor() {
@@ -59,12 +101,12 @@ public class SymbolTable implements TableElement {
 		currentMethod = constructor;
 	}
 
-	public void addVar(String name, Type type, boolean isPublic) throws InternalError {
-		if (currentMethod == null) {
+	public void addVar(String name, Type type, boolean isPublic) throws SemanticalError {
+		if (currentMethod == null && currentClass != null) {
 			// Si la variable se declaró dentro de un método, no se agrega a la TS.
 			// Si se declaró en la raiz de una clase, se guarda como atributo de la clase.
 			// Si se declaró fuera de una clase, se lanza una excepción.
-			currentClass().addAttribute(name, type, isPublic);
+			currentClass.addAttribute(name, type, isPublic);
 		}
 	}
 
@@ -80,5 +122,15 @@ public class SymbolTable implements TableElement {
 			throw new InternalError("SE INTENTO ACCEDER AL METODO ACTUAL Y NO EXISTE.");
 		}
 		return currentMethod;
+	}
+
+	private void addPredefinedClasses() throws InternalError {
+		classes.put("Object", new Object());
+		classes.put("IO", new IO());
+		classes.put("I32", new I32());
+		classes.put("Str", new Str());
+		classes.put("Char", new Char());
+		classes.put("Bool", new Bool());
+		classes.put("Array", new Array());
 	}
 }

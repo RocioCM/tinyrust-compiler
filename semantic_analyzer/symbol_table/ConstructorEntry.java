@@ -10,7 +10,7 @@ public class ConstructorEntry extends MethodEntry {
 	@Override
 	public String toJson() {
 		Json json = new Json();
-		json.addAttr("argumentosFormales", super.getArguments());
+		json.addAttr("argumentosFormales", super.arguments());
 		return json.toString();
 	}
 }
