@@ -6,10 +6,10 @@ public class Str extends PredefinedClass {
 	public Str() throws InternalError {
 		super("Str");
 		try {
-			super.addMethod("length", true, new I32());
-			super.addMethod("concat", true, new semantic_analyzer.symbol_table.types.Str());
+			super.addMethod("length", false, new I32());
+			super.addMethod("concat", false, new semantic_analyzer.symbol_table.types.Str());
 			super.addArgumentToMethod("concat", new semantic_analyzer.symbol_table.types.Str(), "s");
-			super.addMethod("substr", true, new semantic_analyzer.symbol_table.types.Str());
+			super.addMethod("substr", false, new semantic_analyzer.symbol_table.types.Str());
 			super.addArgumentToMethod("substr", new I32(), "i");
 			super.addArgumentToMethod("substr", new I32(), "l");
 		} catch (Exception e) {

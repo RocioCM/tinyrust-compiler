@@ -6,7 +6,7 @@ public class Array extends PredefinedClass {
 	public Array() throws InternalError {
 		super("Array");
 		try {
-			super.addMethod("length", true, new I32());
+			super.addMethod("length", false, new I32());
 		} catch (Exception e) {
 			throw new InternalError("ERROR DECLARANDO LOS METODOS DE LA CLASE Array.");
 		}
