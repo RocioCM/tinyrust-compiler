@@ -54,3 +54,5 @@ class Fibonacci: Fibo {
 fn main() {
 	Hola: hola;
 }
+
+/* CORRECTO: SEMANTICO - DECLARACIONES */

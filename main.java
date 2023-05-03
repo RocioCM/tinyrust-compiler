@@ -11,17 +11,14 @@ class TinyRustCompiler {
 	public static void main(String[] args) {
 		try {
 			// Se lee la ruta del archivo de los argumentos de entrada.
-			String inputPath = "./tests/semantic/test (1).rs"; /// TODO: RESTORE args[0];
+			String inputPath = args[0];
 
 			if (!inputPath.endsWith(".rs")) {
 				throw new IOException("ERROR: EL ARCHIVO DE ENTRADA DEBE TENER EXTENSION .rs");
 			}
 
 			// Se inicializa la ejecución del compilador.
-			for (int i = 0; i < 21; i++) { ///
-				inputPath = "./tests/semantic/test (" + i + ").rs";
-				new Executor().run(inputPath);
-			}
+			new Executor().run(inputPath);
 
 		} catch (ArrayIndexOutOfBoundsException e) {
 			System.out.println("ERROR: DEBE ESPECIFICARSE UN ARCHIVO DE ENTRADA EN EL COMANDO.");

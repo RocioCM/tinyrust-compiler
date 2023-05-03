@@ -16,3 +16,6 @@ fn main() {
 	b1 = new Derivada();
 	(b1.m1());
 }
+/* ERROR: SEMANTICO - DECLARACIONES
+| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
+| LINEA 3 | COLUMNA 5 | LA SINTAXIS CORRECTA PARA DECLARAR EL CONSTRUCTOR create ES "create(<parametros>) {<sentencias>}". | */

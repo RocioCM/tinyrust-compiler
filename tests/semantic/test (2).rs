@@ -16,3 +16,4 @@ fn main() {
 	b1 = new Derivada();
 	(b1.m1());
 }
+/* CORRECTO: SEMANTICO - DECLARACIONES */
