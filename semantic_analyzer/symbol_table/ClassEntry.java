@@ -4,10 +4,12 @@ import java.util.HashMap;
 
 import java.util.Iterator;
 
+import error.semantic.BadFormedConstructorError;
 import error.semantic.ConsolidationError;
 import error.semantic.DuplicatedEntityIdError;
 import error.semantic.IllegalBaseExtendError;
 import error.semantic.IllegalSelfDeclarationError;
+import error.semantic.MultipleConstructorsError;
 import semantic_analyzer.symbol_table.types.Type;
 import util.Json;
 
@@ -22,7 +24,7 @@ public class ClassEntry implements TableElement {
 
 	public ClassEntry(String name) {
 		this.name = name;
-		this.constructor = new ConstructorEntry();
+		this.constructor = new ConstructorEntry(false);
 		this.methods = new TableList<MethodEntry>();
 		this.attributes = new TableList<AttributeEntry>();
 	}
@@ -62,9 +64,16 @@ public class ClassEntry implements TableElement {
 		return attr;
 	}
 
-	public MethodEntry addMethod(String name, boolean isStatic) throws DuplicatedEntityIdError {
+	public MethodEntry addMethod(String name, boolean isStatic)
+			throws DuplicatedEntityIdError, IllegalSelfDeclarationError, BadFormedConstructorError {
 		if (methods.containsKey(name)) {
 			throw new DuplicatedEntityIdError("L METODO", name);
+		}
+		if (name == "self") {
+			throw new IllegalSelfDeclarationError();
+		}
+		if (name == "create") {
+			throw new BadFormedConstructorError();
 		}
 
 		MethodEntry method = new MethodEntry(name, isStatic, methods.size() + 1);
@@ -72,8 +81,12 @@ public class ClassEntry implements TableElement {
 		return method;
 	}
 
-	public ConstructorEntry addConstructor() {
-		ConstructorEntry constructor = new ConstructorEntry();
+	public ConstructorEntry addConstructor() throws MultipleConstructorsError {
+		if (this.constructor.isAlreadyDeclared()) {
+			throw new MultipleConstructorsError();
+		}
+
+		ConstructorEntry constructor = new ConstructorEntry(true);
 		this.constructor = constructor;
 		return constructor;
 	}

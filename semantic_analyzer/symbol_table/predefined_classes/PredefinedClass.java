@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import error.semantic.DuplicatedEntityIdError;
 import error.semantic.IllegalSelfDeclarationError;
+import error.semantic.SemanticalError;
 import semantic_analyzer.symbol_table.ClassEntry;
 import semantic_analyzer.symbol_table.MethodEntry;
 import semantic_analyzer.symbol_table.types.Type;
@@ -13,7 +14,7 @@ public abstract class PredefinedClass extends ClassEntry {
 		super(name, false, null);
 	}
 
-	protected void addMethod(String name, boolean isStatic, Type returnType) throws DuplicatedEntityIdError {
+	protected void addMethod(String name, boolean isStatic, Type returnType) throws SemanticalError {
 		MethodEntry method = super.addMethod(name, isStatic);
 		method.setReturnType(returnType);
 	}

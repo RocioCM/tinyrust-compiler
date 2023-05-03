@@ -6,6 +6,7 @@ import java.util.Iterator;
 import error.semantic.ConsolidationError;
 import error.semantic.DuplicatedEntityIdError;
 import error.semantic.InternalError;
+import error.semantic.MultipleConstructorsError;
 import error.semantic.SemanticalError;
 import semantic_analyzer.symbol_table.predefined_classes.Array;
 import semantic_analyzer.symbol_table.predefined_classes.Bool;
@@ -86,7 +87,7 @@ public class SymbolTable implements TableElement {
 		currentMethod = null;
 	}
 
-	public void addMethod(String name, boolean isStatic) throws DuplicatedEntityIdError {
+	public void addMethod(String name, boolean isStatic) throws SemanticalError {
 		MethodEntry newMethod = currentClass.addMethod(name, isStatic);
 		currentMethod = newMethod;
 	}
@@ -100,7 +101,7 @@ public class SymbolTable implements TableElement {
 		classes.put(name, phantomClass);
 	}
 
-	public void addConstructor() {
+	public void addConstructor() throws MultipleConstructorsError {
 		MethodEntry constructor = currentClass.addConstructor();
 		currentMethod = constructor;
 	}
