@@ -28,6 +28,7 @@ import semantic_analyzer.symbol_table.types.Void;
  */
 public class SyntacticAnalyzer {
 	private LexicAnalyzer lexic;
+	private Token prevToken; // Usado por el analizador semántico.
 	private Token token;
 	private Token nextToken;
 	private SymbolTable ts;
@@ -60,7 +61,7 @@ public class SyntacticAnalyzer {
 			// En este punto, los errores semánticos no incluyen linea y columna donde
 			// ocurrieron. Antes de elevarlos al invocador, se agrega esta información a la
 			// excepción.
-			throw new SemanticalError(token.getLine(), token.getCol(), e.getMessage());
+			throw new SemanticalError(prevToken.getLine(), prevToken.getCol(), e.getMessage());
 		}
 
 		// Si la entrada no es sintácticamente correcta, Program lanza una excepción,
@@ -82,6 +83,7 @@ public class SyntacticAnalyzer {
 	private Token matchToken(String... types) throws LexicalError, SyntacticalError {
 		Token consumedToken = token;
 		if (Arrays.asList(types).contains(token.getToken())) {
+			prevToken = token;
 			token = nextToken;
 			nextToken = lexic.nextToken();
 		} else {
@@ -104,6 +106,7 @@ public class SyntacticAnalyzer {
 	private Token matchLexema(String... types) throws LexicalError, SyntacticalError {
 		Token consumedToken = token;
 		if (Arrays.asList(types).contains(token.getLexema())) {
+			prevToken = token;
 			token = nextToken;
 			nextToken = lexic.nextToken();
 		} else {
@@ -191,7 +194,7 @@ public class SyntacticAnalyzer {
 		if (isFirstL(":")) {
 			matchLexema(":");
 			Token typeToken = matchToken("id_type");
-			ts.currentClass().setExtendsFrom(typeToken.getLexema());
+			ts.currentClass().setExtendsFrom(typeToken.getLexema(), typeToken.getLine(), typeToken.getCol());
 		} else {
 			throw new UnexpectedToken(token, "\":\" (HERENCIA)");
 		}
@@ -253,7 +256,7 @@ public class SyntacticAnalyzer {
 		if (isFirstL("fn")) {
 			matchLexema("fn");
 			Token nameToken = matchToken("id");
-			ts.addMethod(nameToken.getLexema(), isStatic);
+			ts.addMethod(nameToken.getLexema(), isStatic, nameToken.getLine(), nameToken.getCol());
 			ArgumentosFormales();
 			matchLexema("->");
 			Type returnType = TipoMetodo();
@@ -390,7 +393,7 @@ public class SyntacticAnalyzer {
 	private void ListaDeclaracionVariables(Type varType, boolean isPublic)
 			throws LexicalError, SyntacticalError, SemanticalError {
 		Token nameToken = matchToken("id"); // Si no matchea, este método arrojará la excepción.
-		ts.addVar(nameToken.getLexema(), varType, isPublic);
+		ts.addVar(nameToken.getLexema(), varType, isPublic, nameToken.getLine(), nameToken.getCol());
 		if (isFirstL(",")) {
 			matchLexema(",");
 			ListaDeclaracionVariables(varType, isPublic);

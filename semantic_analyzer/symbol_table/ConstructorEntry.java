@@ -6,7 +6,7 @@ public class ConstructorEntry extends MethodEntry {
 	private boolean alreadyDeclared = false;
 
 	public ConstructorEntry(boolean explicitDeclaration) {
-		super("constructor", false, 0);
+		super("constructor", false, 0, -1, -1);
 		this.alreadyDeclared = explicitDeclaration; // La declaración puede ser explícita o implícita.
 	}
 

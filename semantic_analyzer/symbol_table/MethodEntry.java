@@ -8,18 +8,20 @@ import util.Json;
 
 public class MethodEntry implements TableElement {
 	private String name;
+	private Location locationDecl;
 	private int position;
 	private Type returnType;
 	private boolean isStatic = false;
 	private TableList<ArgumentEntry> arguments;
 
-	public MethodEntry(String name, boolean isStatic, int position) {
+	public MethodEntry(String name, boolean isStatic, int position, int line, int col) {
 		// Inicialización por defecto.
 		this.name = name;
 		this.position = position;
 		this.isStatic = isStatic;
 		this.returnType = new Void();
 		this.arguments = new TableList<ArgumentEntry>();
+		this.locationDecl = new Location(line, col);
 	}
 
 	public MethodEntry(MethodEntry method, int position) {
@@ -27,8 +29,9 @@ public class MethodEntry implements TableElement {
 		this.name = method.name;
 		this.position = position;
 		this.isStatic = method.isStatic;
-		this.returnType = new Void();
+		this.returnType = method.returnType;
 		this.arguments = new TableList<ArgumentEntry>(method.arguments);
+		this.locationDecl = method.locationDecl;
 	}
 
 	@Override
@@ -43,7 +46,7 @@ public class MethodEntry implements TableElement {
 	}
 
 	public void addArgument(String name, Type type) throws IllegalSelfDeclarationError, DuplicatedEntityIdError {
-		if (name == "self") {
+		if (name.equals("self")) {
 			throw new IllegalSelfDeclarationError();
 		}
 		if (arguments.containsKey(name)) {
@@ -76,5 +79,9 @@ public class MethodEntry implements TableElement {
 
 	protected TableList<ArgumentEntry> arguments() {
 		return arguments;
+	}
+
+	public Location locationDecl() {
+		return locationDecl;
 	}
 }

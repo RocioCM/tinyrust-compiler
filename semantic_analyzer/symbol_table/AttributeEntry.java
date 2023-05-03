@@ -5,11 +5,13 @@ import util.Json;
 
 public class AttributeEntry extends VariableEntry {
 	private boolean isPublic = false;
+	private Location locationDecl;
 
-	public AttributeEntry(String name, Type type, int position, boolean isPublic) {
+	public AttributeEntry(String name, Type type, int position, boolean isPublic, int line, int col) {
 		// Inicialización por defecto.
 		super(name, type, position);
 		this.isPublic = isPublic;
+		locationDecl = new Location(line, col);
 	}
 
 	public AttributeEntry(AttributeEntry attr, int position) {
@@ -26,5 +28,9 @@ public class AttributeEntry extends VariableEntry {
 		json.addAttr("public", isPublic);
 		json.addAttr("tipo", type);
 		return json.toString();
+	}
+
+	public Location locationDecl() {
+		return locationDecl;
 	}
 }

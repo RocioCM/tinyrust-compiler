@@ -55,15 +55,18 @@ public class SymbolTable implements TableElement {
 				// Validar que la superclase exista:
 				ClassEntry superClass = classes.get(superClassName);
 				if (superClass == null) {
-					throw new ConsolidationError(
+					throw new ConsolidationError(subClass.locationExtendsFrom().getLine(),
+							subClass.locationExtendsFrom().getCol(),
 							"LA CLASE " + subClassName + " HEREDA DE LA CLASE INEXISTENTE " + superClassName);
 				}
 
 				// Validar que no haya dependencia circular:
 				ClassEntry ancestorFromTree = ancestorsTree.get(superClassName);
 				if (ancestorFromTree != null && !ancestorFromTree.isConsolidated()) {
-					throw new ConsolidationError("HERENCIA CIRCULAR: LA CLASE " + subClassName + " HEREDA DE LA CLASE "
-							+ superClassName + " QUE HEREDA DIRECTA O INDIRECTAMENTE DE " + subClassName);
+					throw new ConsolidationError(subClass.locationExtendsFrom().getLine(),
+							subClass.locationExtendsFrom().getCol(),
+							"HERENCIA CIRCULAR: LA CLASE " + subClassName + " HEREDA DE LA CLASE "
+									+ superClassName + " QUE HEREDA DIRECTA O INDIRECTAMENTE DE " + subClassName);
 				}
 
 				// Agregar la relacion de herencia al árbol de ancestros:
@@ -77,7 +80,7 @@ public class SymbolTable implements TableElement {
 
 	public void addClass(String name) throws DuplicatedEntityIdError {
 		if (classes.containsKey(name)) {
-			throw new DuplicatedEntityIdError("LA CLASE", name);
+			throw new DuplicatedEntityIdError(" LA CLASE", name);
 		}
 
 		ClassEntry newClass = new ClassEntry(name);
@@ -90,8 +93,8 @@ public class SymbolTable implements TableElement {
 		currentMethod = null;
 	}
 
-	public void addMethod(String name, boolean isStatic) throws SemanticalError {
-		MethodEntry newMethod = currentClass.addMethod(name, isStatic);
+	public void addMethod(String name, boolean isStatic, int line, int col) throws SemanticalError {
+		MethodEntry newMethod = currentClass.addMethod(name, isStatic, line, col);
 		currentMethod = newMethod;
 	}
 
@@ -109,12 +112,12 @@ public class SymbolTable implements TableElement {
 		currentMethod = constructor;
 	}
 
-	public void addVar(String name, Type type, boolean isPublic) throws SemanticalError {
+	public void addVar(String name, Type type, boolean isPublic, int line, int col) throws SemanticalError {
 		if (currentMethod == null && currentClass != null) {
 			// Si la variable se declaró dentro de un método, no se agrega a la TS.
 			// Si se declaró en la raiz de una clase, se guarda como atributo de la clase.
 			// Si se declaró fuera de una clase, se lanza una excepción.
-			currentClass.addAttribute(name, type, isPublic);
+			currentClass.addAttribute(name, type, isPublic, line, col);
 		}
 	}
 

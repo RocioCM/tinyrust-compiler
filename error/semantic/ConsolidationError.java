@@ -1,7 +1,7 @@
 package error.semantic;
 
 public class ConsolidationError extends SemanticalError {
-	public ConsolidationError(String message) {
-		super("ERROR CONSOLIDACION: " + message);
+	public ConsolidationError(int line, int col, String message) {
+		super(line, col, message);
 	}
 }

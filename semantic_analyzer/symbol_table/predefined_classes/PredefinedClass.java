@@ -14,8 +14,12 @@ public abstract class PredefinedClass extends ClassEntry {
 		super(name, false, null);
 	}
 
+	protected void addMethod(String name, boolean isStatic) throws SemanticalError {
+		super.addMethod(name, isStatic, -1, -1);
+	}
+
 	protected void addMethod(String name, boolean isStatic, Type returnType) throws SemanticalError {
-		MethodEntry method = super.addMethod(name, isStatic);
+		MethodEntry method = super.addMethod(name, isStatic, -1, -1);
 		method.setReturnType(returnType);
 	}
 
