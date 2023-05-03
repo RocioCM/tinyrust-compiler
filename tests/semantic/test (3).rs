@@ -4,7 +4,7 @@ class Derivada : Base {
 	}
 }
 
-class Base {
+class Base: Derivada {
 	pub Str: s;
 	I32: a;
 	fn m1() -> void {

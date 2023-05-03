@@ -104,8 +104,9 @@ public class ClassEntry implements TableElement {
 					// No es válido redeclarar atributos.
 					throw new ConsolidationError("NO ESTA PERMITIDO REDEFINIR ATRIBUTOS DE UNA SUPERCLASE");
 				} else {
-					// El atributo no se redefine, entonces Se agrega a la subclase.
-					attributes.put(name, superAttr);
+					// El atributo no se redefine, entonces se agrega a la subclase.
+					AttributeEntry newAttr = new AttributeEntry(superAttr, attributes.size()); // Clonar
+					attributes.put(newAttr.name(), newAttr);
 				}
 			}
 
@@ -113,9 +114,9 @@ public class ClassEntry implements TableElement {
 			Iterator<MethodEntry> superMethodsIter = superClass.methods().values().iterator();
 			while (superMethodsIter.hasNext()) { // Iterar sobre cada método de la superclase.
 				MethodEntry superMethod = superMethodsIter.next();
-				if (methods.containsKey(name)) {
+				if (methods.containsKey(superMethod.name())) {
 					// Si la subclase redeclara un método, se valida que la firma coincida.
-					MethodEntry subMethod = methods.get(name);
+					MethodEntry subMethod = methods.get(superMethod.name());
 					if (superMethod.isStatic()) {
 						// No es válido redeclarar métodos estáticos.
 						throw new ConsolidationError("NO ESTA PERMITIDO REDEFINIR METODOS ESTATICOS DE UNA SUPERCLASE");
@@ -131,7 +132,7 @@ public class ClassEntry implements TableElement {
 							subMethodArgTypes.put(arg.position(), arg.type());
 						});
 						if (superMethod.arguments().values().stream() // Validar misma posición y tipo de cada argumento.
-								.allMatch((superArgument) -> subMethodArgTypes.get(superArgument.position()) == superArgument.type())) {
+								.anyMatch((superArgument) -> subMethodArgTypes.get(superArgument.position()) != superArgument.type())) {
 							// No es válido redeclarar métodos del mismo nombre con distinta firma.
 							throw new ConsolidationError(
 									"NO ESTA PERMITIDO REDEFINIR METODOS DE UNA SUPERCLASE CON DISTINTA FIRMA (TIPO DE RETORNO Y CANTIDAD, TIPO Y ORDEN DE ARGUMENTOS)");
@@ -139,7 +140,8 @@ public class ClassEntry implements TableElement {
 					}
 				} else {
 					// El método no se redefine, entonces se agrega a la subclase.
-					methods.put(name, superMethod);
+					MethodEntry newMethod = new MethodEntry(superMethod, methods.size()); // Clonar
+					methods.put(newMethod.name(), newMethod);
 				}
 
 			}

@@ -14,11 +14,21 @@ public class MethodEntry implements TableElement {
 	private TableList<ArgumentEntry> arguments;
 
 	public MethodEntry(String name, boolean isStatic, int position) {
+		// Inicialización por defecto.
 		this.name = name;
 		this.position = position;
 		this.isStatic = isStatic;
 		this.returnType = new Void();
 		this.arguments = new TableList<ArgumentEntry>();
+	}
+
+	public MethodEntry(MethodEntry method, int position) {
+		// Clonar instancia.
+		this.name = method.name;
+		this.position = position;
+		this.isStatic = method.isStatic;
+		this.returnType = new Void();
+		this.arguments = new TableList<ArgumentEntry>(method.arguments);
 	}
 
 	@Override
@@ -42,6 +52,10 @@ public class MethodEntry implements TableElement {
 
 		ArgumentEntry arg = new ArgumentEntry(name, type, arguments.size() + 1);
 		arguments.put(name, arg);
+	}
+
+	public String name() {
+		return name;
 	}
 
 	public Type returnType() {

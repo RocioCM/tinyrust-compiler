@@ -7,8 +7,15 @@ public class AttributeEntry extends VariableEntry {
 	private boolean isPublic = false;
 
 	public AttributeEntry(String name, Type type, int position, boolean isPublic) {
+		// Inicialización por defecto.
 		super(name, type, position);
 		this.isPublic = isPublic;
+	}
+
+	public AttributeEntry(AttributeEntry attr, int position) {
+		// Clonar instancia.
+		super(attr.name, attr.type, position);
+		this.isPublic = attr.isPublic;
 	}
 
 	@Override

@@ -5,6 +5,15 @@ import java.util.HashMap;
 import util.Json;
 
 public class TableList<T extends TableElement> extends HashMap<String, T> implements TableElement {
+
+	public TableList() {
+		super(); // Inicialización por defecto.
+	}
+
+	public TableList(HashMap<String, T> tablelist) {
+		super(tablelist); // Clonar instancia.
+	}
+
 	@Override
 	public String toJson() {
 		return Json.toStringArray(

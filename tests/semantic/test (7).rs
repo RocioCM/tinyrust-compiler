@@ -1,5 +1,5 @@
 class Derivada : Base {
-	I32: x;
+	I32: self;
 	fn m2(Str: a) -> void {
 	}
 }

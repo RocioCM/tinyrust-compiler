@@ -1,4 +1,4 @@
-class Derivada : Base {
+class Derivada : Object {
 	I32: x;
 	fn m2(Str: a) -> void {
 	}

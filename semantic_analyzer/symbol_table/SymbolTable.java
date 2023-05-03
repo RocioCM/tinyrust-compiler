@@ -44,29 +44,32 @@ public class SymbolTable implements TableElement {
 
 		while (classesIter.hasNext()) {
 			ClassEntry entry = classesIter.next();
+
 			// 1. Validar que no exista herencia circular.
+			ClassEntry subClass = entry;
 			ancestorsTree.put(entry.name(), null);
-			while (entry.extendsFrom() != null && !entry.isConsolidated()) {
-				String superClassName = entry.extendsFrom();
+			while (subClass.extendsFrom() != null && !subClass.isConsolidated()) {
+				String superClassName = subClass.extendsFrom();
+				String subClassName = subClass.name();
+
 				// Validar que la superclase exista:
 				ClassEntry superClass = classes.get(superClassName);
 				if (superClass == null) {
 					throw new ConsolidationError(
-							"LA CLASE " + entry.name() + " HEREDA DE LA CLASE INEXISTENTE " + superClassName);
+							"LA CLASE " + subClassName + " HEREDA DE LA CLASE INEXISTENTE " + superClassName);
 				}
 
 				// Validar que no haya dependencia circular:
 				ClassEntry ancestorFromTree = ancestorsTree.get(superClassName);
 				if (ancestorFromTree != null && !ancestorFromTree.isConsolidated()) {
-					throw new ConsolidationError("HERENCIA CIRCULAR: LA CLASE " + entry.name() + " HEREDA DE LA CLASE "
-							+ superClassName + " QUE HEREDA DIRECTA O INDIRECTAMENTE DE " + entry.name());
+					throw new ConsolidationError("HERENCIA CIRCULAR: LA CLASE " + subClassName + " HEREDA DE LA CLASE "
+							+ superClassName + " QUE HEREDA DIRECTA O INDIRECTAMENTE DE " + subClassName);
 				}
 
 				// Agregar la relacion de herencia al árbol de ancestros:
-				ancestorsTree.put(entry.name(), superClass);
-				entry = superClass;
+				ancestorsTree.put(subClassName, superClass);
+				subClass = superClass;
 			}
-
 			// 2. Consolidar atributos y métodos de cada ancestro en el árbol.
 			entry.consolidate(ancestorsTree);
 		}

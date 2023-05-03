@@ -1,6 +1,6 @@
 class Derivada : Base {
-	I32: x;
-	fn m2(Str: a) -> void {
+	I32: create;
+	fn create(Str: a) -> void {
 	}
 }
 
