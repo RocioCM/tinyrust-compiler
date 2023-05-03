@@ -120,7 +120,7 @@ public class ClassEntry implements TableElement {
 				if (methods.containsKey(superMethod.name())) {
 					// Si la subclase redeclara un método, se valida que la firma coincida.
 					MethodEntry subMethod = methods.get(superMethod.name());
-					if (superMethod.isStatic()) {
+					if (superMethod.isStatic() || subMethod.isStatic()) {
 						// No es válido redeclarar métodos estáticos.
 						throw new ConsolidationError(subMethod.locationDecl().getLine(), subMethod.locationDecl().getCol(),
 								"NO ESTA PERMITIDO REDEFINIR METODOS ESTATICOS DE UNA SUPERCLASE. SE ESTA REDEFINIENDO EL METODO ESTATICO "
