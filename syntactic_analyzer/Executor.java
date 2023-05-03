@@ -16,7 +16,6 @@ public class Executor {
 	public void run(String inputPath) {
 		String outputPath = inputPath.substring(0, inputPath.length() - 3).concat(".j");
 		String jsonPath = inputPath.substring(0, inputPath.length() - 3).concat(".ts.json");
-		System.out.println(outputPath);
 
 		try {
 			// Patrón Singleton: se utiliza una única instancia del analizador.
