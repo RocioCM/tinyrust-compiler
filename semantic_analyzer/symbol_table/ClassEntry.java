@@ -108,7 +108,7 @@ public class ClassEntry implements TableElement {
 									+ superAttr.name());
 				} else {
 					// El atributo no se redefine, entonces se agrega a la subclase.
-					AttributeEntry newAttr = new AttributeEntry(superAttr, attributes.size()); // Clonar
+					AttributeEntry newAttr = new AttributeEntry(superAttr, attributes.size() + 1); // Clonar
 					attributes.put(newAttr.name(), newAttr);
 				}
 			}
@@ -148,16 +148,19 @@ public class ClassEntry implements TableElement {
 						subMethodArgTypes.put(arg.position(), arg.type());
 					});
 					// Validar misma posición y tipo de cada argumento.
-					if (superMethod.arguments().values().stream().anyMatch(
-							(superArgument) -> !subMethodArgTypes.get(superArgument.position()).equals(superArgument.type()))) {
+					if (!superMethod.arguments().values().stream().allMatch(
+							(superArgument) -> {
+								return subMethodArgTypes.get(superArgument.position()).type().equals(superArgument.type().type());
+							})) {
 						throw new ConsolidationError(subMethod.locationDecl().getLine(), subMethod.locationDecl().getCol(),
 								"NO ESTA PERMITIDO REDEFINIR METODOS DE UNA SUPERCLASE CON DISTINTA FIRMA: TIPO Y ORDEN DE ARGUMENTOS NO COINCIDE. (METODO "
 										+ superMethod.name() + ")");
 					}
+				} else {
+					// El método no se redefine, entonces se agrega a la subclase.
+					MethodEntry newMethod = new MethodEntry(superMethod, methods.size() + 1); // Clonar
+					methods.put(newMethod.name(), newMethod);
 				}
-				// El método no se redefine, entonces se agrega a la subclase.
-				MethodEntry newMethod = new MethodEntry(superMethod, methods.size()); // Clonar
-				methods.put(newMethod.name(), newMethod);
 			}
 		}
 		setConsolidated(true);

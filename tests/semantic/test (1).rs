@@ -8,12 +8,12 @@ class Hola1 {
 class Hola2: Hola {
 	create () {}
 	I32: create, destroy;
-	fn destroy() -> void {}
+	fn destroy(Str: n) -> void {}
 	fn hola3() -> Cosa {}
 } 
 
 class Fibo: Hola2 {
-	fn destroy() -> void {
+	fn destroy(Str: h) -> void {
 		a = someDifferentStuff();
 	}
 }
@@ -27,7 +27,7 @@ class Fibonacci: Fibo {
 
 	fn hola() -> void {}
 
-	fn destroy() -> void {
+	fn destroy(Str: s) -> void {
 		create = someOtherDifferentStuff();
 		self = breakingChange();
 	}
