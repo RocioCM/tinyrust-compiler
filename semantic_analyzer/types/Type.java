@@ -1,4 +1,4 @@
-package semantic_analyzer.symbol_table.types;
+package semantic_analyzer.types;
 
 import semantic_analyzer.symbol_table.TableElement;
 

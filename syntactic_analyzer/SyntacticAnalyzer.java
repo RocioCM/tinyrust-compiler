@@ -11,14 +11,14 @@ import error.syntactic.UnexpectedToken;
 import lexic_analyzer.LexicAnalyzer;
 import lexic_analyzer.Token;
 import semantic_analyzer.symbol_table.SymbolTable;
-import semantic_analyzer.symbol_table.types.Array;
-import semantic_analyzer.symbol_table.types.Bool;
-import semantic_analyzer.symbol_table.types.Char;
-import semantic_analyzer.symbol_table.types.ClassType;
-import semantic_analyzer.symbol_table.types.I32;
-import semantic_analyzer.symbol_table.types.Str;
-import semantic_analyzer.symbol_table.types.Type;
-import semantic_analyzer.symbol_table.types.Void;
+import semantic_analyzer.types.Array;
+import semantic_analyzer.types.Bool;
+import semantic_analyzer.types.Char;
+import semantic_analyzer.types.ClassType;
+import semantic_analyzer.types.I32;
+import semantic_analyzer.types.Str;
+import semantic_analyzer.types.Type;
+import semantic_analyzer.types.Void;
 
 /**
  * Analizador Sintáctico descendente predictivo recursivo de TinyRust+.

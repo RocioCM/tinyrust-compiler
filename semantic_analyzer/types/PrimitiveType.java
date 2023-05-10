@@ -1,4 +1,4 @@
-package semantic_analyzer.symbol_table.types;
+package semantic_analyzer.types;
 
 public abstract class PrimitiveType<T> extends Type {
 	private T defaultValue;

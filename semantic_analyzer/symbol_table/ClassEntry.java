@@ -10,7 +10,7 @@ import error.semantic.DuplicatedEntityIdError;
 import error.semantic.IllegalBaseExtendError;
 import error.semantic.IllegalSelfDeclarationError;
 import error.semantic.MultipleConstructorsError;
-import semantic_analyzer.symbol_table.types.Type;
+import semantic_analyzer.types.Type;
 import util.Json;
 
 public class ClassEntry implements TableElement {

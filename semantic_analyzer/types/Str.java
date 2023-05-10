@@ -1,4 +1,4 @@
-package semantic_analyzer.symbol_table.types;
+package semantic_analyzer.types;
 
 public class Str extends PrimitiveType<String> {
 	public Str() {

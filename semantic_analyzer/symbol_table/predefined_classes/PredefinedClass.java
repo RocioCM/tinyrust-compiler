@@ -7,7 +7,7 @@ import error.semantic.IllegalSelfDeclarationError;
 import error.semantic.SemanticalError;
 import semantic_analyzer.symbol_table.ClassEntry;
 import semantic_analyzer.symbol_table.MethodEntry;
-import semantic_analyzer.symbol_table.types.Type;
+import semantic_analyzer.types.Type;
 
 public abstract class PredefinedClass extends ClassEntry {
 	public PredefinedClass(String name) {

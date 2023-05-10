@@ -15,7 +15,7 @@ import semantic_analyzer.symbol_table.predefined_classes.I32;
 import semantic_analyzer.symbol_table.predefined_classes.IO;
 import semantic_analyzer.symbol_table.predefined_classes.Object;
 import semantic_analyzer.symbol_table.predefined_classes.Str;
-import semantic_analyzer.symbol_table.types.Type;
+import semantic_analyzer.types.Type;
 import util.Json;
 
 public class SymbolTable implements TableElement {

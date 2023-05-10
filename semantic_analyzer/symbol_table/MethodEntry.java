@@ -2,8 +2,8 @@ package semantic_analyzer.symbol_table;
 
 import error.semantic.DuplicatedEntityIdError;
 import error.semantic.IllegalSelfDeclarationError;
-import semantic_analyzer.symbol_table.types.Type;
-import semantic_analyzer.symbol_table.types.Void;
+import semantic_analyzer.types.Type;
+import semantic_analyzer.types.Void;
 import util.Json;
 
 public class MethodEntry implements TableElement {
