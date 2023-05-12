@@ -112,10 +112,19 @@ public class SymbolTable implements TableElement {
 
 	public void addVar(String name, Type type, boolean isPublic, Location loc) throws SemanticalError {
 		if (currentMethod == null && currentClass != null) {
-			// Si la variable se declaró dentro de un método, no se agrega a la TS.
-			// Si se declaró en la raiz de una clase, se guarda como atributo de la clase.
-			// Si se declaró fuera de una clase, se lanza una excepción.
+			// Si la variable se declaró en la raiz de una clase,
+			// se guarda como atributo de la clase.
 			currentClass.addAttribute(name, type, isPublic, loc);
+		} else {
+			if (currentMethod != null && currentClass != null) {
+				// Si la variable se declaró dentro de un método, se agrega a la TS para
+				// posterior uso por el AST durante la consolidación.
+				currentMethod.addVar(name, type, loc);
+			} else {
+				throw new InternalError("SE INTENTO AGREGAR UNA VARIABLE Y NO HAY CLASE NI METODO ACTUAL.");
+			}
+			// Si la variable se declaró fuera de una clase, se lanza una excepción.
+
 		}
 	}
 

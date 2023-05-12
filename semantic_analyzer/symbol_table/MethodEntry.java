@@ -16,6 +16,7 @@ public class MethodEntry implements TableElement {
 	private Type returnType;
 	private boolean isStatic = false;
 	private TableList<ArgumentEntry> arguments;
+	private TableList<VariableEntry> blockVariables;
 
 	public MethodEntry(String name, boolean isStatic, int position, Location loc) {
 		// Inicialización por defecto.
@@ -48,6 +49,7 @@ public class MethodEntry implements TableElement {
 		return json.toString();
 	}
 
+	/** Agregar argumento formal al método. */
 	public void addArgument(String name, Type type, Location loc)
 			throws IllegalSelfDeclarationError, DuplicatedEntityIdError {
 		if (name.equals("self")) {
@@ -59,6 +61,23 @@ public class MethodEntry implements TableElement {
 
 		ArgumentEntry arg = new ArgumentEntry(name, type, arguments.size() + 1, loc);
 		arguments.put(name, arg);
+	}
+
+	/**
+	 * Agregar declaración de variable de bloque al método. Estas variables pueden
+	 * ser utilizadas posteriormente por el AST durante la consolidación.
+	 */
+	public void addVar(String name, Type type, Location loc)
+			throws IllegalSelfDeclarationError, DuplicatedEntityIdError {
+		if (name.equals("self")) {
+			throw new IllegalSelfDeclarationError(loc);
+		}
+		if (blockVariables.containsKey(name)) {
+			throw new DuplicatedEntityIdError(" LA VARIABLE", name, loc);
+		}
+
+		VariableEntry newVar = new VariableEntry(name, type, blockVariables.size() + 1, loc);
+		blockVariables.put(name, newVar);
 	}
 
 	/**
