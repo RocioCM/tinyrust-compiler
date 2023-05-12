@@ -1,5 +1,5 @@
-class Derivada : IO {
-	I32: x;
+class Derivada: IO {
+	I322: x;
 	fn m2(Str: a) -> void {
 	}
 }
@@ -16,6 +16,6 @@ fn main() {
 	b1 = new Derivada();
 	(b1.m1());
 }
-/* ERROR: SEMANTICO - DECLARACIONES
+/* ERROR: SEMANTICO - DECLARACIONES 
 | NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
-| LINEA 1 | COLUMNA 18 | NO ESTA PERMITIDO HEREDAR DE LA CLASE PREDEFINIDA IO | */
+| LINEA 2 | COLUMNA 8 | EL ATRIBUTO x ES DEL TIPO NO DECLARADO I322 | */

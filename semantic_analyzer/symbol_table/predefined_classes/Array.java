@@ -1,6 +1,7 @@
 package semantic_analyzer.symbol_table.predefined_classes;
 
 import semantic_analyzer.types.I32;
+import error.semantic.InternalError;
 
 public class Array extends PredefinedClass {
 	public Array() throws InternalError {

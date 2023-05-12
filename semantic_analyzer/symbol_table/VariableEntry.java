@@ -7,11 +7,13 @@ public class VariableEntry implements TableElement {
 	protected String name;
 	protected Type type;
 	protected int position;
+	protected Location locationDecl;
 
-	public VariableEntry(String name, Type type, int position) {
+	public VariableEntry(String name, Type type, int position, Location loc) {
 		this.name = name;
 		this.type = type;
 		this.position = position;
+		this.locationDecl = loc;
 	}
 
 	@Override
@@ -33,5 +35,9 @@ public class VariableEntry implements TableElement {
 
 	public int position() {
 		return position;
+	}
+
+	public Location locationDecl() {
+		return locationDecl;
 	}
 }

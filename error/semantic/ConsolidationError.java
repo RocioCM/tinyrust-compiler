@@ -1,7 +1,9 @@
 package error.semantic;
 
+import semantic_analyzer.symbol_table.Location;
+
 public class ConsolidationError extends SemanticalError {
-	public ConsolidationError(int line, int col, String message) {
-		super(line, col, message);
+	public ConsolidationError(Location loc, String message) {
+		super(message, loc);
 	}
 }

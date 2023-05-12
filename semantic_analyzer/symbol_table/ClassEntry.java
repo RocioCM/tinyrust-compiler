@@ -7,7 +7,6 @@ import java.util.Iterator;
 import error.semantic.BadFormedConstructorError;
 import error.semantic.ConsolidationError;
 import error.semantic.DuplicatedEntityIdError;
-import error.semantic.IllegalBaseExtendError;
 import error.semantic.IllegalSelfDeclarationError;
 import error.semantic.MultipleConstructorsError;
 import semantic_analyzer.types.Type;
@@ -15,6 +14,7 @@ import util.Json;
 
 public class ClassEntry implements TableElement {
 	private String name;
+	private Location locationDecl;
 	private String extendsFrom = "Object";
 	private Location locationExtendsFrom;
 	private boolean extendable = true;
@@ -23,15 +23,16 @@ public class ClassEntry implements TableElement {
 	private TableList<AttributeEntry> attributes;
 	private boolean consolidated = false;
 
-	public ClassEntry(String name) {
+	public ClassEntry(String name, Location loc) {
 		this.name = name;
-		this.constructor = new ConstructorEntry(false);
+		this.locationDecl = loc;
+		this.constructor = new ConstructorEntry(false, loc);
 		this.methods = new TableList<MethodEntry>();
 		this.attributes = new TableList<AttributeEntry>();
 	}
 
-	public ClassEntry(String name, boolean extendable, ConstructorEntry constructor) {
-		this(name);
+	public ClassEntry(String name, boolean extendable, ConstructorEntry constructor, Location loc) {
+		this(name, loc);
 		this.extendable = extendable;
 		this.constructor = constructor;
 		if (name.equals("Object") || name.equals("main")) {
@@ -51,59 +52,70 @@ public class ClassEntry implements TableElement {
 		return json.toString();
 	}
 
-	public AttributeEntry addAttribute(String name, Type type, boolean isPublic, int line, int col)
+	public AttributeEntry addAttribute(String name, Type type, boolean isPublic, Location loc)
 			throws DuplicatedEntityIdError, IllegalSelfDeclarationError {
 		if (name.equals("self")) {
-			throw new IllegalSelfDeclarationError();
+			throw new IllegalSelfDeclarationError(loc);
 		}
 		if (attributes.containsKey(name)) {
-			throw new DuplicatedEntityIdError("L ATRIBUTO", name);
+			throw new DuplicatedEntityIdError("L ATRIBUTO", name, loc);
 		}
 
-		AttributeEntry attr = new AttributeEntry(name, type, attributes.size() + 1, isPublic, line, col);
+		AttributeEntry attr = new AttributeEntry(name, type, attributes.size() + 1, isPublic, loc);
 		attributes.put(name, attr);
 		return attr;
 	}
 
-	public MethodEntry addMethod(String name, boolean isStatic, int line, int col)
+	public MethodEntry addMethod(String name, boolean isStatic, Location loc)
 			throws DuplicatedEntityIdError, IllegalSelfDeclarationError, BadFormedConstructorError {
 		if (methods.containsKey(name)) {
-			throw new DuplicatedEntityIdError("L METODO", name);
+			throw new DuplicatedEntityIdError("L METODO", name, loc);
 		}
 		if (name.equals("self")) {
-			throw new IllegalSelfDeclarationError();
+			throw new IllegalSelfDeclarationError(loc);
 		}
 		if (name.equals("create")) {
-			throw new BadFormedConstructorError();
+			throw new BadFormedConstructorError(loc);
 		}
 
-		MethodEntry method = new MethodEntry(name, isStatic, methods.size() + 1, line, col);
+		MethodEntry method = new MethodEntry(name, isStatic, methods.size() + 1, loc);
 		methods.put(name, method);
 		return method;
 	}
 
-	public ConstructorEntry addConstructor() throws MultipleConstructorsError {
+	public ConstructorEntry addConstructor(Location loc) throws MultipleConstructorsError {
 		if (this.constructor.isAlreadyDeclared()) {
-			throw new MultipleConstructorsError();
+			throw new MultipleConstructorsError(loc);
 		}
 
-		ConstructorEntry constructor = new ConstructorEntry(true);
+		ConstructorEntry constructor = new ConstructorEntry(true, loc);
 		this.constructor = constructor;
 		return constructor;
 	}
 
-	public void consolidate(HashMap<String, ClassEntry> superClassesTree) throws ConsolidationError {
+	public void consolidate(TableList<ClassEntry> classes, HashMap<String, ClassEntry> superClassesTree)
+			throws ConsolidationError {
 		if (!isConsolidated() && extendsFrom != null) {
 			ClassEntry superClass = superClassesTree.get(name);
-			superClass.consolidate(superClassesTree);
+			superClass.consolidate(classes, superClassesTree);
 
-			// Consolidar atributos.
+			// 1. Validar que exista el tipo de cada atributo.
+			Iterator<AttributeEntry> attributesIter = attributes.values().iterator();
+			while (attributesIter.hasNext()) { // Iterar sobre cada atributo de la clase.
+				AttributeEntry attr = attributesIter.next();
+				if (classes.get(attr.type().type()) == null) {
+					throw new ConsolidationError(attr.locationDecl(),
+							"EL ATRIBUTO " + attr.name() + " ES DEL TIPO NO DECLARADO " + attr.type().type());
+				}
+			}
+
+			// 2. Consolidar atributos.
 			Iterator<AttributeEntry> superAttrsIter = superClass.attributes().values().iterator();
 			while (superAttrsIter.hasNext()) { // Iterar sobre cada atributo de la supercalse.
 				AttributeEntry superAttr = superAttrsIter.next();
 				if (attributes.containsKey(superAttr.name())) {
 					// No es válido redeclarar atributos.
-					throw new ConsolidationError(superAttr.locationDecl().getLine(), superAttr.locationDecl().getCol(),
+					throw new ConsolidationError(superAttr.locationDecl(),
 							"NO ESTA PERMITIDO REDEFINIR ATRIBUTOS DE UNA SUPERCLASE. SE ESTA REDEFINIENDO EL ATRIBUTO "
 									+ superAttr.name());
 				} else {
@@ -113,30 +125,44 @@ public class ClassEntry implements TableElement {
 				}
 			}
 
-			// Consolidar métodos.
+			// 3. Validar que exista el tipo de cada argumento formal de cada método.
+			Iterator<MethodEntry> methodsIter = methods.values().iterator();
+			while (methodsIter.hasNext()) { // Iterar sobre cada método de la clase.
+				MethodEntry method = methodsIter.next();
+				method.validateArgumentTypes(classes);
+			}
+
+			// 4. Consolidar métodos.
 			Iterator<MethodEntry> superMethodsIter = superClass.methods().values().iterator();
 			while (superMethodsIter.hasNext()) { // Iterar sobre cada método de la superclase.
 				MethodEntry superMethod = superMethodsIter.next();
 				if (methods.containsKey(superMethod.name())) {
 					// Si la subclase redeclara un método, se valida que la firma coincida.
 					MethodEntry subMethod = methods.get(superMethod.name());
-					if (superMethod.isStatic() || subMethod.isStatic()) {
+					if (superMethod.isStatic()) {
 						// No es válido redeclarar métodos estáticos.
-						throw new ConsolidationError(subMethod.locationDecl().getLine(), subMethod.locationDecl().getCol(),
+						throw new ConsolidationError(subMethod.locationDecl(),
 								"NO ESTA PERMITIDO REDEFINIR METODOS ESTATICOS DE UNA SUPERCLASE. SE ESTA REDEFINIENDO EL METODO ESTATICO "
 										+ superMethod.name());
 					}
 
+					if (subMethod.isStatic()) {
+						// No es válido redeclarar un método estático si en la superclase era dinámico.
+						throw new ConsolidationError(subMethod.locationDecl(),
+								"NO ESTA PERMITIDO REDEFINIR METODOS DE UNA SUPERCLASE CON DISTINTO MODIFICADOR. EL SUB METODO "
+										+ superMethod.name() + " ES ESTATICO, MIENTRAS QUE EL SUPER METODO ES DINAMICO.");
+					}
+
 					// Validar mismo tipo de retorno.
 					if (!(superMethod.returnType().type().equals(subMethod.returnType().type()))) {
-						throw new ConsolidationError(subMethod.locationDecl().getLine(), subMethod.locationDecl().getCol(),
+						throw new ConsolidationError(subMethod.locationDecl(),
 								"NO ESTA PERMITIDO REDEFINIR METODOS DE UNA SUPERCLASE CON DISTINTA FIRMA: TIPO DE RETORNO NO COINCIDE. (METODO "
 										+ superMethod.name() + ")");
 					}
 
 					// Validar misma cantidad de argumentos.
 					if (superMethod.arguments().size() != subMethod.arguments().size()) {
-						throw new ConsolidationError(subMethod.locationDecl().getLine(), subMethod.locationDecl().getCol(),
+						throw new ConsolidationError(subMethod.locationDecl(),
 								"NO ESTA PERMITIDO REDEFINIR METODOS DE UNA SUPERCLASE CON DISTINTA FIRMA: CANTIDAD DE ARGUMENTOS NO COINCIDE. (METODO "
 										+ superMethod.name() + ")");
 					}
@@ -152,7 +178,7 @@ public class ClassEntry implements TableElement {
 							(superArgument) -> {
 								return subMethodArgTypes.get(superArgument.position()).type().equals(superArgument.type().type());
 							})) {
-						throw new ConsolidationError(subMethod.locationDecl().getLine(), subMethod.locationDecl().getCol(),
+						throw new ConsolidationError(subMethod.locationDecl(),
 								"NO ESTA PERMITIDO REDEFINIR METODOS DE UNA SUPERCLASE CON DISTINTA FIRMA: TIPO Y ORDEN DE ARGUMENTOS NO COINCIDE. (METODO "
 										+ superMethod.name() + ")");
 					}
@@ -182,14 +208,9 @@ public class ClassEntry implements TableElement {
 		return extendsFrom;
 	}
 
-	public void setExtendsFrom(String extendsFrom, int line, int col) throws IllegalBaseExtendError {
-		if (extendsFrom.equals("Object") || extendsFrom.equals("IO")) {
-			// El resto de clases base son detectadas y manejadas por el analizador
-			// sintáctico.
-			throw new IllegalBaseExtendError(extendsFrom);
-		}
+	public void setExtendsFrom(String extendsFrom, Location loc) {
 		this.extendsFrom = extendsFrom;
-		this.locationExtendsFrom = new Location(line, col);
+		this.locationExtendsFrom = loc;
 	}
 
 	public Location locationExtendsFrom() {

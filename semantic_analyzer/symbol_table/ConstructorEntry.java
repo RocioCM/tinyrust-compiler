@@ -5,8 +5,8 @@ import util.Json;
 public class ConstructorEntry extends MethodEntry {
 	private boolean alreadyDeclared = false;
 
-	public ConstructorEntry(boolean explicitDeclaration) {
-		super("constructor", false, 0, -1, -1);
+	public ConstructorEntry(boolean explicitDeclaration, Location loc) {
+		super("constructor", false, 0, loc);
 		this.alreadyDeclared = explicitDeclaration; // La declaración puede ser explícita o implícita.
 	}
 

@@ -1,5 +1,8 @@
 package semantic_analyzer.symbol_table;
 
+import java.util.Iterator;
+
+import error.semantic.ConsolidationError;
 import error.semantic.DuplicatedEntityIdError;
 import error.semantic.IllegalSelfDeclarationError;
 import semantic_analyzer.types.Type;
@@ -14,14 +17,14 @@ public class MethodEntry implements TableElement {
 	private boolean isStatic = false;
 	private TableList<ArgumentEntry> arguments;
 
-	public MethodEntry(String name, boolean isStatic, int position, int line, int col) {
+	public MethodEntry(String name, boolean isStatic, int position, Location loc) {
 		// Inicialización por defecto.
 		this.name = name;
 		this.position = position;
 		this.isStatic = isStatic;
 		this.returnType = new Void();
 		this.arguments = new TableList<ArgumentEntry>();
-		this.locationDecl = new Location(line, col);
+		this.locationDecl = loc;
 	}
 
 	public MethodEntry(MethodEntry method, int position) {
@@ -45,16 +48,34 @@ public class MethodEntry implements TableElement {
 		return json.toString();
 	}
 
-	public void addArgument(String name, Type type) throws IllegalSelfDeclarationError, DuplicatedEntityIdError {
+	public void addArgument(String name, Type type, Location loc)
+			throws IllegalSelfDeclarationError, DuplicatedEntityIdError {
 		if (name.equals("self")) {
-			throw new IllegalSelfDeclarationError();
+			throw new IllegalSelfDeclarationError(loc);
 		}
 		if (arguments.containsKey(name)) {
-			throw new DuplicatedEntityIdError("L PARAMETRO FORMAL", name);
+			throw new DuplicatedEntityIdError("L PARAMETRO FORMAL", name, loc);
 		}
 
-		ArgumentEntry arg = new ArgumentEntry(name, type, arguments.size() + 1);
+		ArgumentEntry arg = new ArgumentEntry(name, type, arguments.size() + 1, loc);
 		arguments.put(name, arg);
+	}
+
+	/**
+	 * Durante la etapa de consolidación, este método valida que el tipo de cada
+	 * argumento formal del método se corresponda con una clase declarada.
+	 */
+	public void validateArgumentTypes(TableList<ClassEntry> classes) throws ConsolidationError {
+		Iterator<ArgumentEntry> argumentsIter = arguments.values().iterator();
+		while (argumentsIter.hasNext()) { // Iterar sobre cada método de la clase.
+			ArgumentEntry arg = argumentsIter.next();
+			if (classes.get(arg.type().type()) == null) {
+				// Lanzar error si la clase del argumento no está declarada.
+				throw new ConsolidationError(
+						arg.locationDecl(),
+						"EL ARGUMENTO " + arg.name() + " DEL METODO " + name + " ES DEL TIPO NO DECLARADO " + arg.type().type());
+			}
+		}
 	}
 
 	public String name() {

@@ -5,18 +5,16 @@ import util.Json;
 
 public class AttributeEntry extends VariableEntry {
 	private boolean isPublic = false;
-	private Location locationDecl;
 
-	public AttributeEntry(String name, Type type, int position, boolean isPublic, int line, int col) {
+	public AttributeEntry(String name, Type type, int position, boolean isPublic, Location loc) {
 		// Inicialización por defecto.
-		super(name, type, position);
+		super(name, type, position, loc);
 		this.isPublic = isPublic;
-		locationDecl = new Location(line, col);
 	}
 
 	public AttributeEntry(AttributeEntry attr, int position) {
 		// Clonar instancia.
-		super(attr.name, attr.type, position);
+		super(attr.name, attr.type, position, attr.locationDecl);
 		this.isPublic = attr.isPublic;
 	}
 
@@ -28,9 +26,5 @@ public class AttributeEntry extends VariableEntry {
 		json.addAttr("public", isPublic);
 		json.addAttr("tipo", type);
 		return json.toString();
-	}
-
-	public Location locationDecl() {
-		return locationDecl;
 	}
 }

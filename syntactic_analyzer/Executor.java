@@ -14,7 +14,7 @@ import util.Logger;
  */
 public class Executor {
 	public void run(String inputPath) {
-		String outputPath = inputPath.substring(0, inputPath.length() - 3).concat(".j");
+		String outputPath = null; // En esta etapa toda la salida se hace por pantalla.
 		String jsonPath = inputPath.substring(0, inputPath.length() - 3).concat(".ts.json");
 
 		try {

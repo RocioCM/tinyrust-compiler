@@ -1,7 +1,9 @@
 package error.semantic;
 
+import semantic_analyzer.symbol_table.Location;
+
 public class BadFormedConstructorError extends SemanticalError {
-	public BadFormedConstructorError() {
-		super("LA SINTAXIS CORRECTA PARA DECLARAR EL CONSTRUCTOR create ES \"create(<parametros>) {<sentencias>}\".");
+	public BadFormedConstructorError(Location loc) {
+		super("LA SINTAXIS CORRECTA PARA DECLARAR EL CONSTRUCTOR create ES \"create(<parametros>) {<sentencias>}\".", loc);
 	}
 }

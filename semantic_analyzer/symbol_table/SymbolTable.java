@@ -55,16 +55,14 @@ public class SymbolTable implements TableElement {
 				// Validar que la superclase exista:
 				ClassEntry superClass = classes.get(superClassName);
 				if (superClass == null) {
-					throw new ConsolidationError(subClass.locationExtendsFrom().getLine(),
-							subClass.locationExtendsFrom().getCol(),
+					throw new ConsolidationError(subClass.locationExtendsFrom(),
 							"LA CLASE " + subClassName + " HEREDA DE LA CLASE INEXISTENTE " + superClassName);
 				}
 
 				// Validar que no haya dependencia circular:
 				ClassEntry ancestorFromTree = ancestorsTree.get(superClassName);
 				if (ancestorFromTree != null && !ancestorFromTree.isConsolidated()) {
-					throw new ConsolidationError(subClass.locationExtendsFrom().getLine(),
-							subClass.locationExtendsFrom().getCol(),
+					throw new ConsolidationError(subClass.locationExtendsFrom(),
 							"HERENCIA CIRCULAR: LA CLASE " + subClassName + " HEREDA DE LA CLASE "
 									+ superClassName + " QUE HEREDA DIRECTA O INDIRECTAMENTE DE " + subClassName);
 				}
@@ -74,16 +72,16 @@ public class SymbolTable implements TableElement {
 				subClass = superClass;
 			}
 			// 2. Consolidar atributos y métodos de cada ancestro en el árbol.
-			entry.consolidate(ancestorsTree);
+			entry.consolidate(classes, ancestorsTree);
 		}
 	}
 
-	public void addClass(String name) throws DuplicatedEntityIdError {
+	public void addClass(String name, Location loc) throws DuplicatedEntityIdError {
 		if (classes.containsKey(name)) {
-			throw new DuplicatedEntityIdError(" LA CLASE", name);
+			throw new DuplicatedEntityIdError(" LA CLASE", name, loc);
 		}
 
-		ClassEntry newClass = new ClassEntry(name);
+		ClassEntry newClass = new ClassEntry(name, loc);
 		classes.put(name, newClass);
 		currentClass = newClass;
 	}
@@ -93,8 +91,8 @@ public class SymbolTable implements TableElement {
 		currentMethod = null;
 	}
 
-	public void addMethod(String name, boolean isStatic, int line, int col) throws SemanticalError {
-		MethodEntry newMethod = currentClass.addMethod(name, isStatic, line, col);
+	public void addMethod(String name, boolean isStatic, Location loc) throws SemanticalError {
+		MethodEntry newMethod = currentClass.addMethod(name, isStatic, loc);
 		currentMethod = newMethod;
 	}
 
@@ -102,23 +100,35 @@ public class SymbolTable implements TableElement {
 		currentMethod = null;
 	}
 
-	public void addMain() {
-		ClassEntry phantomClass = new ClassEntry("main", false, null);
+	public void addMain(Location loc) {
+		ClassEntry phantomClass = new ClassEntry("main", false, null, loc);
 		classes.put(name, phantomClass);
 	}
 
-	public void addConstructor() throws MultipleConstructorsError {
-		MethodEntry constructor = currentClass.addConstructor();
+	public void addConstructor(Location loc) throws MultipleConstructorsError {
+		MethodEntry constructor = currentClass.addConstructor(loc);
 		currentMethod = constructor;
 	}
 
-	public void addVar(String name, Type type, boolean isPublic, int line, int col) throws SemanticalError {
+	public void addVar(String name, Type type, boolean isPublic, Location loc) throws SemanticalError {
 		if (currentMethod == null && currentClass != null) {
 			// Si la variable se declaró dentro de un método, no se agrega a la TS.
 			// Si se declaró en la raiz de una clase, se guarda como atributo de la clase.
 			// Si se declaró fuera de una clase, se lanza una excepción.
-			currentClass.addAttribute(name, type, isPublic, line, col);
+			currentClass.addAttribute(name, type, isPublic, loc);
 		}
+	}
+
+	public VariableEntry getVariable(String name) {
+		return null;
+	}
+
+	public MethodEntry getMethod(String name) {
+		return null;
+	}
+
+	public ClassEntry getClass(String name) {
+		return null;
 	}
 
 	public ClassEntry currentClass() throws InternalError {
@@ -144,4 +154,5 @@ public class SymbolTable implements TableElement {
 		classes.put("Bool", new Bool());
 		classes.put("Array", new Array());
 	}
+
 }

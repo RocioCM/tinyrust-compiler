@@ -223,11 +223,7 @@ public class Logger {
 	 */
 	private static FileWriter getOutputFileWriter(String outputPath, boolean append) throws IOException {
 		File outputFile = new File(outputPath);
-		if (outputFile.createNewFile()) {
-			System.out.println("ARCHIVO DE SALIDA CREADO EN " + outputPath);
-		} else {
-			System.out.println("ARCHIVO DE SALIDA ESCRITO EN " + outputPath);
-		}
+		outputFile.createNewFile(); // Crear el archivo de salida si aun no existe.
 
 		// Si el archivo ya existe, se escribe el output al final del archivo existente.
 		return new FileWriter(outputPath, append);
