@@ -25,6 +25,7 @@ public class MethodEntry implements TableElement {
 		this.isStatic = isStatic;
 		this.returnType = new Void();
 		this.arguments = new TableList<ArgumentEntry>();
+		this.blockVariables = new TableList<VariableEntry>();
 		this.locationDecl = loc;
 	}
 
@@ -35,6 +36,7 @@ public class MethodEntry implements TableElement {
 		this.isStatic = method.isStatic;
 		this.returnType = method.returnType;
 		this.arguments = new TableList<ArgumentEntry>(method.arguments);
+		this.blockVariables = new TableList<VariableEntry>(method.blockVariables);
 		this.locationDecl = method.locationDecl;
 	}
 

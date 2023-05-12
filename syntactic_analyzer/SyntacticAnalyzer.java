@@ -10,6 +10,7 @@ import error.syntactic.SyntacticalError;
 import error.syntactic.UnexpectedToken;
 import lexic_analyzer.LexicAnalyzer;
 import lexic_analyzer.Token;
+import semantic_analyzer.ast.AbstractSyntaxTree;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Array;
 import semantic_analyzer.types.Bool;
@@ -31,11 +32,13 @@ public class SyntacticAnalyzer {
 	private Token token;
 	private Token nextToken;
 	private SymbolTable ts;
+	private AbstractSyntaxTree ast;
 
 	public SyntacticAnalyzer(String inputPath) throws FileNotFoundException, InternalError {
 		// Patrón Singleton: se utiliza una única instancia de la clase LexicAnalyzer.
 		lexic = new LexicAnalyzer(inputPath);
 		ts = new SymbolTable(inputPath);
+		ast = new AbstractSyntaxTree(inputPath);
 	}
 
 	/**
@@ -60,7 +63,12 @@ public class SyntacticAnalyzer {
 		// por lo que si termina de ejecutarse, implica que la entrada es correcta y
 		// la tabla de símbolos se construyó por completo.
 		ts.consolidate();
-		return ts.toJson();
+		ast.consolidate(ts);
+		return (ts.toJson());
+	}
+
+	public String getAstJson() {
+		return ast.toJson();
 	}
 
 	/**
@@ -156,6 +164,7 @@ public class SyntacticAnalyzer {
 			matchLexema("(");
 			matchLexema(")");
 			ts.addMain(mainToken);
+			ast.addMain();
 			BloqueMetodo();
 		} else {
 			throw new UnexpectedToken(token, "EL METODO MAIN");
@@ -166,8 +175,10 @@ public class SyntacticAnalyzer {
 		matchLexema("class"); // Si no matchea, este método arrojará la excepción.
 		Token classIdToken = matchToken("id_type");
 		ts.addClass(classIdToken.getLexema(), classIdToken);
+		ast.addClass(classIdToken.getLexema());
 		ClaseHerenciaOp();
 		ts.endClass();
+		ast.endClass();
 	}
 
 	private void ClaseHerenciaOp() throws LexicalError, SyntacticalError, SemanticalError {
@@ -237,9 +248,11 @@ public class SyntacticAnalyzer {
 	private void Constructor() throws LexicalError, SyntacticalError, SemanticalError {
 		Token constructorToken = matchLexema("create"); // Si no matchea, este método arrojará la excepción.
 		ts.addConstructor(constructorToken);
+		ast.addMethod("create");
 		ArgumentosFormales();
 		BloqueMetodo();
 		ts.endMethod();
+		ast.endMethod();
 	}
 
 	private void Metodo() throws LexicalError, SyntacticalError, SemanticalError {
@@ -251,12 +264,14 @@ public class SyntacticAnalyzer {
 			matchLexema("fn");
 			Token nameToken = matchToken("id");
 			ts.addMethod(nameToken.getLexema(), isStatic, nameToken);
+			ast.addMethod(nameToken.getLexema());
 			ArgumentosFormales();
 			matchLexema("->");
 			Type returnType = TipoMetodo();
 			ts.currentMethod().setReturnType(returnType);
 			BloqueMetodo();
 			ts.endMethod();
+			ast.endMethod();
 		} else {
 			throw new UnexpectedToken(token, "\"fn\" (METODO)");
 		}

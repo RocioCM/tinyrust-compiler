@@ -100,9 +100,11 @@ public class SymbolTable implements TableElement {
 		currentMethod = null;
 	}
 
-	public void addMain(Location loc) {
+	public void addMain(Location loc) throws SemanticalError {
 		ClassEntry phantomClass = new ClassEntry("main", false, null, loc);
 		classes.put(name, phantomClass);
+		currentClass = phantomClass;
+		addMethod("main", true, loc);
 	}
 
 	public void addConstructor(Location loc) throws MultipleConstructorsError {

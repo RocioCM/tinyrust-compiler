@@ -194,12 +194,12 @@ public class Logger {
 
 	/**
 	 * Guarda en el archivo destino el JSON generado a partir de la Tabla de
-	 * Símbolos.
+	 * Símbolos o AST.
 	 * 
 	 * @param json       - Cadena en formato JSON
 	 * @param outputPath - Ruta del archivo de salida.
 	 */
-	public static void createTsJson(String json, String outputPath) {
+	public static void createJson(String json, String outputPath) {
 		try {
 			// Se abre el archivo de salida especificado y se escribe el output.
 			FileWriter fileWriter = getOutputFileWriter(outputPath, false);
