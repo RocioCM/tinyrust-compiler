@@ -8,12 +8,9 @@ import util.Json;
 public class AbstractSyntaxTree implements TableElement {
 	private String name;
 	private TreeList<ClassNode> classes;
-	private ClassNode currentClass = null;
-	private MethodNode currentMethod = null;
 
 	public AbstractSyntaxTree(String name) {
 		this.name = name;
-		this.classes = new TreeList<ClassNode>();
 	}
 
 	@Override
@@ -27,36 +24,35 @@ public class AbstractSyntaxTree implements TableElement {
 	public void consolidate(SymbolTable ts) {
 	}
 
-	public void addClass(String name) {
-		ClassNode newClass = new ClassNode(name);
-		classes.add(newClass);
-		currentClass = newClass;
-	}
-
-	public void endClass() {
-		currentClass = null;
-		currentMethod = null;
-	}
-
-	public void addMain() {
-		addClass("main");
-		addMethod("main");
-	}
-
-	public void addMethod(String name) {
-		MethodNode newMethod = currentClass.addMethod(name);
-		currentMethod = newMethod;
-	}
-
-	public void endMethod() {
-		currentMethod = null;
-	}
-
-	public void addSentence(SentenceNode sent) throws InternalError {
-		if (currentClass != null && currentMethod != null) {
-			currentMethod.addSentence(sent);
+	public void addMain(BlockNode block) throws InternalError {
+		if (classes != null) {
+			TreeList<MethodNode> methods = new TreeList<MethodNode>(); // Lista de métodos de la clase fantasma main.
+			methods.add(new MethodNode("main", block)); // Método main.
+			classes.addLast(new ClassNode("main", methods)); // Clase fantasma main.
 		} else {
-			throw new InternalError("SE INTENTO AGREGAR UNA SENTENCIA Y NO HAY UNA CLASE O METODO ACTUAL.");
+			throw new InternalError(
+					"SE INTENTO REGISTRAR LA FUNCION MAIN EN EL AST PERO LA LISTA DE CLASES AUN NO SE HA INICIALIZADO.");
 		}
+	}
+
+	private void addPredefinedClasses() throws InternalError {
+		if (classes != null) {
+			// TODO: agregar los metodos predefinidos de cada clase.
+			classes.add(new ClassNode("Object", new TreeList<MethodNode>()));
+			classes.add(new ClassNode("IO", new TreeList<MethodNode>()));
+			classes.add(new ClassNode("I32", new TreeList<MethodNode>()));
+			classes.add(new ClassNode("Str", new TreeList<MethodNode>()));
+			classes.add(new ClassNode("Char", new TreeList<MethodNode>()));
+			classes.add(new ClassNode("Bool", new TreeList<MethodNode>()));
+			classes.add(new ClassNode("Array", new TreeList<MethodNode>()));
+		} else {
+			throw new InternalError(
+					"SE INTENTO REGISTRAR LAS CLASES PREDEFINIDAS EN EL AST PERO LA LISTA DE CLASES ES NULA.");
+		}
+	}
+
+	public void setClasses(TreeList<ClassNode> classes) throws InternalError {
+		this.classes = classes;
+		addPredefinedClasses();
 	}
 }

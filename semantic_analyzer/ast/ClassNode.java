@@ -7,9 +7,9 @@ public class ClassNode implements TableElement {
 	private String name;
 	private TreeList<MethodNode> methods;
 
-	public ClassNode(String name) {
+	public ClassNode(String name, TreeList<MethodNode> methods) {
 		this.name = name;
-		this.methods = new TreeList<MethodNode>();
+		this.methods = methods;
 	}
 
 	@Override
@@ -18,11 +18,5 @@ public class ClassNode implements TableElement {
 		json.addAttr("nombre", name);
 		json.addAttr("metodos", methods);
 		return json.toString();
-	}
-
-	public MethodNode addMethod(String name) {
-		MethodNode method = new MethodNode(name);
-		methods.add(method);
-		return method;
 	}
 }

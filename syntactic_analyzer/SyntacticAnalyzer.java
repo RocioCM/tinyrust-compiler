@@ -11,12 +11,27 @@ import error.syntactic.UnexpectedToken;
 import lexic_analyzer.LexicAnalyzer;
 import lexic_analyzer.Token;
 import semantic_analyzer.ast.AbstractSyntaxTree;
+import semantic_analyzer.ast.AssignNode;
+import semantic_analyzer.ast.BlockNode;
+import semantic_analyzer.ast.ClassNode;
+import semantic_analyzer.ast.ExpressionNode;
+import semantic_analyzer.ast.IfElseNode;
+import semantic_analyzer.ast.LiteralNode;
+import semantic_analyzer.ast.MethodBlockNode;
+import semantic_analyzer.ast.MethodNode;
+import semantic_analyzer.ast.Node;
+import semantic_analyzer.ast.ReturnNode;
+import semantic_analyzer.ast.SentenceNode;
+import semantic_analyzer.ast.SimpleExpressionNode;
+import semantic_analyzer.ast.TreeList;
+import semantic_analyzer.ast.WhileNode;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Array;
 import semantic_analyzer.types.Bool;
 import semantic_analyzer.types.Char;
 import semantic_analyzer.types.ClassType;
 import semantic_analyzer.types.I32;
+import semantic_analyzer.types.PrimitiveType;
 import semantic_analyzer.types.Str;
 import semantic_analyzer.types.Type;
 import semantic_analyzer.types.Void;
@@ -57,7 +72,11 @@ public class SyntacticAnalyzer {
 		token = lexic.nextToken();
 		nextToken = lexic.nextToken();
 
-		Program();
+		try {
+			Program();
+		} catch (SemanticalError e) {
+			throw new SemanticalError(token.getLine(), token.getCol(), e.getMessage());
+		} // TODO: remove this try-catch, just leave: Program();
 
 		// Si la entrada no es sintácticamente correcta, Program lanza una excepción,
 		// por lo que si termina de ejecutarse, implica que la entrada es correcta y
@@ -141,20 +160,27 @@ public class SyntacticAnalyzer {
 
 	private void Start() throws LexicalError, SyntacticalError, SemanticalError {
 		if (isFirstL("class", "fn")) {
-			Clases();
+			TreeList<ClassNode> classesNode = Clases();
+			ast.setClasses(classesNode);
 			Main();
 		} else {
 			throw new UnexpectedToken(token, "DECLARACION DE CLASES O METODO MAIN");
 		}
 	}
 
-	private void Clases() throws LexicalError, SyntacticalError, SemanticalError {
+	private TreeList<ClassNode> Clases() throws LexicalError, SyntacticalError, SemanticalError {
+		TreeList<ClassNode> classesNode;
 		if (isFirstL("class")) {
-			Clase();
-			Clases();
+			ClassNode classNode = Clase();
+			classesNode = Clases();
+			classesNode.add(classNode);
+		} else {
+			classesNode = new TreeList<ClassNode>();
+			// Como Clases deriva Lambda, se continúa la ejecución
+			// si el token no matchea con los primeros.
 		}
-		// Como Clases deriva Lambda, se continúa la ejecución
-		// si el token no matchea con los primeros.
+		return classesNode;
+
 	}
 
 	private void Main() throws LexicalError, SyntacticalError, SemanticalError {
@@ -164,35 +190,34 @@ public class SyntacticAnalyzer {
 			matchLexema("(");
 			matchLexema(")");
 			ts.addMain(mainToken);
-			ast.addMain();
-			BloqueMetodo();
+			BlockNode blockNode = BloqueMetodo();
+			ast.addMain(blockNode);
 		} else {
 			throw new UnexpectedToken(token, "EL METODO MAIN");
 		}
 	}
 
-	private void Clase() throws LexicalError, SyntacticalError, SemanticalError {
+	private ClassNode Clase() throws LexicalError, SyntacticalError, SemanticalError {
 		matchLexema("class"); // Si no matchea, este método arrojará la excepción.
 		Token classIdToken = matchToken("id_type");
 		ts.addClass(classIdToken.getLexema(), classIdToken);
-		ast.addClass(classIdToken.getLexema());
-		ClaseHerenciaOp();
+		TreeList<MethodNode> methodsNode = ClaseHerenciaOp();
 		ts.endClass();
-		ast.endClass();
+		return new ClassNode(classIdToken.getLexema(), methodsNode);
 	}
 
-	private void ClaseHerenciaOp() throws LexicalError, SyntacticalError, SemanticalError {
+	private TreeList<MethodNode> ClaseHerenciaOp() throws LexicalError, SyntacticalError, SemanticalError {
 		if (isFirstL(":")) {
 			Herencia();
 		}
 		matchLexema("{");
-		Miembros();
+		TreeList<MethodNode> methods = Miembros();
 		if (isFirstL("}")) {
 			matchLexema("}");
 		} else {
 			throw new UnexpectedToken(token, "UN CONSTRUCTOR, METODO, ATRIBUTO O \"}\"");
 		}
-
+		return methods;
 	}
 
 	private void Herencia() throws LexicalError, SyntacticalError, SemanticalError {
@@ -205,29 +230,41 @@ public class SyntacticAnalyzer {
 		}
 	}
 
-	private void Miembros() throws LexicalError, SyntacticalError, SemanticalError {
+	private TreeList<MethodNode> Miembros() throws LexicalError, SyntacticalError, SemanticalError {
+		TreeList<MethodNode> methodsNodes = new TreeList<MethodNode>();
 		if (isFirstL("Bool", "I32", "Str", "Char", "Array", "pub", "fn", "static", "create") || isFirstT("id_type")) {
-			Miembro();
-			Miembros();
+			MethodNode memberNode = Miembro();
+			methodsNodes = Miembros();
+			if (memberNode != null) {
+				// member es null cuando el miembro es un atributo en vez de un método o
+				// constructor.
+				methodsNodes.add(memberNode); // La lista de nodos únicamente contendrá métodos.
+			}
+		} else {
+			methodsNodes = new TreeList<MethodNode>();
+			// Como Miembros deriva Lambda, se continúa la ejecución
+			// si el token no matchea con los primeros.
 		}
-		// Como Miembros deriva Lambda, se continúa la ejecución
-		// si el token no matchea con los primeros.
+		return methodsNodes;
 	}
 
-	private void Miembro() throws LexicalError, SyntacticalError, SemanticalError {
+	private MethodNode Miembro() throws LexicalError, SyntacticalError, SemanticalError {
+		MethodNode nodo;
 		if (isFirstL("create")) {
-			Constructor();
+			nodo = Constructor();
 		} else {
 			if (isFirstL("fn", "static")) {
-				Metodo();
+				nodo = Metodo();
 			} else {
 				if (isFirstL("Bool", "I32", "Str", "Char", "Array", "pub") || isFirstT("id_type")) {
 					Atributo();
+					nodo = null;
 				} else {
 					throw new UnexpectedToken(token, "CONSTRUCTOR, METODO O ATRIBUTO");
 				}
 			}
 		}
+		return nodo;
 	}
 
 	private void Atributo() throws LexicalError, SyntacticalError, SemanticalError {
@@ -245,18 +282,18 @@ public class SyntacticAnalyzer {
 		}
 	}
 
-	private void Constructor() throws LexicalError, SyntacticalError, SemanticalError {
+	private MethodNode Constructor() throws LexicalError, SyntacticalError, SemanticalError {
 		Token constructorToken = matchLexema("create"); // Si no matchea, este método arrojará la excepción.
 		ts.addConstructor(constructorToken);
-		ast.addMethod("create");
 		ArgumentosFormales();
-		BloqueMetodo();
+		BlockNode blockNode = BloqueMetodo();
 		ts.endMethod();
-		ast.endMethod();
+		return new MethodNode("create", blockNode);
 	}
 
-	private void Metodo() throws LexicalError, SyntacticalError, SemanticalError {
+	private MethodNode Metodo() throws LexicalError, SyntacticalError, SemanticalError {
 		boolean isStatic = false;
+		MethodNode node = null;
 		if (isFirstL("static")) {
 			isStatic = FormaMetodo();
 		}
@@ -264,17 +301,17 @@ public class SyntacticAnalyzer {
 			matchLexema("fn");
 			Token nameToken = matchToken("id");
 			ts.addMethod(nameToken.getLexema(), isStatic, nameToken);
-			ast.addMethod(nameToken.getLexema());
 			ArgumentosFormales();
 			matchLexema("->");
 			Type returnType = TipoMetodo();
 			ts.currentMethod().setReturnType(returnType);
-			BloqueMetodo();
+			BlockNode blockNode = BloqueMetodo();
+			node = new MethodNode(nameToken.getLexema(), blockNode);
 			ts.endMethod();
-			ast.endMethod();
 		} else {
 			throw new UnexpectedToken(token, "\"fn\" (METODO)");
 		}
+		return node;
 	}
 
 	private void ArgumentosFormales() throws LexicalError, SyntacticalError, SemanticalError {
@@ -364,8 +401,8 @@ public class SyntacticAnalyzer {
 		return tsType;
 	}
 
-	private Type TipoPrimitivo() throws LexicalError, SyntacticalError {
-		Type tsType;
+	private PrimitiveType<?> TipoPrimitivo() throws LexicalError, SyntacticalError {
+		PrimitiveType<?> tsType;
 		Token typeToken = matchLexema("Bool", "I32", "Str", "Char");
 
 		switch (typeToken.getLexema()) {
@@ -395,7 +432,7 @@ public class SyntacticAnalyzer {
 
 	private Array TipoArray() throws LexicalError, SyntacticalError {
 		matchLexema("Array"); // Si no matchea, este método arrojará la excepción.
-		Type type = TipoPrimitivo();
+		PrimitiveType<?> type = TipoPrimitivo();
 		return new Array(type);
 	}
 
@@ -431,101 +468,126 @@ public class SyntacticAnalyzer {
 		}
 	}
 
-	private void Sentencia() throws LexicalError, SyntacticalError {
+	private SentenceNode Sentencia() throws LexicalError, SyntacticalError {
+		SentenceNode node = null;
 		if (isFirstL(";", "self", "(", "if", "while", "{", "return") || isFirstT("id")) {
 			if (isFirstL(";")) {
 				matchLexema(";");
 			} else if (isFirstL("self") || isFirstT("id")) {
-				Asignacion();
+				node = Asignacion();
 				matchLexema(";");
 			} else if (isFirstL("(")) {
-				SentenciaSimple();
+				node = SentenciaSimple();
 				matchLexema(";");
 			} else if (isFirstL("if")) {
 				matchLexema("if");
 				matchLexema("(");
-				Expresion();
+				ExpressionNode conditionNode = Expresion();
 				matchLexema(")");
-				Sentencia();
-				ElseOp();
+				SentenceNode blockNode = Sentencia();
+				SentenceNode elseBlockNode = ElseOp();
+				node = new IfElseNode(conditionNode, blockNode, elseBlockNode);
 			} else if (isFirstL("while")) {
 				matchLexema("while");
 				matchLexema("(");
-				Expresion();
+				ExpressionNode conditionNode = Expresion();
 				matchLexema(")");
-				Sentencia();
+				SentenceNode blockNode = Sentencia();
+				node = new WhileNode(conditionNode, blockNode);
 			} else if (isFirstL("{")) {
-				Bloque();
+				node = Bloque();
 			} else if (isFirstL("return")) {
 				matchLexema("return");
 				if (isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
 						|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
-					Expresion();
+					ExpressionNode expressionNode = Expresion();
+					node = new ReturnNode(expressionNode);
+				} else {
+					node = new ReturnNode();
 				}
 				matchLexema(";");
 			}
 		} else {
 			throw new UnexpectedToken(token, "UNA SENTENCIA");
 		}
+		return node;
 	}
 
-	private void Sentencias() throws LexicalError, SyntacticalError {
+	private TreeList<SentenceNode> Sentencias() throws LexicalError, SyntacticalError {
+		TreeList<SentenceNode> sentencesNode;
 		if (isFirstL(";", "self", "(", "if", "while", "{", "return") || isFirstT("id")) {
-			Sentencia();
-			Sentencias();
+			SentenceNode sentence = Sentencia();
+			sentencesNode = Sentencias();
+			if (sentence != null) {
+				// La sentencia es nula si es únicamente un punto y coma.
+				// En ese caso se ignora agregar la sentencia al el AST.
+				sentencesNode.add(sentence);
+			}
+		} else {
+			sentencesNode = new TreeList<SentenceNode>();
+			// Como Sentencias deriva Lambda, se continúa la ejecución
+			// si el token no matchea con los primeros.
 		}
-		// Como Sentencias deriva Lambda, se continúa la ejecución
-		// si el token no matchea con los primeros.
+		return sentencesNode;
 	}
 
-	private void SentenciaSimple() throws LexicalError, SyntacticalError {
+	private SimpleExpressionNode SentenciaSimple() throws LexicalError, SyntacticalError {
 		matchLexema("("); // Si no matchea, este método arrojará la excepción.
-		Expresion();
+		ExpressionNode expressionNode = Expresion();
 		matchLexema(")");
+		return new SimpleExpressionNode(expressionNode);
 	}
 
-	private void ElseOp() throws LexicalError, SyntacticalError {
+	private SentenceNode ElseOp() throws LexicalError, SyntacticalError {
+		SentenceNode node = null;
 		if (isFirstL("else")) {
 			matchLexema("else");
-			Sentencia();
+			node = Sentencia();
 		}
 		// Como ElseOp deriva Lambda, se continúa la ejecución
 		// si el token no matchea con los primeros.
+		return node;
 	}
 
-	private void Bloque() throws LexicalError, SyntacticalError {
+	private BlockNode Bloque() throws LexicalError, SyntacticalError {
 		matchLexema("{"); // Si no matchea, este método arrojará la excepción.
-		Sentencias();
+		TreeList<SentenceNode> sentencesNode = Sentencias();
 		if (isFirstL("}")) {
 			matchLexema("}");
 		} else {
 			throw new UnexpectedToken(token, "UNA SENTENCIA O \"}\"");
 		}
+		return new BlockNode(sentencesNode);
 	}
 
-	private void BloqueMetodo() throws LexicalError, SyntacticalError, SemanticalError {
+	private BlockNode BloqueMetodo() throws LexicalError, SyntacticalError, SemanticalError {
 		matchLexema("{"); // Si no matchea, este método arrojará la excepción.
 		DeclVarLocalesN();
-		Sentencias();
+		TreeList<SentenceNode> sentencesNode = Sentencias();
 		if (isFirstL("}")) {
 			matchLexema("}");
 		} else {
 			throw new UnexpectedToken(token, "EN ORDEN O UNA DECLARACION DE VARIABLE O UNA SENTENCIA O \"}\"");
 		}
+		return new BlockNode(sentencesNode);
 	}
 
-	private void Asignacion() throws LexicalError, SyntacticalError {
+	private AssignNode Asignacion() throws LexicalError, SyntacticalError {
+		AssignNode node = null;
 		if (isFirstL("self") || isFirstT("id")) {
+			ExpressionNode leftEntity; // TODO: encontrar la clase correcta para esta variable.
 			if (isFirstL("self")) {
-				AsignacionSelfSimple();
+				leftEntity = AsignacionSelfSimple();
 			} else {
-				AsignacionVariableSimple();
+				leftEntity = AsignacionVariableSimple();
 			}
 			matchLexema("=");
-			Expresion();
+			ExpressionNode expressionNode = Expresion();
+			node = new AssignNode(leftEntity, expressionNode);
 		} else {
 			throw new UnexpectedToken(token, "\"self\" O UN IDENTIFICADOR DE VARIABLE O METODO");
 		}
+		return node;
 	}
 
 	private void AsignacionVariableSimple() throws LexicalError, SyntacticalError {
@@ -556,13 +618,15 @@ public class SyntacticAnalyzer {
 		}
 	}
 
-	private void Expresion() throws LexicalError, SyntacticalError {
+	private ExpressionNode Expresion() throws LexicalError, SyntacticalError {
+		ExpressionNode node = null;
 		if (isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
 				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
-			ExpOr();
+			node = ExpOr();
 		} else {
 			throw new UnexpectedToken(token, "UNA EXPRESION");
 		}
+		return node;
 	}
 
 	private void ExpOr() throws LexicalError, SyntacticalError {
@@ -719,15 +783,36 @@ public class SyntacticAnalyzer {
 	}
 
 	private void Literal() throws LexicalError, SyntacticalError {
+		LiteralNode node = null;
 		if (isFirstL("nil", "true", "false")) {
-			matchLexema("nil", "true", "false");
+			if (isFirstL("nil")) {
+				Token token = matchLexema("nil");
+				node = new LiteralNode(token.getLexema(), "nil");
+			} else {
+				Token token = matchLexema("true", "false");
+				node = new LiteralNode(token.getLexema(), "Bool");
+			}
 		} else {
 			if (isFirstT("lit_int", "lit_string", "lit_char")) {
-				matchToken("lit_int", "lit_string", "lit_char");
+				if (isFirstT("lit_int")) {
+					Token token = matchToken("lit_int");
+					node = new LiteralNode(token.getLexema(), "I32");
+				} else {
+					if (isFirstT("lit_string")) {
+						Token token = matchToken("lit_string");
+						node = new LiteralNode(token.getLexema(), "Str");
+					} else {
+						Token token = matchToken("lit_char");
+						node = new LiteralNode(token.getLexema(), "Char");
+					}
+					/// TODO: revertir esto a como estaba y usar el valor de token.getToken() para
+					/// el switch.
+				}
 			} else {
 				throw new UnexpectedToken(token, "UN LITERAL");
 			}
 		}
+		// TODO: return node;
 	}
 
 	private void Primario() throws LexicalError, SyntacticalError {

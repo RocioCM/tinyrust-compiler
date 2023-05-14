@@ -5,11 +5,11 @@ import util.Json;
 
 public class MethodNode implements TableElement {
 	private String name;
-	private MethodBlockNode block;
+	private BlockNode block; // Es un bloque simple ya que las decl. de variables se guardan en la TS.
 
-	public MethodNode(String name) {
+	public MethodNode(String name, BlockNode block) {
 		this.name = name;
-		this.block = new MethodBlockNode();
+		this.block = block;
 	}
 
 	@Override
@@ -18,9 +18,5 @@ public class MethodNode implements TableElement {
 		json.addAttr("nombre", name);
 		json.addAttr("Bloque", block);
 		return json.toString();
-	}
-
-	public void addSentence(SentenceNode sent) {
-		block.addSentence(sent);
 	}
 }

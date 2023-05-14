@@ -1,8 +1,8 @@
 package semantic_analyzer.types;
 
-import semantic_analyzer.symbol_table.TableElement;
+import semantic_analyzer.ast.ExpressionNode;
 
-public abstract class Type implements TableElement {
+public abstract class Type extends ExpressionNode {
 	private String type;
 
 	protected Type(String type) {
