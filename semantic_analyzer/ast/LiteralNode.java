@@ -14,19 +14,20 @@ public class LiteralNode extends OperandNode {
 	public LiteralNode(String value, String type) {
 		this.value = value;
 		switch (type) {
-			case "Bool":
+			case "p_true":
+			case "p_false":
 				this.type = new Bool();
 				break;
-			case "Str":
+			case "lit_string":
 				this.type = new Str();
 				break;
-			case "I32":
+			case "lit_int":
 				this.type = new I32();
 				break;
-			case "Char":
+			case "lit_char":
 				this.type = new Char();
 				break;
-			case "nil":
+			case "p_nil":
 				this.type = new Void();
 				break;
 			default:

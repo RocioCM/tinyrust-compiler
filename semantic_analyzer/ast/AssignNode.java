@@ -3,10 +3,10 @@ package semantic_analyzer.ast;
 import util.Json;
 
 public class AssignNode extends SentenceNode {
-	ExpressionNode leftSide; /// TODO: put the correct type.
+	AccessNode leftSide;
 	ExpressionNode rightSide;
 
-	public AssignNode(ExpressionNode leftSide, ExpressionNode rightSide) {
+	public AssignNode(AccessNode leftSide, ExpressionNode rightSide) {
 		this.leftSide = leftSide;
 		this.rightSide = rightSide;
 	}

@@ -11,19 +11,21 @@ import error.syntactic.UnexpectedToken;
 import lexic_analyzer.LexicAnalyzer;
 import lexic_analyzer.Token;
 import semantic_analyzer.ast.AbstractSyntaxTree;
+import semantic_analyzer.ast.AccessArrayNode;
+import semantic_analyzer.ast.AccessNode;
+import semantic_analyzer.ast.AccessSimpleChain;
 import semantic_analyzer.ast.AssignNode;
 import semantic_analyzer.ast.BlockNode;
 import semantic_analyzer.ast.ClassNode;
 import semantic_analyzer.ast.ExpressionNode;
 import semantic_analyzer.ast.IfElseNode;
 import semantic_analyzer.ast.LiteralNode;
-import semantic_analyzer.ast.MethodBlockNode;
 import semantic_analyzer.ast.MethodNode;
-import semantic_analyzer.ast.Node;
 import semantic_analyzer.ast.ReturnNode;
 import semantic_analyzer.ast.SentenceNode;
 import semantic_analyzer.ast.SimpleExpressionNode;
 import semantic_analyzer.ast.TreeList;
+import semantic_analyzer.ast.VariableNode;
 import semantic_analyzer.ast.WhileNode;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Array;
@@ -575,7 +577,7 @@ public class SyntacticAnalyzer {
 	private AssignNode Asignacion() throws LexicalError, SyntacticalError {
 		AssignNode node = null;
 		if (isFirstL("self") || isFirstT("id")) {
-			ExpressionNode leftEntity; // TODO: encontrar la clase correcta para esta variable.
+			AccessNode leftEntity;
 			if (isFirstL("self")) {
 				leftEntity = AsignacionSelfSimple();
 			} else {
@@ -590,22 +592,29 @@ public class SyntacticAnalyzer {
 		return node;
 	}
 
-	private void AsignacionVariableSimple() throws LexicalError, SyntacticalError {
-		matchToken("id"); // Si no matchea, este método arrojará la excepción.
+	private AccessNode AsignacionVariableSimple() throws LexicalError, SyntacticalError {
+		AccessNode node;
+		Token nameToken = matchToken("id"); // Si no matchea, este método arrojará la excepción.
+		VariableNode idNode = new VariableNode(nameToken.getLexema());
 		if (isFirstL("[")) {
 			matchLexema("[");
-			Expresion();
+			ExpressionNode indexNode = Expresion();
 			matchLexema("]");
+			node = new AccessArrayNode(idNode, indexNode);
 		} else {
-			EncadenadoSimpleN();
+			AccessNode chainNode = EncadenadoSimpleN();
+			node = new AccessSimpleChain(idNode, chainNode);
 			// Como EncadenadoSimpleN deriva Lambda, no tirará excepción
 			// si el token no matchea con sus primeros.
 		}
+		return node;
 	}
 
-	private void AsignacionSelfSimple() throws LexicalError, SyntacticalError {
-		matchLexema("self"); // Si no matchea, este método arrojará la excepción.
-		EncadenadoSimpleN();
+	private AccessNode AsignacionSelfSimple() throws LexicalError, SyntacticalError {
+		Token nameToken = matchLexema("self"); // Si no matchea, este método arrojará la excepción.
+		AccessNode chainNode = EncadenadoSimpleN();
+		VariableNode idNode = new VariableNode(nameToken.getLexema());
+		return new AccessSimpleChain(idNode, chainNode);
 	}
 
 	private void ListaExpresiones() throws LexicalError, SyntacticalError {
@@ -629,7 +638,7 @@ public class SyntacticAnalyzer {
 		return node;
 	}
 
-	private void ExpOr() throws LexicalError, SyntacticalError {
+	private ExpressionNode ExpOr() throws LexicalError, SyntacticalError {
 		if (isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
 				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
 			ExpAnd();
@@ -637,6 +646,7 @@ public class SyntacticAnalyzer {
 		} else {
 			throw new UnexpectedToken(token, "UNA EXPRESION");
 		}
+		return null; /// TODO
 	}
 
 	private void ExpOrP() throws LexicalError, SyntacticalError {
@@ -782,37 +792,20 @@ public class SyntacticAnalyzer {
 		}
 	}
 
-	private void Literal() throws LexicalError, SyntacticalError {
+	private LiteralNode Literal() throws LexicalError, SyntacticalError {
 		LiteralNode node = null;
 		if (isFirstL("nil", "true", "false")) {
-			if (isFirstL("nil")) {
-				Token token = matchLexema("nil");
-				node = new LiteralNode(token.getLexema(), "nil");
-			} else {
-				Token token = matchLexema("true", "false");
-				node = new LiteralNode(token.getLexema(), "Bool");
-			}
+			Token token = matchLexema("nil", "true", "false");
+			node = new LiteralNode(token.getLexema(), token.getToken());
 		} else {
 			if (isFirstT("lit_int", "lit_string", "lit_char")) {
-				if (isFirstT("lit_int")) {
-					Token token = matchToken("lit_int");
-					node = new LiteralNode(token.getLexema(), "I32");
-				} else {
-					if (isFirstT("lit_string")) {
-						Token token = matchToken("lit_string");
-						node = new LiteralNode(token.getLexema(), "Str");
-					} else {
-						Token token = matchToken("lit_char");
-						node = new LiteralNode(token.getLexema(), "Char");
-					}
-					/// TODO: revertir esto a como estaba y usar el valor de token.getToken() para
-					/// el switch.
-				}
+				Token token = matchToken("lit_int", "lit_string", "lit_char");
+				node = new LiteralNode(token.getLexema(), token.getToken());
 			} else {
 				throw new UnexpectedToken(token, "UN LITERAL");
 			}
 		}
-		// TODO: return node;
+		return node;
 	}
 
 	private void Primario() throws LexicalError, SyntacticalError {
@@ -899,17 +892,21 @@ public class SyntacticAnalyzer {
 		}
 	}
 
-	private void EncadenadoSimpleN() throws LexicalError, SyntacticalError {
+	private AccessSimpleChain EncadenadoSimpleN() throws LexicalError, SyntacticalError {
+		AccessSimpleChain node = null;
 		if (isFirstL(".")) {
-			EncadenadoSimple();
-			EncadenadoSimpleN();
+			VariableNode variableNode = EncadenadoSimple();
+			AccessSimpleChain chainNode = EncadenadoSimpleN();
+			node = new AccessSimpleChain(variableNode, chainNode);
 		}
 		// Como deriva Lambda, no se lanza excepción si no matchea
+		return node;
 	}
 
-	private void EncadenadoSimple() throws LexicalError, SyntacticalError {
+	private VariableNode EncadenadoSimple() throws LexicalError, SyntacticalError {
 		matchLexema(".");
-		matchToken("id");
+		Token nameToken = matchToken("id");
+		return new VariableNode(nameToken.getLexema());
 	}
 
 	private void Encadenado() throws LexicalError, SyntacticalError {
