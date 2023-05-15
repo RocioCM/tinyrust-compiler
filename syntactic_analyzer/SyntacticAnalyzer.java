@@ -15,6 +15,7 @@ import semantic_analyzer.ast.AccessArrayNode;
 import semantic_analyzer.ast.AccessNode;
 import semantic_analyzer.ast.AccessSimpleChain;
 import semantic_analyzer.ast.AssignNode;
+import semantic_analyzer.ast.BinaryExpressionNode;
 import semantic_analyzer.ast.BlockNode;
 import semantic_analyzer.ast.ClassNode;
 import semantic_analyzer.ast.ExpressionNode;
@@ -25,6 +26,7 @@ import semantic_analyzer.ast.ReturnNode;
 import semantic_analyzer.ast.SentenceNode;
 import semantic_analyzer.ast.SimpleExpressionNode;
 import semantic_analyzer.ast.TreeList;
+import semantic_analyzer.ast.UnaryExpressionNode;
 import semantic_analyzer.ast.VariableNode;
 import semantic_analyzer.ast.WhileNode;
 import semantic_analyzer.symbol_table.SymbolTable;
@@ -639,147 +641,236 @@ public class SyntacticAnalyzer {
 	}
 
 	private ExpressionNode ExpOr() throws LexicalError, SyntacticalError {
+		ExpressionNode node = null;
 		if (isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
 				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
-			ExpAnd();
-			ExpOrP();
+			ExpressionNode leftExpNode = ExpAnd();
+			BinaryExpressionNode rightExpNode = ExpOrP();
+			if (rightExpNode != null) {
+				rightExpNode.setLeftOperand(leftExpNode);
+				node = rightExpNode;
+			} else {
+				node = leftExpNode;
+			}
 		} else {
 			throw new UnexpectedToken(token, "UNA EXPRESION");
 		}
-		return null; /// TODO
+		return node;
 	}
 
-	private void ExpOrP() throws LexicalError, SyntacticalError {
+	private BinaryExpressionNode ExpOrP() throws LexicalError, SyntacticalError {
+		BinaryExpressionNode node = null;
 		if (isFirstL("||")) {
-			matchLexema("||");
-			ExpAnd();
-			ExpOrP();
+			Token opToken = matchLexema("||");
+			ExpressionNode leftExpNode = ExpAnd();
+			BinaryExpressionNode rightExpNode = ExpOrP();
+			if (rightExpNode != null) {
+				rightExpNode.setLeftOperand(leftExpNode);
+				node = new BinaryExpressionNode(rightExpNode, opToken.getLexema(), new Bool(), new Bool());
+
+			} else {
+				node = new BinaryExpressionNode(leftExpNode, opToken.getLexema(), new Bool(), new Bool());
+			}
 		}
 		// Como ExpOrP deriva Lambda, se continúa la ejecución si no matchea
+		return node;
 	}
 
-	private void ExpAnd() throws LexicalError, SyntacticalError {
+	private ExpressionNode ExpAnd() throws LexicalError, SyntacticalError {
+		ExpressionNode node = null;
 		if (isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
 				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
-			ExpIgual();
-			ExpAndP();
+			ExpressionNode leftExpNode = ExpIgual();
+			BinaryExpressionNode rightExpNode = ExpAndP();
+			if (rightExpNode != null) {
+				rightExpNode.setLeftOperand(leftExpNode);
+				node = rightExpNode;
+			} else {
+				node = leftExpNode;
+			}
 		} else {
 			throw new UnexpectedToken(token, "UNA EXPRESION");
 		}
+		return node;
 	}
 
-	private void ExpAndP() throws LexicalError, SyntacticalError {
+	private BinaryExpressionNode ExpAndP() throws LexicalError, SyntacticalError {
+		BinaryExpressionNode node = null;
 		if (isFirstL("&&")) {
-			matchLexema("&&");
-			ExpIgual();
-			ExpAndP();
+			Token opToken = matchLexema("&&");
+			ExpressionNode leftExpNode = ExpIgual();
+			BinaryExpressionNode rightExpNode = ExpAndP();
+			if (rightExpNode != null) {
+				rightExpNode.setLeftOperand(leftExpNode);
+				node = new BinaryExpressionNode(rightExpNode, opToken.getLexema(), new Bool(), new Bool());
+			} else {
+				node = new BinaryExpressionNode(leftExpNode, opToken.getLexema(), new Bool(), new Bool());
+			}
 		}
 		// Como deriva Lambda, no se lanza excepción si no matchea
+		return node;
 	}
 
-	private void ExpIgual() throws LexicalError, SyntacticalError {
+	private ExpressionNode ExpIgual() throws LexicalError, SyntacticalError {
+		ExpressionNode node = null;
 		if (isFirstL("+", "-", "!", "nil", "true", "false", "(", "self", "new")
 				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
-			ExpCompuesta();
-			ExpIgualP();
+			ExpressionNode leftExpNode = ExpCompuesta();
+			BinaryExpressionNode rightExpNode = ExpIgualP();
+			if (rightExpNode != null) {
+				rightExpNode.setLeftOperand(leftExpNode);
+				node = rightExpNode;
+			} else {
+				node = leftExpNode;
+			}
 		} else {
 			throw new UnexpectedToken(token, "UNA EXPRESION");
 		}
+		return node;
 	}
 
-	private void ExpIgualP() throws LexicalError, SyntacticalError {
+	private BinaryExpressionNode ExpIgualP() throws LexicalError, SyntacticalError {
+		BinaryExpressionNode node = null;
 		if (isFirstL("==", "!=")) {
-			OpIgual();
-			ExpCompuesta();
-			ExpIgualP();
+			Token opToken = OpIgual();
+			ExpressionNode leftExpNode = ExpCompuesta();
+			BinaryExpressionNode rightExpNode = ExpIgualP();
+			if (rightExpNode != null) {
+				rightExpNode.setLeftOperand(leftExpNode);
+				node = new BinaryExpressionNode(rightExpNode, opToken.getLexema(), null, new Bool());
+			} else {
+				node = new BinaryExpressionNode(leftExpNode, opToken.getLexema(), null, new Bool());
+			}
 		}
 		// Como deriva Lambda, no se lanza excepción si no matchea
+		return node;
 	}
 
-	private void ExpCompuesta() throws LexicalError, SyntacticalError {
-		ExpAdd(); // Si no matchea, este método arrojará la excepción.
+	private ExpressionNode ExpCompuesta() throws LexicalError, SyntacticalError {
+		ExpressionNode node;
+		ExpressionNode leftExpNode = ExpAdd(); // Si no matchea, este método arrojará la excepción.
 		if (isFirstL("<", "<=", ">", ">=")) {
-			OpCompuesto();
-			ExpAdd();
+			Token opToken = OpCompuesto();
+			ExpressionNode rightExpNode = ExpAdd();
+			node = new BinaryExpressionNode(leftExpNode, rightExpNode, opToken.getLexema(), new I32(), new Bool());
+		} else {
+			node = leftExpNode;
 		}
+		return node;
 	}
 
-	private void ExpAdd() throws LexicalError, SyntacticalError {
+	private ExpressionNode ExpAdd() throws LexicalError, SyntacticalError {
+		ExpressionNode node = null;
 		if (isFirstL(
 				"+", "-", "!", "nil", "true", "false", "(", "self", "new")
 				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
-			ExpMul();
-			ExpAddP();
+			ExpressionNode leftExpNode = ExpMul();
+			BinaryExpressionNode rightExpNode = ExpAddP();
+			if (rightExpNode != null) {
+				rightExpNode.setLeftOperand(leftExpNode);
+				node = rightExpNode;
+			} else {
+				node = leftExpNode;
+			}
 		} else {
 			throw new UnexpectedToken(token, "UNA EXPRESION");
 		}
+		return node;
 	}
 
-	private void ExpAddP() throws LexicalError, SyntacticalError {
+	private BinaryExpressionNode ExpAddP() throws LexicalError, SyntacticalError {
+		BinaryExpressionNode node = null;
 		if (isFirstL("+", "-")) {
-			OpAdd();
-			ExpMul();
-			ExpAddP();
+			Token opToken = OpAdd();
+			ExpressionNode leftExpNode = ExpMul();
+			BinaryExpressionNode rightExpNode = ExpAddP();
+			if (rightExpNode != null) {
+				rightExpNode.setLeftOperand(leftExpNode);
+				node = new BinaryExpressionNode(rightExpNode, opToken.getLexema(), new I32(), new I32());
+			} else {
+				node = new BinaryExpressionNode(leftExpNode, opToken.getLexema(), new I32(), new I32());
+			}
 		}
 		// Como deriva Lambda, no se lanza excepción si no matchea
+		return node;
 	}
 
-	private void ExpMul() throws LexicalError, SyntacticalError {
+	private ExpressionNode ExpMul() throws LexicalError, SyntacticalError {
+		ExpressionNode node = null;
 		if (isFirstL(
 				"+", "-", "!", "nil", "true", "false", "(", "self", "new")
 				|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
-			ExpUn();
-			ExpMulP();
+			ExpressionNode leftExpNode = ExpUn();
+			BinaryExpressionNode rightExpNode = ExpMulP();
+			if (rightExpNode != null) {
+				rightExpNode.setLeftOperand(leftExpNode);
+				node = rightExpNode;
+			} else {
+				node = leftExpNode;
+			}
 		} else {
 			throw new UnexpectedToken(token, "UNA EXPRESION");
 		}
+		return node;
 	}
 
-	private void ExpMulP() throws LexicalError, SyntacticalError {
+	private BinaryExpressionNode ExpMulP() throws LexicalError, SyntacticalError {
+		BinaryExpressionNode node = null;
 		if (isFirstL("*", "/", "%")) {
-			OpMul();
-			ExpUn();
-			ExpMulP();
+			Token opToken = OpMul();
+			ExpressionNode leftExpNode = ExpUn();
+			BinaryExpressionNode rightExpNode = ExpMulP();
+			if (rightExpNode != null) {
+				rightExpNode.setLeftOperand(leftExpNode);
+				node = new BinaryExpressionNode(rightExpNode, opToken.getLexema(), new I32(), new I32());
+			} else {
+				node = new BinaryExpressionNode(leftExpNode, opToken.getLexema(), new I32(), new I32());
+			}
 		}
 		// Como deriva Lambda, no se lanza excepción si no matchea
+		return node;
 	}
 
-	private void ExpUn() throws LexicalError, SyntacticalError {
+	private ExpressionNode ExpUn() throws LexicalError, SyntacticalError {
+		ExpressionNode node = null;
 		if (isFirstL("+", "-", "!")) {
-			OpUnario();
-			ExpUn();
+			Token opToken = OpUnario();
+			ExpressionNode operandNode = ExpUn();
+			Type type = opToken.getLexema().equals("!") ? new Bool() : new I32();
+			node = new UnaryExpressionNode(operandNode, opToken.getLexema(), type, type);
 		} else {
 			if (isFirstL("nil", "true", "false", "(", "self", "new")
 					|| isFirstT("id", "lit_int", "lit_string", "lit_char", "id_type")) {
-				Operando();
+				node = Operando();
 			} else {
 				throw new UnexpectedToken(token, "UNA EXPRESION");
 			}
 		}
-
+		return node;
 	}
 
-	private void OpIgual() throws LexicalError, SyntacticalError {
-		matchLexema("==", "!=");
+	private Token OpIgual() throws LexicalError, SyntacticalError {
+		return matchLexema("==", "!=");
 	}
 
-	private void OpCompuesto() throws LexicalError, SyntacticalError {
-		matchLexema("<", ">", "<=", ">=");
+	private Token OpCompuesto() throws LexicalError, SyntacticalError {
+		return matchLexema("<", ">", "<=", ">=");
 	}
 
-	private void OpAdd() throws LexicalError, SyntacticalError {
-		matchLexema("+", "-");
+	private Token OpAdd() throws LexicalError, SyntacticalError {
+		return matchLexema("+", "-");
 	}
 
-	private void OpUnario() throws LexicalError, SyntacticalError {
-		matchLexema("+", "-", "!");
+	private Token OpUnario() throws LexicalError, SyntacticalError {
+		return matchLexema("+", "-", "!");
 	}
 
-	private void OpMul() throws LexicalError, SyntacticalError {
-		matchLexema("*", "/", "%");
+	private Token OpMul() throws LexicalError, SyntacticalError {
+		return matchLexema("*", "/", "%");
 	}
 
-	private void Operando() throws LexicalError, SyntacticalError {
+	private ExpressionNode Operando() throws LexicalError, SyntacticalError {
+		ExpressionNode node = null; // TODO
 		if (isFirstL("(", "self", "new") || isFirstT("id", "id_type")) {
 			Primario();
 			EncadenadoOp();
@@ -790,6 +881,7 @@ public class SyntacticAnalyzer {
 				throw new UnexpectedToken(token, "UN OPERANDO");
 			}
 		}
+		return node;
 	}
 
 	private LiteralNode Literal() throws LexicalError, SyntacticalError {

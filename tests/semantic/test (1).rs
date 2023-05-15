@@ -30,6 +30,7 @@ class Fibonacci: Fibo {
 	fn destroy(Str: s) -> void {
 		create = someOtherDifferentStuff();
 		self = breakingChange();
+		// TODO: chequear que ninguna VARIABLE se llame self. ni create??
 	}
 
 	fn hola3() -> Cosa {
@@ -37,22 +38,25 @@ class Fibonacci: Fibo {
 	}
 
 	fn hola1(Hola: hola, Hola: h) -> I32 {
-		Hola: chau, chau, adios; Hey: hou;
+		Hola: chau, chau2, adios; Hey: hou;
+		Array I32: c;
 		return;
 	}
 	
 	pub Hola: test;
 
 	static fn hola4() -> Array I32 {}
-	static fn hola2(Array Str: hola, Chau: chau, I32: hola33_12, Str: ho_la, Hola: hola21) -> Cosa {}
+	static fn hola2(Array Str: hola, Hola2: chau, I32: hola33_12, Str: ho_la, Hola: hola21) -> Cosa {}
 	pub Array Bool: holas, holaa, chau2;
-	create (Array Char: hola, Chau: chau, I32: hola33_12, Str: ho_la, Hola: hola21) {
+	create (Array Char: hola, Hola2: chau, I32: hola33_12, Str: ho_la, Hola: hola21) {
 	}
 }
 
 
 fn main() {
 	Hola: hola;
+	n[21] = 12;
+	a.b.c = !(1 + 2 * 3 != -10 + 2) || a / 4 % -+-5 < 5;	
 }
 
 /* CORRECTO: SEMANTICO - DECLARACIONES */

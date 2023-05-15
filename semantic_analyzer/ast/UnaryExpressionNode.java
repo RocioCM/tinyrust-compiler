@@ -1,11 +1,15 @@
 package semantic_analyzer.ast;
 
-public class UnaryExpressionNode extends ExpressionNode {
-	private OperandNode operand;
-	private String operator;
-	private String expectedOperandType;
+import semantic_analyzer.types.Type;
+import util.Json;
 
-	public UnaryExpressionNode(OperandNode operand, String operator, String expectedOperandType) {
+public class UnaryExpressionNode extends ExpressionNode {
+	private ExpressionNode operand;
+	private String operator;
+	private Type expectedOperandType;
+
+	public UnaryExpressionNode(ExpressionNode operand, String operator, Type expectedOperandType, Type resolveType) {
+		super(resolveType);
 		this.operand = operand;
 		this.operator = operator;
 		this.expectedOperandType = expectedOperandType;
@@ -13,7 +17,12 @@ public class UnaryExpressionNode extends ExpressionNode {
 
 	@Override
 	public String toJson() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'toJson'");
+		Json json = new Json();
+		json.addAttr("tipo", "expresion unaria");
+		json.addAttr("operador", operator);
+		json.addAttr("tipo-de-retorno", super.resolveType());
+		json.addAttr("tipo-operando", expectedOperandType);
+		json.addAttr("operando", operand);
+		return json.toString();
 	}
 }

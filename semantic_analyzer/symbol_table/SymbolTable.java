@@ -73,6 +73,7 @@ public class SymbolTable implements TableElement {
 			}
 			// 2. Consolidar atributos y métodos de cada ancestro en el árbol.
 			entry.consolidate(classes, ancestorsTree);
+			// TODO: CHEQUEAR QUE EL TIPO DE RETORNO DE CADA METODO EXISTA.
 		}
 	}
 
