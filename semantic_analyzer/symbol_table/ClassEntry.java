@@ -125,11 +125,19 @@ public class ClassEntry implements TableElement {
 				}
 			}
 
-			// 3. Validar que exista el tipo de cada argumento formal de cada método.
+			// 3. Validar que exista el tipo de retorno y el tipo de cada argumento formal
+			// de cada método.
 			Iterator<MethodEntry> methodsIter = methods.values().iterator();
 			while (methodsIter.hasNext()) { // Iterar sobre cada método de la clase.
 				MethodEntry method = methodsIter.next();
-				method.validateArgumentTypes(classes);
+				String returnType = method.returnType().type();
+				if (returnType != "void" && classes.get(method.returnType().type()) == null) {
+					// Lanzar error si la clase de retorno no está declarada.
+					throw new ConsolidationError(
+							method.locationDecl(),
+							"LA CLASE DE RETORNO DEL METODO " + method.name() + " ES DEL TIPO NO DECLARADO " + returnType);
+				}
+				method.validateArgumentTypes(classes); // Validar argumentos.
 			}
 
 			// 4. Consolidar métodos.

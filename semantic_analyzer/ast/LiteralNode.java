@@ -6,8 +6,9 @@ import semantic_analyzer.types.Str;
 import semantic_analyzer.types.Bool;
 import semantic_analyzer.types.Void;
 import semantic_analyzer.types.Type;
+import util.Json;
 
-public class LiteralNode extends OperandNode {
+public class LiteralNode extends ExpressionNode {
 	private String value;
 	private Type type;
 
@@ -43,8 +44,11 @@ public class LiteralNode extends OperandNode {
 
 	@Override
 	public String toJson() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'toJson'");
+		Json json = new Json();
+		json.addAttr("tipo", "literal");
+		json.addAttr("valor", value);
+		json.addAttr("tipo-dato", type);
+		return json.toString();
 	}
 
 }

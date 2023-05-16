@@ -3,13 +3,13 @@ class Hola1 {
 	static fn hola() -> void {}
 	fn hola1() -> Array I32 {}
 	static fn hola2() -> I32 {}
-	fn hola3() -> Cosa {}
+	fn hola3() -> Hola {}
 } 
 class Hola2: Hola {
 	create () {}
 	I32: create, destroy;
 	fn destroy(Str: n) -> void {}
-	fn hola3() -> Cosa {}
+	fn hola3() -> Hola {}
 } 
 
 class Fibo: Hola2 {
@@ -33,7 +33,7 @@ class Fibonacci: Fibo {
 		// TODO: chequear que ninguna VARIABLE se llame self. ni create??
 	}
 
-	fn hola3() -> Cosa {
+	fn hola3() -> Hola {
 		return 12;
 	}
 
@@ -46,7 +46,7 @@ class Fibonacci: Fibo {
 	pub Hola: test;
 
 	static fn hola4() -> Array I32 {}
-	static fn hola2(Array Str: hola, Hola2: chau, I32: hola33_12, Str: ho_la, Hola: hola21) -> Cosa {}
+	static fn hola2(Array Str: hola, Hola2: chau, I32: hola33_12, Str: ho_la, Hola: hola21) -> Hola {}
 	pub Array Bool: holas, holaa, chau2;
 	create (Array Char: hola, Hola2: chau, I32: hola33_12, Str: ho_la, Hola: hola21) {
 	}

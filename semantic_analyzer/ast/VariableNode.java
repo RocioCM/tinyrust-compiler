@@ -1,8 +1,6 @@
 package semantic_analyzer.ast;
 
-import semantic_analyzer.symbol_table.TableElement;
-
-public class VariableNode implements TableElement {
+public class VariableNode extends AccessNode {
 	private String identifier;
 
 	public VariableNode(String identifier) {
@@ -12,5 +10,9 @@ public class VariableNode implements TableElement {
 	@Override
 	public String toJson() {
 		return '"' + identifier + '"';
+	}
+
+	public String identifier() {
+		return identifier;
 	}
 }
