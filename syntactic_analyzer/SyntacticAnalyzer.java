@@ -86,7 +86,7 @@ public class SyntacticAnalyzer {
 		// por lo que si termina de ejecutarse, implica que la entrada es correcta y
 		// la tabla de símbolos se construyó por completo.
 		ts.consolidate();
-		ast.consolidate(ts);
+		ast.validate(ts);
 		return (ts.toJson());
 	}
 

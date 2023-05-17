@@ -3,6 +3,7 @@ package syntactic_analyzer;
 import java.io.FileNotFoundException;
 
 import error.lexic.LexicalError;
+import error.semantic.ASTError;
 import error.semantic.SemanticalError;
 import error.syntactic.SyntacticalError;
 import util.Logger;
@@ -24,7 +25,7 @@ public class Executor {
 			String tsJson = syntactic.run();
 			String astJson = syntactic.getAstJson();
 
-			Logger.semanticDeclSuccess(outputPath);
+			Logger.semanticSentSuccess(outputPath);
 			Logger.createJson(tsJson, basePath.concat(".ts.json"));
 			Logger.createJson(astJson, basePath.concat(".ast.json"));
 		} catch (FileNotFoundException error) {
@@ -35,6 +36,9 @@ public class Executor {
 			System.exit(1);
 		} catch (SyntacticalError error) {
 			Logger.syntacticError(error, outputPath);
+			System.exit(1);
+		} catch (ASTError error) {
+			Logger.semanticSentError(error, outputPath);
 			System.exit(1);
 		} catch (SemanticalError error) {
 			Logger.semanticDeclError(error, outputPath);

@@ -1,11 +1,11 @@
 package semantic_analyzer.ast;
 
+import error.semantic.ASTError;
 import error.semantic.InternalError;
 import semantic_analyzer.symbol_table.SymbolTable;
-import semantic_analyzer.symbol_table.TableElement;
 import util.Json;
 
-public class AbstractSyntaxTree implements TableElement {
+public class AbstractSyntaxTree implements Node {
 	private String name;
 	private TreeList<ClassNode> classes;
 
@@ -21,7 +21,9 @@ public class AbstractSyntaxTree implements TableElement {
 		return json.toString();
 	}
 
-	public void consolidate(SymbolTable ts) {
+	@Override
+	public void validate(SymbolTable ts) throws ASTError {
+		classes.validate(ts);
 	}
 
 	public void addMain(BlockNode block) throws InternalError {

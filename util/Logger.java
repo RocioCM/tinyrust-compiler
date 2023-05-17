@@ -193,6 +193,57 @@ public class Logger {
 	}
 
 	/**
+	 * Imprime un mensaje de éxito en del análisis semántico de sentencias.
+	 * 
+	 * @param outputPath (Opcional) - Ruta del archivo de salida
+	 */
+	public static void semanticSentSuccess(String outputPath) {
+		if (outputPath == null) { // No se especificó archivo de salida.
+			// Se escribe el output en la terminal.
+			System.out.println("CORRECTO: SEMANTICO - SENTENCIAS");
+		} else {
+			try {
+				// Se abre el archivo de salida especificado y se escribe el output.
+				FileWriter fileWriter = getOutputFileWriter(outputPath, true);
+				fileWriter.write("CORRECTO: SEMANTICO - SENTENCIAS\n");
+				fileWriter.close();
+
+			} catch (IOException e) {
+				System.out.println("ERROR IO: NO SE PUDO ESCRIBIR EN EL ARCHIVO DE SALIDA.");
+				System.exit(1);
+			}
+		}
+	}
+
+	/**
+	 * Muestra con formato un error generado durante el análisis semántico de
+	 * sentencias.
+	 * 
+	 * @param error      - error generado por el analizador semántico
+	 * @param outputPath (Opcional) - Ruta del archivo de salida
+	 */
+	public static void semanticSentError(SemanticalError error, String outputPath) {
+		if (outputPath == null) { // No se especificó archivo de salida.
+			// Se escribe el output en la terminal.
+			System.out.println("ERROR: SEMANTICO - SENTENCIAS");
+			System.out.println("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |");
+			System.out.println(error.getMessage());
+		} else {
+			try {
+				// Se abre el archivo de salida especificado y se escribe el output.
+				FileWriter fileWriter = getOutputFileWriter(outputPath, true);
+				fileWriter.write("ERROR: SEMANTICO - SENTENCIAS\n");
+				fileWriter.write("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |\n");
+				fileWriter.write(error.getMessage() + "\n");
+				fileWriter.close();
+			} catch (IOException e) {
+				System.out.println("ERROR IO: NO SE PUDO ESCRIBIR EN EL ARCHIVO DE SALIDA.");
+				System.exit(1);
+			}
+		}
+	}
+
+	/**
 	 * Guarda en el archivo destino el JSON generado a partir de la Tabla de
 	 * Símbolos o AST.
 	 * 

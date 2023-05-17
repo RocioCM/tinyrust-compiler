@@ -3,6 +3,8 @@ package semantic_analyzer.ast;
 import semantic_analyzer.types.Char;
 import semantic_analyzer.types.I32;
 import semantic_analyzer.types.Str;
+import error.semantic.ASTError;
+import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Bool;
 import semantic_analyzer.types.Void;
 import semantic_analyzer.types.Type;
@@ -10,36 +12,37 @@ import util.Json;
 
 public class LiteralNode extends ExpressionNode {
 	private String value;
-	private Type type;
 
 	public LiteralNode(String value, String type) {
 		this.value = value;
+		Type resolveType;
 		switch (type) {
 			case "p_true":
 			case "p_false":
-				this.type = new Bool();
+				resolveType = new Bool();
 				break;
 			case "lit_string":
-				this.type = new Str();
+				resolveType = new Str();
 				break;
 			case "lit_int":
-				this.type = new I32();
+				resolveType = new I32();
 				break;
 			case "lit_char":
-				this.type = new Char();
+				resolveType = new Char();
 				break;
 			case "p_nil":
-				this.type = new Void();
+				resolveType = new Void();
 				break;
 			default:
-				this.type = new Void();
+				resolveType = new Void();
 				break;
 		}
+		super.setResolveType(resolveType);
 	}
 
 	@Override
-	public Type resolveType() {
-		return type;
+	public void validate(SymbolTable ts) throws ASTError {
+		super.validate(ts); // Validar que esta expresión es del tipo esperado para su contexto.
 	}
 
 	@Override
@@ -47,7 +50,7 @@ public class LiteralNode extends ExpressionNode {
 		Json json = new Json();
 		json.addAttr("tipo", "literal");
 		json.addAttr("valor", value);
-		json.addAttr("tipo-dato", type);
+		json.addAttr("tipo-dato", super.resolveType());
 		return json.toString();
 	}
 

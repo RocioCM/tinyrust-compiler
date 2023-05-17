@@ -1,9 +1,10 @@
 package semantic_analyzer.ast;
 
-import semantic_analyzer.symbol_table.TableElement;
+import error.semantic.ASTError;
+import semantic_analyzer.symbol_table.SymbolTable;
 import util.Json;
 
-public class MethodNode implements TableElement {
+public class MethodNode implements Node {
 	private String name;
 	private BlockNode block; // Es un bloque simple ya que las decl. de variables se guardan en la TS.
 
@@ -18,5 +19,10 @@ public class MethodNode implements TableElement {
 		json.addAttr("nombre", name);
 		json.addAttr("Bloque", block);
 		return json.toString();
+	}
+
+	@Override
+	public void validate(SymbolTable ts) throws ASTError {
+		block.validate(ts);
 	}
 }

@@ -1,5 +1,8 @@
 package semantic_analyzer.ast;
 
+import error.semantic.ASTError;
+import error.semantic.UnmatchedTypeError;
+import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Type;
 import util.Json;
 
@@ -42,6 +45,27 @@ public class BinaryExpressionNode extends ExpressionNode {
 		json.addAttr("operando-derecha", leftOperand);
 		json.addAttr("operando-izquierda", rightOperand);
 		return json.toString();
+	}
+
+	@Override
+	public void validate(SymbolTable ts) throws ASTError {
+		if (leftOperand == null) {
+			throw new ASTError(0, 0,
+					"ERROR INTERNO: EL LADO IZQUIERDO DE LA EXPRESION BINARIA NO ESTA DEFINIDO. SE ESPERABA QUE ESTUVIERA DEFINIDO PARA ESTE PUNTO.");
+			// TODO LINES
+		}
+		// Validar que el tipo de los operandos sea el esperado para este operador.
+		leftOperand.setExpectedResolveType(expectedOperandType);
+		rightOperand.setExpectedResolveType(expectedOperandType);
+		leftOperand.validate(ts);
+		rightOperand.validate(ts);
+
+		// En caso de que el tipo esperado de los operandos sea null,
+		// se valida que ambos operandos sean del mismo tipo.
+		if (!leftOperand.resolveType().equals(rightOperand.resolveType())) {
+			throw new UnmatchedTypeError(0, 0, leftOperand.resolveType(), rightOperand.resolveType());
+		}
+		super.validate(ts); // Validar que esta expresión sea del tipo esperado para su contexto.
 	}
 
 	public void setLeftOperand(ExpressionNode leftOperand) {

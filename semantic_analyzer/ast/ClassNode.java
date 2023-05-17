@@ -1,9 +1,10 @@
 package semantic_analyzer.ast;
 
-import semantic_analyzer.symbol_table.TableElement;
+import error.semantic.ASTError;
+import semantic_analyzer.symbol_table.SymbolTable;
 import util.Json;
 
-public class ClassNode implements TableElement {
+public class ClassNode implements Node {
 	private String name;
 	private TreeList<MethodNode> methods;
 
@@ -18,5 +19,10 @@ public class ClassNode implements TableElement {
 		json.addAttr("nombre", name);
 		json.addAttr("metodos", methods);
 		return json.toString();
+	}
+
+	@Override
+	public void validate(SymbolTable ts) throws ASTError {
+		methods.validate(ts); // Validar cada método de la clase.
 	}
 }

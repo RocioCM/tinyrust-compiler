@@ -1,11 +1,13 @@
 package semantic_analyzer.ast;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
-import semantic_analyzer.symbol_table.TableElement;
+import error.semantic.ASTError;
+import semantic_analyzer.symbol_table.SymbolTable;
 import util.Json;
 
-public class TreeList<T extends TableElement> extends LinkedList<T> implements TableElement {
+public class TreeList<T extends Node> extends LinkedList<T> implements Node {
 
 	/**
 	 * Inserts the specified element at the beggining of this list.
@@ -30,5 +32,14 @@ public class TreeList<T extends TableElement> extends LinkedList<T> implements T
 		return Json.toStringArray(this.stream()
 				.map(elem -> elem.toJson()) // Generar el JSON de cada elemento
 				.toList());
+	}
+
+	@Override
+	public void validate(SymbolTable ts) throws ASTError {
+		Iterator<T> nodesIter = this.iterator();
+		while (nodesIter.hasNext()) {
+			// Validar cada nodo de la lista.
+			nodesIter.next().validate(ts);
+		}
 	}
 }

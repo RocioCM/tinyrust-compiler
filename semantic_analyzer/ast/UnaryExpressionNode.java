@@ -1,18 +1,19 @@
 package semantic_analyzer.ast;
 
+import error.semantic.ASTError;
+import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Type;
 import util.Json;
 
 public class UnaryExpressionNode extends ExpressionNode {
 	private ExpressionNode operand;
 	private String operator;
-	private Type expectedOperandType;
 
 	public UnaryExpressionNode(ExpressionNode operand, String operator, Type expectedOperandType, Type resolveType) {
 		super(resolveType);
-		this.operand = operand;
 		this.operator = operator;
-		this.expectedOperandType = expectedOperandType;
+		this.operand = operand;
+		operand.setExpectedResolveType(expectedOperandType);
 	}
 
 	@Override
@@ -21,8 +22,14 @@ public class UnaryExpressionNode extends ExpressionNode {
 		json.addAttr("tipo", "expresion unaria");
 		json.addAttr("operador", operator);
 		json.addAttr("tipo-de-retorno", super.resolveType());
-		json.addAttr("tipo-operando", expectedOperandType);
+		json.addAttr("tipo-operando", operand.resolveType());
 		json.addAttr("operando", operand);
 		return json.toString();
+	}
+
+	@Override
+	public void validate(SymbolTable ts) throws ASTError {
+		operand.validate(ts); // Validar que el tipo del operando es el esperado para este operador.
+		super.validate(ts); // Validar que esta expresión es del tipo esperado para su contexto.
 	}
 }
