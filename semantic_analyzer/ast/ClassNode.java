@@ -23,6 +23,9 @@ public class ClassNode implements Node {
 
 	@Override
 	public void validate(SymbolTable ts) throws ASTError {
+		ts.startClass(name); // Se actualiza el estado de la TS para poder acceder a los métodos y atributos
+													// de la clase.
 		methods.validate(ts); // Validar cada método de la clase.
+		ts.endClass();
 	}
 }

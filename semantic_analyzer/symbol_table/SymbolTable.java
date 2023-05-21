@@ -3,6 +3,7 @@ package semantic_analyzer.symbol_table;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import error.semantic.ASTError;
 import error.semantic.ConsolidationError;
 import error.semantic.DuplicatedEntityIdError;
 import error.semantic.InternalError;
@@ -23,6 +24,7 @@ public class SymbolTable implements TableElement {
 	private TableList<ClassEntry> classes;
 	private ClassEntry currentClass = null;
 	private MethodEntry currentMethod = null;
+	private boolean isConsolidated = false;
 
 	public SymbolTable(String name) throws InternalError {
 		this.name = name;
@@ -73,6 +75,7 @@ public class SymbolTable implements TableElement {
 			}
 			// 2. Consolidar atributos y métodos de cada ancestro en el árbol.
 			entry.consolidate(classes, ancestorsTree);
+			isConsolidated = true;
 		}
 	}
 
@@ -91,9 +94,30 @@ public class SymbolTable implements TableElement {
 		currentMethod = null;
 	}
 
+	public void startClass(String name) throws ASTError {
+		ClassEntry classEntry = classes.get(name);
+		if (classEntry == null) {
+			throw new ASTError(0, 0, "SE INTENTO ACCEDER A LA CLASE INEXISTENTE " + name);
+		}
+		currentClass = classEntry;
+	}
+
 	public void addMethod(String name, boolean isStatic, Location loc) throws SemanticalError {
 		MethodEntry newMethod = currentClass.addMethod(name, isStatic, loc);
 		currentMethod = newMethod;
+	}
+
+	public void startMethod(String name) throws ASTError {
+		if (currentClass == null) {
+			/// TODO LINES
+			throw new ASTError(0, 0, "SE INTENTO ACCEDER A UN METODO DE LA CLASE ACTUAL, PERO NO HAY UNA CLASE ACTUAL ");
+		}
+		MethodEntry method = currentClass.methods().get(name);
+		if (method == null) {
+			throw new ASTError(0, 0, /// TODO LINES
+					"SE INTENTO ACCEDER AL METODO " + name + " DE LA CLASE ACTUAL, PERO LA CLASE NO POSEE TAL METODO.");
+		}
+		currentMethod = method;
 	}
 
 	public void endMethod() {
@@ -166,4 +190,7 @@ public class SymbolTable implements TableElement {
 		classes.put("Array", new Array());
 	}
 
+	public boolean isConsolidated() {
+		return isConsolidated;
+	}
 }

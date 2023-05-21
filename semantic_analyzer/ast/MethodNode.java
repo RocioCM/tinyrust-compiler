@@ -8,6 +8,11 @@ public class MethodNode implements Node {
 	private String name;
 	private BlockNode block; // Es un bloque simple ya que las decl. de variables se guardan en la TS.
 
+	public MethodNode(String name) {
+		this.name = name;
+		this.block = new BlockNode(new TreeList<SentenceNode>()); // Bloque vacío si no se especifica.
+	}
+
 	public MethodNode(String name, BlockNode block) {
 		this.name = name;
 		this.block = block;
@@ -23,6 +28,8 @@ public class MethodNode implements Node {
 
 	@Override
 	public void validate(SymbolTable ts) throws ASTError {
-		block.validate(ts);
+		ts.startMethod(name); // Se actualiza el estado de la TS para poder acceder las variables del método.
+		block.validate(ts); // Se validan las sentencias del bloque.
+		ts.endMethod();
 	}
 }

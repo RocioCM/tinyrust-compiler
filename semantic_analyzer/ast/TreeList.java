@@ -1,5 +1,6 @@
 package semantic_analyzer.ast;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -8,6 +9,14 @@ import semantic_analyzer.symbol_table.SymbolTable;
 import util.Json;
 
 public class TreeList<T extends Node> extends LinkedList<T> implements Node {
+
+	public TreeList() {
+		super();
+	}
+
+	public TreeList(T... items) {
+		super(Arrays.asList(items)); // Agregar a la lista los items predefinidos.
+	}
 
 	/**
 	 * Inserts the specified element at the beggining of this list.

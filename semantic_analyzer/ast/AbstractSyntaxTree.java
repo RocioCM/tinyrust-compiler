@@ -23,7 +23,10 @@ public class AbstractSyntaxTree implements Node {
 
 	@Override
 	public void validate(SymbolTable ts) throws ASTError {
-		classes.validate(ts);
+		if (!ts.isConsolidated()) {
+			throw new ASTError(0, 0, "SOLO SE PUEDE VALIDAR EL AST LUEGO DE CONSOLIDAR LA TABLA DE SIMBOLOS.");
+		}
+		// classes.validate(ts);
 	}
 
 	public void addMain(BlockNode block) throws InternalError {
@@ -39,14 +42,25 @@ public class AbstractSyntaxTree implements Node {
 
 	private void addPredefinedClasses() throws InternalError {
 		if (classes != null) {
-			// TODO: agregar los metodos predefinidos de cada clase.
 			classes.add(new ClassNode("Object", new TreeList<MethodNode>()));
-			classes.add(new ClassNode("IO", new TreeList<MethodNode>()));
+			classes.add(new ClassNode("IO", new TreeList<MethodNode>(
+					new MethodNode("out_string"),
+					new MethodNode("out_i32"),
+					new MethodNode("out_bool"),
+					new MethodNode("out_char"),
+					new MethodNode("out_array"),
+					new MethodNode("in_str"),
+					new MethodNode("in_i32"),
+					new MethodNode("in_bool"),
+					new MethodNode("in_Char"))));
 			classes.add(new ClassNode("I32", new TreeList<MethodNode>()));
-			classes.add(new ClassNode("Str", new TreeList<MethodNode>()));
+			classes.add(new ClassNode("Str", new TreeList<MethodNode>(
+					new MethodNode("length"),
+					new MethodNode("concat"),
+					new MethodNode("substr"))));
 			classes.add(new ClassNode("Char", new TreeList<MethodNode>()));
 			classes.add(new ClassNode("Bool", new TreeList<MethodNode>()));
-			classes.add(new ClassNode("Array", new TreeList<MethodNode>()));
+			classes.add(new ClassNode("Array", new TreeList<MethodNode>(new MethodNode("length"))));
 		} else {
 			throw new InternalError(
 					"SE INTENTO REGISTRAR LAS CLASES PREDEFINIDAS EN EL AST PERO LA LISTA DE CLASES ES NULA.");
