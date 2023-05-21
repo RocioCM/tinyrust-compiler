@@ -34,7 +34,7 @@ public class ConstructorArrayCallNode extends ExpressionNode {
 		size.validate(ts);
 
 		// Validar que esta expresión es del tipo esperado.
-		super.validate(ts);
+		super.validateType(ts);
 
 		// TODO: validar que el tipo de elemento de esta clase es el que se esperaba
 		// para el arreglo declarado.

@@ -12,8 +12,8 @@ public class IO extends PredefinedClass {
 	public IO() throws InternalError {
 		super("IO");
 		try {
-			super.addMethod("out_string", true);
-			super.addArgumentToMethod("out_string", new Str(), "s");
+			super.addMethod("out_str", true);
+			super.addArgumentToMethod("out_str", new Str(), "s");
 			super.addMethod("out_i32", true);
 			super.addArgumentToMethod("out_i32", new I32(), "i");
 			super.addMethod("out_bool", true);

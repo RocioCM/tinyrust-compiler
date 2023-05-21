@@ -1,7 +1,7 @@
 package semantic_analyzer.types;
 
-public class Void extends Type {
+public class Void extends PrimitiveType<Void> {
 	public Void() {
-		super("void");
+		super("void", null);
 	}
 }

@@ -2,56 +2,56 @@ package semantic_analyzer.ast;
 
 import semantic_analyzer.types.Char;
 import semantic_analyzer.types.I32;
+import semantic_analyzer.types.PrimitiveType;
 import semantic_analyzer.types.Str;
 import error.semantic.sentences.ASTError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Bool;
 import semantic_analyzer.types.Void;
-import semantic_analyzer.types.Type;
 import util.Json;
 
 public class LiteralNode extends ExpressionNode {
-	private String value;
+	private PrimitiveType<?> literal;
 
 	public LiteralNode(String value, String type, Location loc) {
 		super(loc);
-		this.value = value;
-		Type resolveType;
 		switch (type) {
 			case "p_true":
+				this.literal = new Bool(true);
+				break;
 			case "p_false":
-				resolveType = new Bool();
+				this.literal = new Bool(false);
 				break;
 			case "lit_string":
-				resolveType = new Str();
+				this.literal = new Str(value.substring(1, value.length() - 1)); // Eliminar comillas dobles del literal.
 				break;
 			case "lit_int":
-				resolveType = new I32();
+				this.literal = new I32(Integer.valueOf(value)); // Convierte el valor de String a int.
 				break;
 			case "lit_char":
-				resolveType = new Char();
+				this.literal = new Char(value.charAt(1)); // Elimina comillas simples del literal.
 				break;
 			case "p_nil":
-				resolveType = new Void();
+				this.literal = new Void();
 				break;
 			default:
-				resolveType = new Void();
+				this.literal = new Void();
 				break;
 		}
-		super.setResolveType(resolveType);
+		super.setResolveType(this.literal);
 	}
 
 	@Override
 	public void validate(SymbolTable ts) throws ASTError {
-		super.validate(ts); // Validar que esta expresión es del tipo esperado para su contexto.
+		super.validateType(ts); // Validar que esta expresión es del tipo esperado para su contexto.
 	}
 
 	@Override
 	public String toJson() {
 		Json json = new Json();
 		json.addAttr("tipo", "literal");
-		json.addAttr("valor", value);
+		json.addAttr("valor", String.valueOf(literal.value()));
 		json.addAttr("tipo-dato", super.resolveType());
 		return json.toString();
 	}

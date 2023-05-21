@@ -28,7 +28,7 @@ class Fibonacci {
 	}
 	fn imprimo_numero(I32: num) -> void{
 		(IO.out_str("f_"));
-		(IO.out_int(num));
+		(IO.out_i32(num));
 		(IO.out_str("="));
 	}
 	fn imprimo_sucesion(I32: s) -> void{

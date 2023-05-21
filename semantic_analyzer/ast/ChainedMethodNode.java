@@ -51,7 +51,7 @@ public class ChainedMethodNode extends ChainedAccessNode {
 			if (returnTypeClass == null) {
 				// La clase debería existir ya que la TS ya está validada y consolidada.
 				throw new InternalError(loc,
-						"ERROR INTERNO: LA CLASE DE RETORNO DEL METODO " + super.accessedEntity() + " DE LA CLASE "
+						"LA CLASE DE RETORNO DEL METODO " + super.accessedEntity() + " DE LA CLASE "
 								+ accessedClass.name() + " NO EXISTE EN LA TS.");
 			}
 			returnType = super.chainedAccess().validateAndResolveType(ts, returnTypeClass);

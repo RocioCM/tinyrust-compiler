@@ -29,6 +29,7 @@ public class AccessVariableNode extends AccessNode {
 		Json json = new Json();
 		json.addAttr("tipo", "variable");
 		json.addAttr("nombre-variable", identifier);
+		json.addAttr("tipo-resuelto", super.resolveType());
 		json.addAttr("encadenado", chainedAccess);
 		return json.toString();
 	}
@@ -75,7 +76,6 @@ public class AccessVariableNode extends AccessNode {
 
 		// Validar que el tipo resuelto es el esperado para la variable.
 		super.setResolveType(resolvedType);
-		super.validate(ts);
-
+		super.validateType(ts);
 	}
 }

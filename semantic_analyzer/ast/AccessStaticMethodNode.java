@@ -14,7 +14,7 @@ public class AccessStaticMethodNode extends MethodCallNode {
 	@Override
 	public String toJson() {
 		Json json = new Json();
-		json.addAttr("tipo", "llamada método estático");
+		json.addAttr("tipo", "llamada metodo estatico");
 		json.addAttr("clase", super.className());
 		json.addAttr("metodo", super.methodName());
 		json.addAttr("argumentos", super.arguments());
@@ -27,5 +27,6 @@ public class AccessStaticMethodNode extends MethodCallNode {
 		super.validate(ts); // Validar que la llamada al método sea válida.
 
 		// TODO: validar que el método SÍ sea estático.
+		// TODO: validar que el método no se llame create.
 	}
 }

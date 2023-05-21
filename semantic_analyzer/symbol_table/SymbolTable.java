@@ -108,10 +108,13 @@ public class SymbolTable implements TableElement {
 	}
 
 	public void startMethod(String name) throws InternalError {
-		if (currentClass == null) {
-			throw new InternalError("SE INTENTO ACCEDER A UN METODO DE LA CLASE ACTUAL, PERO NO HAY UNA CLASE ACTUAL ");
+		MethodEntry method;
+		if (name.equals("create")) {
+			method = currentClass().constructor();
+		} else {
+			method = currentClass().methods().get(name);
 		}
-		MethodEntry method = currentClass().methods().get(name);
+
 		if (method == null) {
 			throw new InternalError(
 					"SE INTENTO ACCEDER AL METODO " + name + " DE LA CLASE ACTUAL, PERO LA CLASE NO POSEE TAL METODO.");
@@ -125,7 +128,7 @@ public class SymbolTable implements TableElement {
 
 	public void addMain(Location loc) throws SemanticalError {
 		ClassEntry phantomClass = new ClassEntry("main", false, null, loc);
-		classes.put(name, phantomClass);
+		classes.put("main", phantomClass);
 		currentClass = phantomClass;
 		addMethod("main", true, loc);
 	}

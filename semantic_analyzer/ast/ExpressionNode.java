@@ -10,7 +10,7 @@ import semantic_analyzer.types.Type;
 public abstract class ExpressionNode implements Node {
 	private Type resolveType; // Tipo de dato que la expresión resolverá. Puede o no saberse a priori.
 	private Type expectedResolveType; // Tipo de dato que la expresión debería resolver
-										// para ser válida en su contexto.
+																		// para ser válida en su contexto.
 	protected Location loc; // Declaration location.
 
 	public ExpressionNode(Location loc) {
@@ -25,17 +25,19 @@ public abstract class ExpressionNode implements Node {
 		this.loc = loc;
 	}
 
-	@Override
-	public void validate(SymbolTable ts) throws ASTError {
+	public void validateType(SymbolTable ts) throws ASTError {
 		if (resolveType == null) {
 			throw new InternalError(loc,
-					"ERROR INTERNO: SE ESPERABA QUE LA EXPRESION TUVIERA UN TIPO RESUELTO PARA ESTE MOMENTO, PERO SU TIPO ES null.");
+					"SE ESPERABA QUE LA EXPRESION TUVIERA UN TIPO RESUELTO PARA ESTE MOMENTO, PERO SU TIPO ES null.");
 		}
 		if (expectedResolveType != null
 				&& !resolveType.equals(expectedResolveType)) {
 			throw new UnmatchedTypeError(loc, expectedResolveType, resolveType);
 		}
 	}
+
+	@Override
+	abstract public void validate(SymbolTable ts) throws ASTError;
 
 	public Type resolveType() {
 		return resolveType;

@@ -55,7 +55,11 @@ public abstract class MethodCallNode extends ExpressionNode {
         }
 
         // Obtener la entrada de la TS del método accedido.
-        methodEntry = classEntry.methods().get(methodName);
+        if (methodName.equals("create")) {
+            methodEntry = classEntry.constructor();
+        } else {
+            methodEntry = classEntry.methods().get(methodName);
+        }
 
         // Validar que el método existe en la clase.
         if (methodEntry == null) {

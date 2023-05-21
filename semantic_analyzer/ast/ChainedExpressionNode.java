@@ -55,6 +55,6 @@ public class ChainedExpressionNode extends ExpressionNode {
 
         // Validar que el tipo resuelto es el esperado para el parentizado.
         super.setResolveType(resolvedType);
-        super.validate(ts);
+        super.validateType(ts);
     }
 }

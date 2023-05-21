@@ -32,6 +32,6 @@ public class UnaryExpressionNode extends ExpressionNode {
 	@Override
 	public void validate(SymbolTable ts) throws ASTError {
 		operand.validate(ts); // Validar que el tipo del operando es el esperado para este operador.
-		super.validate(ts); // Validar que esta expresión es del tipo esperado para su contexto.
+		super.validateType(ts); // Validar que esta expresión es del tipo esperado para su contexto.
 	}
 }

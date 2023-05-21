@@ -45,7 +45,7 @@ public class AccessArrayNode extends AccessNode {
 		Array arrayType = (Array) (variable.resolveType());
 		super.setResolveType(arrayType.itemsType());
 
-		super.validate(ts); // Validar que esta expresión es del tipo esperado para su contexto.
+		super.validateType(ts); // Validar que esta expresión es del tipo esperado para su contexto.
 
 	}
 }

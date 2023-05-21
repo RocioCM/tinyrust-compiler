@@ -217,6 +217,10 @@ public class ClassEntry implements TableElement {
 		return this.methods;
 	}
 
+	public MethodEntry constructor() {
+		return this.constructor;
+	}
+
 	public String extendsFrom() {
 		return extendsFrom;
 	}

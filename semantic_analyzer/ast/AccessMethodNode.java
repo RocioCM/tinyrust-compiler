@@ -15,7 +15,7 @@ public class AccessMethodNode extends MethodCallNode {
     @Override
     public String toJson() {
         Json json = new Json();
-        json.addAttr("tipo", "llamada método");
+        json.addAttr("tipo", "llamada metodo");
         json.addAttr("clase", "self");
         json.addAttr("metodo", super.methodName());
         json.addAttr("argumentos", super.arguments());
@@ -33,5 +33,6 @@ public class AccessMethodNode extends MethodCallNode {
         super.validate(ts); // Validar que la llamada al método create sea válida.
 
         // TODO: validar que el método no sea estático.
+        // TODO: validar que el método no se llame create.
     }
 }

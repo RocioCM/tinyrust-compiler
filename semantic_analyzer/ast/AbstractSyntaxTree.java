@@ -27,7 +27,7 @@ public class AbstractSyntaxTree implements Node {
 		if (!ts.isConsolidated()) {
 			throw new ASTError(0, 0, "SOLO SE PUEDE VALIDAR EL AST LUEGO DE CONSOLIDAR LA TABLA DE SIMBOLOS.");
 		}
-		// classes.validate(ts);
+		classes.validate(ts);
 	}
 
 	public void addMain(BlockNode block, Location loc) throws InternalError {
@@ -46,7 +46,7 @@ public class AbstractSyntaxTree implements Node {
 		if (classes != null) {
 			classes.add(new ClassNode("Object", new TreeList<MethodNode>()));
 			classes.add(new ClassNode("IO", new TreeList<MethodNode>(
-					new MethodNode("out_string"),
+					new MethodNode("out_str"),
 					new MethodNode("out_i32"),
 					new MethodNode("out_bool"),
 					new MethodNode("out_char"),

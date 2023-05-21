@@ -13,7 +13,7 @@ public class BinaryExpressionNode extends ExpressionNode {
 	private ExpressionNode rightOperand;
 	private String operator;
 	private Type expectedOperandType; // Si es null, indica que ambos operandos deben ser del mismo tipo,
-										// sin importar qué tipo en específico.
+																		// sin importar qué tipo en específico.
 
 	public BinaryExpressionNode(ExpressionNode rightOperand, String operator,
 			Type expectedOperandType, Type resultType, Location loc) {
@@ -66,7 +66,7 @@ public class BinaryExpressionNode extends ExpressionNode {
 		if (!leftOperand.resolveType().equals(rightOperand.resolveType())) {
 			throw new UnmatchedTypeError(loc, leftOperand.resolveType(), rightOperand.resolveType());
 		}
-		super.validate(ts); // Validar que esta expresión sea del tipo esperado para su contexto.
+		super.validateType(ts); // Validar que esta expresión sea del tipo esperado para su contexto.
 	}
 
 	public void setLeftOperand(ExpressionNode leftOperand) {

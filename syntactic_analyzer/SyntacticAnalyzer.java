@@ -432,7 +432,7 @@ public class SyntacticAnalyzer {
 				break;
 			default:
 				tsType = null; // Nunca se llega a este caso, porque matchLexema arrojaría una excepción si el
-								// tipo no fuera uno de los 4 casos del switch, pero se deja por prolijidad.
+												// tipo no fuera uno de los 4 casos del switch, pero se deja por prolijidad.
 		}
 		return tsType;
 	}
@@ -959,7 +959,7 @@ public class SyntacticAnalyzer {
 		matchLexema(")");
 		ChainedAccessNode chainNode = EncadenadoOp();
 		if (chainNode != null) {
-			node = new ChainedExpressionNode("expresión parentizada", expressionNode, chainNode);
+			node = new ChainedExpressionNode("expresion parentizada", expressionNode, chainNode);
 		} else {
 			node = expressionNode;
 		}
@@ -1005,7 +1005,7 @@ public class SyntacticAnalyzer {
 		if (chainNode != null) {
 			// Dado que la llamada al método ya incluye su encadenado,
 			// si llegase a haber otro encadenado luego, se deben anidar.
-			node = new ChainedExpressionNode("llamado a método estático encadenado", node, chainNode);
+			node = new ChainedExpressionNode("llamado a metodo estatico encadenado", node, chainNode);
 		}
 		return node;
 	}
