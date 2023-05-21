@@ -30,9 +30,13 @@ public class AccessMethodNode extends MethodCallNode {
                     "SE INTENTO ACCEDER EXPLICITAMENTE AL METODO create DE LA CLASE ACTUAL, ESTE METODO ES ACCESIBLE UNICAMENTE A TRAVES DEL CONSTRUCTOR DE LA CLASE.");
         }
 
-        super.validate(ts); // Validar que la llamada al método create sea válida.
+        // Validar que el método NO sea estático.
+        if (super.getMethod(ts).isStatic()) {
+            throw new ASTError(loc,
+                    "SE INTENTO INVOCAR DE MANERA DINAMICA AL METODO ESTATICO " + super.methodName()
+                            + " DE LA CLASE " + super.className());
+        }
 
-        // TODO: validar que el método no sea estático.
-        // TODO: validar que el método no se llame create.
+        super.validate(ts); // Validar que la llamada al método sea válida.
     }
 }

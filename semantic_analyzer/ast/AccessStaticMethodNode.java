@@ -24,9 +24,20 @@ public class AccessStaticMethodNode extends MethodCallNode {
 
 	@Override
 	public void validate(SymbolTable ts) throws ASTError {
+		if (methodName() == "create") {
+			throw new ASTError(loc,
+					"SE INTENTO ACCEDER EXPLICITAMENTE AL METODO create DE LA CLASE " + super.className()
+							+ ", ESTE METODO ES ACCESIBLE UNICAMENTE A TRAVES DEL CONSTRUCTOR DE LA CLASE.");
+		}
+
+		// Validar que el método sea estático.
+		if (!super.getMethod(ts).isStatic()) {
+			throw new ASTError(loc,
+					"SE INTENTO INVOCAR DE MANERA ESTATICA AL METODO NO ESTATICO " + super.methodName() + " DE LA CLASE "
+							+ super.className());
+		}
+
 		super.validate(ts); // Validar que la llamada al método sea válida.
 
-		// TODO: validar que el método SÍ sea estático.
-		// TODO: validar que el método no se llame create.
 	}
 }

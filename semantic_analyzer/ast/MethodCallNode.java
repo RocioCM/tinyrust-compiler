@@ -29,13 +29,7 @@ public abstract class MethodCallNode extends ExpressionNode {
 
     abstract public String toJson();
 
-    /**
-     * Validar que el método existe en la clase actual, que los argumentos son
-     * válidos para el método y que el tipo de retorno de esta expresión el esperado
-     * para su contexto.
-     */
-    public void validate(SymbolTable ts) throws ASTError {
-        Type resolveType;
+    public MethodEntry getMethod(SymbolTable ts) throws ASTError {
         ClassEntry classEntry;
         MethodEntry methodEntry;
 
@@ -43,6 +37,7 @@ public abstract class MethodCallNode extends ExpressionNode {
         if (className == null) {
             try {
                 classEntry = ts.currentClass();
+                className = classEntry.name();
             } catch (error.semantic.declarations.InternalError e) {
                 // Lanzar un error si no existe una clase actual.
                 throw new InternalError(loc, e.getMessage());
@@ -64,8 +59,21 @@ public abstract class MethodCallNode extends ExpressionNode {
         // Validar que el método existe en la clase.
         if (methodEntry == null) {
             throw new NotFoundError(loc, "SE INTENTO ACCEDER AL METODO " + methodName + " DE LA CLASE "
-                    + classEntry.name() + ", PERO LA CLASE NO IMPLEMENTA TAL METODO.");
+                    + className + ", PERO LA CLASE NO IMPLEMENTA TAL METODO.");
         }
+
+        return methodEntry;
+    }
+
+    /**
+     * Validar que el método existe en la clase actual, que los argumentos son
+     * válidos para el método y que el tipo de retorno de esta expresión el esperado
+     * para su contexto.
+     */
+    public void validate(SymbolTable ts) throws ASTError {
+        Type resolveType;
+
+        MethodEntry methodEntry = getMethod(ts);
 
         // Validar argumentos del método.
         validateArgs(ts, methodEntry);
@@ -78,7 +86,7 @@ public abstract class MethodCallNode extends ExpressionNode {
                 // La clase debería existir ya que la TS ya está validada y consolidada.
                 throw new InternalError(loc,
                         "LA CLASE DE RETORNO DEL METODO " + methodName + " DE LA CLASE "
-                                + classEntry.name() + " NO EXISTE EN LA TS.");
+                                + className + " NO EXISTE EN LA TS.");
             }
             resolveType = chainedAccess.validateAndResolveType(ts, returnTypeClass);
         } else {
