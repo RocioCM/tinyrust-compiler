@@ -1,6 +1,7 @@
 package semantic_analyzer.ast;
 
-import error.semantic.ASTError;
+import error.semantic.sentences.ASTError;
+import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Bool;
 import util.Json;
@@ -9,7 +10,8 @@ public class WhileNode extends SentenceNode {
 	private ExpressionNode condition;
 	private SentenceNode block;
 
-	public WhileNode(ExpressionNode condition, SentenceNode block) {
+	public WhileNode(ExpressionNode condition, SentenceNode block, Location loc) {
+		super(loc);
 		this.condition = condition;
 		this.block = block;
 	}

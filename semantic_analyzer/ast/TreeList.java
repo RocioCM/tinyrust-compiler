@@ -4,18 +4,25 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import error.semantic.ASTError;
+import error.semantic.sentences.ASTError;
+import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import util.Json;
 
 public class TreeList<T extends Node> extends LinkedList<T> implements Node {
+	protected Location loc; // Declaration location.
 
 	public TreeList() {
-		super();
+		this.loc = new Location(-1, -1); // En caso de que la ubicación no sea relevante.
+	}
+
+	public TreeList(Location loc) {
+		this.loc = loc;
 	}
 
 	public TreeList(T... items) {
 		super(Arrays.asList(items)); // Agregar a la lista los items predefinidos.
+		this.loc = new Location(-1, -1); // En caso de que la ubicación no sea relevante.
 	}
 
 	/**

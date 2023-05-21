@@ -1,17 +1,27 @@
 package semantic_analyzer.types;
 
-import error.semantic.ASTError;
-import error.semantic.UnmatchedTypeError;
-import semantic_analyzer.ast.ExpressionNode;
-import semantic_analyzer.symbol_table.SymbolTable;
+// import error.semantic.sentences.ASTError;
+// import error.semantic.sentences.UnmatchedTypeError;
+// import semantic_analyzer.ast.ExpressionNode;
+// import semantic_analyzer.symbol_table.Location;
+// import semantic_analyzer.symbol_table.SymbolTable;
+import semantic_analyzer.symbol_table.TableElement;
 
-// TODO: why this extends from expression? Porque el constructor de arreglos lo uso.
-public abstract class Type extends ExpressionNode {
+public abstract class Type implements TableElement {
+	// Type extiende de ExpressionNode ya que Void y Array pueden usarse como
+	// expresiones en la TS.
 	private String type;
 
 	protected Type(String type) {
+		// TODO: check this is not outputting.
+		// super(new Location(-1, -1));
 		this.type = type;
 	}
+
+	// protected Type(String type, Location loc) {
+	// // super(loc);
+	// this.type = type;
+	// }
 
 	@Override
 	public String toJson() {
@@ -26,15 +36,18 @@ public abstract class Type extends ExpressionNode {
 		return this.type.equals(t.type());
 	}
 
-	public void validate(SymbolTable ts) throws ASTError {
-		if (super.getExpectedResolveType() != null && !this.equals(super.getExpectedResolveType())) {
-			// Tirar una excepción si esta instancia de Type no es del tipo esperado para
-			// esta expresión.
-			throw new UnmatchedTypeError(0, 0, super.getExpectedResolveType(), this); // TODO LINES
-		}
-		super.setResolveType(this); // Actualizar el tipo resuelto para la expresión.
+	/// TODO: remove this commented code.
 
-		// Nota: esta subclase no debería llamar a validate() de su superclase,
-		// ya que puede fallar inesperadamente al comparar tipos consigo misma.
-	}
+	// public void validate(SymbolTable ts) throws ASTError {
+	// if (super.getExpectedResolveType() != null &&
+	// !this.equals(super.getExpectedResolveType())) {
+	// // Tirar una excepción si esta instancia de Type no es del tipo esperado para
+	// // esta expresión.
+	// throw new UnmatchedTypeError(loc, super.getExpectedResolveType(), this);
+	// }
+	// super.setResolveType(this); // Actualizar el tipo resuelto para la expresión.
+
+	// // Nota: esta subclase no debería llamar a validate() de su superclase,
+	// // ya que puede fallar inesperadamente al comparar tipos consigo misma.
+	// }
 }

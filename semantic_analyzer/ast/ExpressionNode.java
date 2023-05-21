@@ -1,35 +1,39 @@
 package semantic_analyzer.ast;
 
-import error.semantic.ASTError;
-import error.semantic.UnmatchedTypeError;
+import error.semantic.sentences.ASTError;
+import error.semantic.sentences.InternalError;
+import error.semantic.sentences.UnmatchedTypeError;
+import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Type;
 
 public abstract class ExpressionNode implements Node {
 	private Type resolveType; // Tipo de dato que la expresión resolverá. Puede o no saberse a priori.
 	private Type expectedResolveType; // Tipo de dato que la expresión debería resolver
-																		// para ser válida en su contexto.
+										// para ser válida en su contexto.
+	protected Location loc; // Declaration location.
 
-	public ExpressionNode() {
+	public ExpressionNode(Location loc) {
+		this.loc = loc;
 		this.resolveType = null;
 		this.expectedResolveType = null;
 	}
 
-	public ExpressionNode(Type resolveType) {
+	public ExpressionNode(Type resolveType, Location loc) {
 		this.resolveType = resolveType;
 		this.expectedResolveType = null;
+		this.loc = loc;
 	}
 
 	@Override
 	public void validate(SymbolTable ts) throws ASTError {
 		if (resolveType == null) {
-			throw new ASTError(0, 0,
+			throw new InternalError(loc,
 					"ERROR INTERNO: SE ESPERABA QUE LA EXPRESION TUVIERA UN TIPO RESUELTO PARA ESTE MOMENTO, PERO SU TIPO ES null.");
-			// TODO LINES
 		}
 		if (expectedResolveType != null
 				&& !resolveType.equals(expectedResolveType)) {
-			throw new UnmatchedTypeError(0, 0, expectedResolveType, resolveType); // TODO LINES
+			throw new UnmatchedTypeError(loc, expectedResolveType, resolveType);
 		}
 	}
 

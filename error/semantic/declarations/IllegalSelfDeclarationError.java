@@ -1,5 +1,6 @@
-package error.semantic;
+package error.semantic.declarations;
 
+import error.semantic.SemanticalError;
 import semantic_analyzer.symbol_table.Location;
 
 public class IllegalSelfDeclarationError extends SemanticalError {

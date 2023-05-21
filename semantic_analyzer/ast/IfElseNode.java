@@ -1,6 +1,7 @@
 package semantic_analyzer.ast;
 
-import error.semantic.ASTError;
+import error.semantic.sentences.ASTError;
+import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Bool;
 import util.Json;
@@ -10,7 +11,8 @@ public class IfElseNode extends SentenceNode {
 	private SentenceNode block;
 	private SentenceNode elseBlock;
 
-	public IfElseNode(ExpressionNode condition, SentenceNode block, SentenceNode elseBlock) {
+	public IfElseNode(ExpressionNode condition, SentenceNode block, SentenceNode elseBlock, Location loc) {
+		super(loc);
 		this.condition = condition;
 		this.block = block;
 		this.elseBlock = elseBlock;

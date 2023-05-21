@@ -4,11 +4,11 @@ import java.util.HashMap;
 
 import java.util.Iterator;
 
-import error.semantic.BadFormedConstructorError;
-import error.semantic.ConsolidationError;
-import error.semantic.DuplicatedEntityIdError;
-import error.semantic.IllegalSelfDeclarationError;
-import error.semantic.MultipleConstructorsError;
+import error.semantic.declarations.BadFormedConstructorError;
+import error.semantic.declarations.ConsolidationError;
+import error.semantic.declarations.DuplicatedEntityIdError;
+import error.semantic.declarations.IllegalSelfDeclarationError;
+import error.semantic.declarations.MultipleConstructorsError;
 import semantic_analyzer.types.Type;
 import util.Json;
 
@@ -135,10 +135,13 @@ public class ClassEntry implements TableElement {
 					// Lanzar error si la clase de retorno no está declarada.
 					throw new ConsolidationError(
 							method.locationDecl(),
-							"LA CLASE DE RETORNO DEL METODO " + method.name() + " ES DEL TIPO NO DECLARADO " + returnType);
+							"LA CLASE DE RETORNO DEL METODO " + method.name() + " ES DEL TIPO NO DECLARADO "
+									+ returnType);
 				}
 				method.validateArgumentTypes(classes); // Validar argumentos.
 			}
+
+			// TODO VALIDAR TIPO DE VARIABLES DE CADA BLOQUE DE METODO.
 
 			// 4. Consolidar métodos.
 			Iterator<MethodEntry> superMethodsIter = superClass.methods().values().iterator();
@@ -158,7 +161,8 @@ public class ClassEntry implements TableElement {
 						// No es válido redeclarar un método estático si en la superclase era dinámico.
 						throw new ConsolidationError(subMethod.locationDecl(),
 								"NO ESTA PERMITIDO REDEFINIR METODOS DE UNA SUPERCLASE CON DISTINTO MODIFICADOR. EL SUB METODO "
-										+ superMethod.name() + " ES ESTATICO, MIENTRAS QUE EL SUPER METODO ES DINAMICO.");
+										+ superMethod.name()
+										+ " ES ESTATICO, MIENTRAS QUE EL SUPER METODO ES DINAMICO.");
 					}
 
 					// Validar mismo tipo de retorno.
@@ -184,7 +188,8 @@ public class ClassEntry implements TableElement {
 					// Validar misma posición y tipo de cada argumento.
 					if (!superMethod.arguments().values().stream().allMatch(
 							(superArgument) -> {
-								return subMethodArgTypes.get(superArgument.position()).type().equals(superArgument.type().type());
+								return subMethodArgTypes.get(superArgument.position()).type()
+										.equals(superArgument.type().type());
 							})) {
 						throw new ConsolidationError(subMethod.locationDecl(),
 								"NO ESTA PERMITIDO REDEFINIR METODOS DE UNA SUPERCLASE CON DISTINTA FIRMA: TIPO Y ORDEN DE ARGUMENTOS NO COINCIDE. (METODO "

@@ -1,6 +1,6 @@
 package semantic_analyzer.symbol_table.predefined_classes;
 
-import error.semantic.InternalError;
+import error.semantic.declarations.InternalError;
 import semantic_analyzer.types.Array;
 import semantic_analyzer.types.Bool;
 import semantic_analyzer.types.Char;

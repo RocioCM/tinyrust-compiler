@@ -1,18 +1,22 @@
 package semantic_analyzer.ast;
 
-import error.semantic.ASTError;
+import error.semantic.sentences.InternalError;
+import error.semantic.sentences.ASTError;
+import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
-import semantic_analyzer.types.Void;
+import semantic_analyzer.types.Type;
 import util.Json;
 
 public class ReturnNode extends SentenceNode {
 	private ExpressionNode returnValue;
 
-	public ReturnNode() {
-		this.returnValue = new Void();
+	public ReturnNode(Location loc) {
+		super(loc);
+		this.returnValue = new LiteralNode("nil", "p_nil", loc);
 	}
 
-	public ReturnNode(ExpressionNode expression) {
+	public ReturnNode(ExpressionNode expression, Location loc) {
+		super(loc);
 		this.returnValue = expression;
 	}
 
@@ -27,8 +31,12 @@ public class ReturnNode extends SentenceNode {
 	@Override
 	public void validate(SymbolTable ts) throws ASTError {
 		// Validar que el tipo de la expresión coincida con el de retorno del método.
-		returnValue.setExpectedResolveType(null); // TODO: De alguna forma hay que hacerle llegar el nombre del método a
-																							// esta función. O setearlo en la TS como currentMethod.
+		try {
+			Type expectedType = ts.currentMethod().returnType();
+			returnValue.setExpectedResolveType(expectedType);
+		} catch (error.semantic.declarations.InternalError e) {
+			throw new InternalError(loc, e.getMessage());
+		}
 		returnValue.validate(ts);
 
 	}
