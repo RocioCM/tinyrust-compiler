@@ -1,9 +1,9 @@
 package semantic_analyzer.ast;
 
-import error.semantic.ASTError;
-import semantic_analyzer.symbol_table.SymbolTable;
+import semantic_analyzer.symbol_table.Location;
 
 public abstract class AccessNode extends ExpressionNode {
-
-	abstract public void validate(SymbolTable ts) throws ASTError;
+    public AccessNode(Location loc) {
+        super(loc);
+    }
 }

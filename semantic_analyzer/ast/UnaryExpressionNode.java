@@ -1,6 +1,7 @@
 package semantic_analyzer.ast;
 
-import error.semantic.ASTError;
+import error.semantic.sentences.ASTError;
+import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Type;
 import util.Json;
@@ -9,8 +10,9 @@ public class UnaryExpressionNode extends ExpressionNode {
 	private ExpressionNode operand;
 	private String operator;
 
-	public UnaryExpressionNode(ExpressionNode operand, String operator, Type expectedOperandType, Type resolveType) {
-		super(resolveType);
+	public UnaryExpressionNode(ExpressionNode operand, String operator, Type expectedOperandType, Type resolveType,
+			Location loc) {
+		super(resolveType, loc);
 		this.operator = operator;
 		this.operand = operand;
 		operand.setExpectedResolveType(expectedOperandType);

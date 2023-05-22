@@ -3,11 +3,11 @@ package semantic_analyzer.symbol_table;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import error.semantic.ConsolidationError;
-import error.semantic.DuplicatedEntityIdError;
-import error.semantic.InternalError;
-import error.semantic.MultipleConstructorsError;
 import error.semantic.SemanticalError;
+import error.semantic.declarations.ConsolidationError;
+import error.semantic.declarations.DuplicatedEntityIdError;
+import error.semantic.declarations.InternalError;
+import error.semantic.declarations.MultipleConstructorsError;
 import semantic_analyzer.symbol_table.predefined_classes.Array;
 import semantic_analyzer.symbol_table.predefined_classes.Bool;
 import semantic_analyzer.symbol_table.predefined_classes.Char;
@@ -15,6 +15,7 @@ import semantic_analyzer.symbol_table.predefined_classes.I32;
 import semantic_analyzer.symbol_table.predefined_classes.IO;
 import semantic_analyzer.symbol_table.predefined_classes.Object;
 import semantic_analyzer.symbol_table.predefined_classes.Str;
+import semantic_analyzer.types.ClassType;
 import semantic_analyzer.types.Type;
 import util.Json;
 
@@ -130,16 +131,51 @@ public class SymbolTable implements TableElement {
 		}
 	}
 
-	public VariableEntry getVariable(String name) {
-		return null;
+	/**
+	 * Dado el identificador de una variable, busca la entidad dentro del método
+	 * actual o como atributo de la clase actual.
+	 * 
+	 * @param name - Identificador de la variable buscada.
+	 * @return Retorna la entrada de clase correspondiente al Tipo de la variable
+	 *         hallada. Si no se encuentra ninguna entidad con tal identificador,
+	 *         devuelve null.
+	 * @see - Validación de AST
+	 */
+	public Type getVariableType(String name) throws InternalError {
+		Type varClass = null;
+		if (name.equals("self")) {
+			// Devolver la clase actual si se busca la variable self.
+			varClass = new ClassType(currentClass.name());
+		} else {
+			// Buscar la variable dentro del método.
+			VariableEntry var = currentMethod().getVariable(name);
+			if (var != null) {
+				// Se encontró la variable en el bloque o como argumento del método.
+				varClass = var.type();
+			} else {
+				// Buscar la variable como atributo de la clase.
+				var = currentClass().attributes().get(name);
+				if (var != null) {
+					varClass = var.type();
+				}
+				// Si el nombre no se corresponde con ninguna variable, se retorna null y el
+				// invocador debe manejar el caso.
+			}
+		}
+		return varClass;
 	}
 
 	public MethodEntry getMethod(String name) {
 		return null;
 	}
 
+	/**
+	 * @param name - Nombre de la clase.
+	 * @return Retorna la entrada de la clase con el nombre dado.
+	 *         En caso de no existir tal clase retorna null.
+	 */
 	public ClassEntry getClass(String name) {
-		return null;
+		return classes.get(name);
 	}
 
 	public ClassEntry currentClass() throws InternalError {

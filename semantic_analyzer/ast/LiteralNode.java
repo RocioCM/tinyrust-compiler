@@ -3,7 +3,8 @@ package semantic_analyzer.ast;
 import semantic_analyzer.types.Char;
 import semantic_analyzer.types.I32;
 import semantic_analyzer.types.Str;
-import error.semantic.ASTError;
+import error.semantic.sentences.ASTError;
+import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Bool;
 import semantic_analyzer.types.Void;
@@ -13,7 +14,8 @@ import util.Json;
 public class LiteralNode extends ExpressionNode {
 	private String value;
 
-	public LiteralNode(String value, String type) {
+	public LiteralNode(String value, String type, Location loc) {
+		super(loc);
 		this.value = value;
 		Type resolveType;
 		switch (type) {

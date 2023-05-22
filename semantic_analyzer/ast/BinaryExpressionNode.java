@@ -1,7 +1,9 @@
 package semantic_analyzer.ast;
 
-import error.semantic.ASTError;
-import error.semantic.UnmatchedTypeError;
+import error.semantic.sentences.ASTError;
+import error.semantic.sentences.InternalError;
+import error.semantic.sentences.UnmatchedTypeError;
+import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Type;
 import util.Json;
@@ -11,11 +13,11 @@ public class BinaryExpressionNode extends ExpressionNode {
 	private ExpressionNode rightOperand;
 	private String operator;
 	private Type expectedOperandType; // Si es null, indica que ambos operandos deben ser del mismo tipo,
-																		// sin importar qué tipo en específico.
+										// sin importar qué tipo en específico.
 
 	public BinaryExpressionNode(ExpressionNode rightOperand, String operator,
-			Type expectedOperandType, Type resultType) {
-		super(resultType);
+			Type expectedOperandType, Type resultType, Location loc) {
+		super(resultType, loc);
 		this.leftOperand = null;
 		this.rightOperand = rightOperand;
 		this.operator = operator;
@@ -23,8 +25,8 @@ public class BinaryExpressionNode extends ExpressionNode {
 	}
 
 	public BinaryExpressionNode(ExpressionNode leftOperand, ExpressionNode rightOperand, String operator,
-			Type expectedOperandType, Type resultType) {
-		super(resultType);
+			Type expectedOperandType, Type resultType, Location loc) {
+		super(resultType, loc);
 		this.leftOperand = leftOperand;
 		this.rightOperand = rightOperand;
 		this.operator = operator;
@@ -50,9 +52,8 @@ public class BinaryExpressionNode extends ExpressionNode {
 	@Override
 	public void validate(SymbolTable ts) throws ASTError {
 		if (leftOperand == null) {
-			throw new ASTError(0, 0,
-					"ERROR INTERNO: EL LADO IZQUIERDO DE LA EXPRESION BINARIA NO ESTA DEFINIDO. SE ESPERABA QUE ESTUVIERA DEFINIDO PARA ESTE PUNTO.");
-			// TODO LINES
+			throw new InternalError(loc,
+					"EL LADO IZQUIERDO DE LA EXPRESION BINARIA NO ESTA DEFINIDO. SE ESPERABA QUE ESTUVIERA DEFINIDO PARA ESTE PUNTO.");
 		}
 		// Validar que el tipo de los operandos sea el esperado para este operador.
 		leftOperand.setExpectedResolveType(expectedOperandType);
@@ -63,7 +64,7 @@ public class BinaryExpressionNode extends ExpressionNode {
 		// En caso de que el tipo esperado de los operandos sea null,
 		// se valida que ambos operandos sean del mismo tipo.
 		if (!leftOperand.resolveType().equals(rightOperand.resolveType())) {
-			throw new UnmatchedTypeError(0, 0, leftOperand.resolveType(), rightOperand.resolveType());
+			throw new UnmatchedTypeError(loc, leftOperand.resolveType(), rightOperand.resolveType());
 		}
 		super.validate(ts); // Validar que esta expresión sea del tipo esperado para su contexto.
 	}

@@ -1,6 +1,7 @@
 package semantic_analyzer.ast;
 
-import error.semantic.ASTError;
+import error.semantic.sentences.ASTError;
+import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import util.Json;
 
@@ -8,7 +9,8 @@ public class AssignNode extends SentenceNode {
 	AccessNode leftSide;
 	ExpressionNode rightSide;
 
-	public AssignNode(AccessNode leftSide, ExpressionNode rightSide) {
+	public AssignNode(AccessNode leftSide, ExpressionNode rightSide, Location loc) {
+		super(loc);
 		this.leftSide = leftSide;
 		this.rightSide = rightSide;
 	}

@@ -1,4 +1,6 @@
-package error.semantic;
+package error.semantic.declarations;
+
+import error.semantic.SemanticalError;
 
 /**
  * Esta excepción lanzada durante el análisis semántico indica un bug en el

@@ -1,6 +1,6 @@
 package semantic_analyzer.ast;
 
-import error.semantic.ASTError;
+import error.semantic.sentences.ASTError;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.symbol_table.TableElement;
 

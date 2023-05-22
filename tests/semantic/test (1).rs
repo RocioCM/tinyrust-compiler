@@ -54,7 +54,7 @@ class Fibonacci: Fibo {
 
 
 fn main() {
-	Hola: hola;
+	Hola: a;
 	n[21] = 12;
 	a.b.c = !(1 + 2 * 3 != -10 + 2) || a / 4 % -+-5 < 5;	
 }

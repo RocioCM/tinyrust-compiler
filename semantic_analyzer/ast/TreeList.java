@@ -3,11 +3,21 @@ package semantic_analyzer.ast;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import error.semantic.ASTError;
+import error.semantic.sentences.ASTError;
+import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import util.Json;
 
 public class TreeList<T extends Node> extends LinkedList<T> implements Node {
+	protected Location loc; // Declaration location.
+
+	public TreeList() {
+		this.loc = new Location(-1, -1); // En caso de que la ubicación no sea relevante.
+	}
+
+	public TreeList(Location loc) {
+		this.loc = loc;
+	}
 
 	/**
 	 * Inserts the specified element at the beggining of this list.

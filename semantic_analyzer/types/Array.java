@@ -1,7 +1,7 @@
 package semantic_analyzer.types;
 
 public class Array extends Type {
-	PrimitiveType<?> itemsType;
+	private PrimitiveType<?> itemsType;
 
 	public Array() {
 		super("Array");
@@ -23,4 +23,9 @@ public class Array extends Type {
 		}
 		return json;
 	}
+
+	public PrimitiveType<?> itemsType() {
+		return itemsType;
+	}
+
 }

@@ -2,9 +2,9 @@ package semantic_analyzer.symbol_table.predefined_classes;
 
 import java.util.HashMap;
 
-import error.semantic.DuplicatedEntityIdError;
-import error.semantic.IllegalSelfDeclarationError;
 import error.semantic.SemanticalError;
+import error.semantic.declarations.DuplicatedEntityIdError;
+import error.semantic.declarations.IllegalSelfDeclarationError;
 import semantic_analyzer.symbol_table.ClassEntry;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.MethodEntry;

@@ -1,7 +1,8 @@
 package semantic_analyzer.ast;
 
-import error.semantic.ASTError;
-import error.semantic.InternalError;
+import error.semantic.sentences.InternalError;
+import error.semantic.sentences.ASTError;
+import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import util.Json;
 
@@ -26,13 +27,14 @@ public class AbstractSyntaxTree implements Node {
 		classes.validate(ts);
 	}
 
-	public void addMain(BlockNode block) throws InternalError {
+	public void addMain(BlockNode block, Location loc) throws InternalError {
 		if (classes != null) {
-			TreeList<MethodNode> methods = new TreeList<MethodNode>(); // Lista de métodos de la clase fantasma main.
-			methods.add(new MethodNode("main", block)); // Método main.
-			classes.addLast(new ClassNode("main", methods)); // Clase fantasma main.
+			// Lista de métodos de la clase fantasma main.
+			TreeList<MethodNode> methods = new TreeList<MethodNode>(loc);
+			methods.add(new MethodNode("main", block, loc)); // Método main.
+			classes.addLast(new ClassNode("main", methods, loc)); // Clase fantasma main.
 		} else {
-			throw new InternalError(
+			throw new InternalError(loc,
 					"SE INTENTO REGISTRAR LA FUNCION MAIN EN EL AST PERO LA LISTA DE CLASES AUN NO SE HA INICIALIZADO.");
 		}
 	}
@@ -40,15 +42,15 @@ public class AbstractSyntaxTree implements Node {
 	private void addPredefinedClasses() throws InternalError {
 		if (classes != null) {
 			// TODO: agregar los metodos predefinidos de cada clase.
-			classes.add(new ClassNode("Object", new TreeList<MethodNode>()));
-			classes.add(new ClassNode("IO", new TreeList<MethodNode>()));
-			classes.add(new ClassNode("I32", new TreeList<MethodNode>()));
-			classes.add(new ClassNode("Str", new TreeList<MethodNode>()));
-			classes.add(new ClassNode("Char", new TreeList<MethodNode>()));
-			classes.add(new ClassNode("Bool", new TreeList<MethodNode>()));
-			classes.add(new ClassNode("Array", new TreeList<MethodNode>()));
+			classes.add(new ClassNode("Object", new TreeList<MethodNode>(), new Location(-1, -1)));
+			classes.add(new ClassNode("IO", new TreeList<MethodNode>(), new Location(-1, -1)));
+			classes.add(new ClassNode("I32", new TreeList<MethodNode>(), new Location(-1, -1)));
+			classes.add(new ClassNode("Str", new TreeList<MethodNode>(), new Location(-1, -1)));
+			classes.add(new ClassNode("Char", new TreeList<MethodNode>(), new Location(-1, -1)));
+			classes.add(new ClassNode("Bool", new TreeList<MethodNode>(), new Location(-1, -1)));
+			classes.add(new ClassNode("Array", new TreeList<MethodNode>(), new Location(-1, -1)));
 		} else {
-			throw new InternalError(
+			throw new InternalError(new Location(-1, -1),
 					"SE INTENTO REGISTRAR LAS CLASES PREDEFINIDAS EN EL AST PERO LA LISTA DE CLASES ES NULA.");
 		}
 	}

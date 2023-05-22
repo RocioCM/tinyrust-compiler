@@ -3,8 +3,8 @@ package syntactic_analyzer;
 import java.io.FileNotFoundException;
 
 import error.lexic.LexicalError;
-import error.semantic.ASTError;
 import error.semantic.SemanticalError;
+import error.semantic.sentences.ASTError;
 import error.syntactic.SyntacticalError;
 import util.Logger;
 

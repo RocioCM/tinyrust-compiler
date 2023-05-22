@@ -2,9 +2,9 @@ package semantic_analyzer.symbol_table;
 
 import java.util.Iterator;
 
-import error.semantic.ConsolidationError;
-import error.semantic.DuplicatedEntityIdError;
-import error.semantic.IllegalSelfDeclarationError;
+import error.semantic.declarations.ConsolidationError;
+import error.semantic.declarations.DuplicatedEntityIdError;
+import error.semantic.declarations.IllegalSelfDeclarationError;
 import semantic_analyzer.types.Type;
 import semantic_analyzer.types.Void;
 import util.Json;
@@ -16,6 +16,7 @@ public class MethodEntry implements TableElement {
 	private Type returnType;
 	private boolean isStatic = false;
 	private TableList<ArgumentEntry> arguments;
+
 	private TableList<VariableEntry> blockVariables;
 
 	public MethodEntry(String name, boolean isStatic, int position, Location loc) {
@@ -77,6 +78,9 @@ public class MethodEntry implements TableElement {
 		if (blockVariables.containsKey(name)) {
 			throw new DuplicatedEntityIdError(" LA VARIABLE", name, loc);
 		}
+		if (arguments.containsKey(name)) {
+			throw new DuplicatedEntityIdError(" UN ARGUMENTO", name, loc);
+		}
 
 		VariableEntry newVar = new VariableEntry(name, type, blockVariables.size() + 1, loc);
 		blockVariables.put(name, newVar);
@@ -94,9 +98,26 @@ public class MethodEntry implements TableElement {
 				// Lanzar error si la clase del argumento no está declarada.
 				throw new ConsolidationError(
 						arg.locationDecl(),
-						"EL ARGUMENTO " + arg.name() + " DEL METODO " + name + " ES DEL TIPO NO DECLARADO " + arg.type().type());
+						"EL ARGUMENTO " + arg.name() + " DEL METODO " + name + " ES DEL TIPO NO DECLARADO "
+								+ arg.type().type());
 			}
 		}
+	}
+
+	/**
+	 * Devuelve la variable con el nombre dado si existe como variable del bloque o
+	 * argumento formal del método. De no hallarse devuelve null.
+	 * 
+	 * @see - Validación de AST
+	 * @param name - nombre de la variable
+	 * @return Variable hallada o null si no existe.
+	 */
+	public VariableEntry getVariable(String name) {
+		VariableEntry var = blockVariables.get(name); // Buscar la variable en el bloque.
+		if (var == null) {
+			var = arguments.get(name); // Buscar la variable como argumento formal.
+		}
+		return var; // Retornar la variable o null si no se halló.
 	}
 
 	public String name() {
@@ -119,7 +140,7 @@ public class MethodEntry implements TableElement {
 		this.returnType = returnType;
 	}
 
-	protected TableList<ArgumentEntry> arguments() {
+	public TableList<ArgumentEntry> arguments() {
 		return arguments;
 	}
 

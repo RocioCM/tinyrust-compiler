@@ -1,0 +1,81 @@
+package semantic_analyzer.ast;
+
+import error.semantic.sentences.InternalError;
+import error.semantic.sentences.ASTError;
+import semantic_analyzer.symbol_table.ClassEntry;
+import semantic_analyzer.symbol_table.Location;
+import semantic_analyzer.symbol_table.SymbolTable;
+import semantic_analyzer.types.Type;
+import util.Json;
+
+public class AccessVariableNode extends AccessNode {
+	private String identifier;
+	private ChainedAccessNode chainedAccess;
+
+	public AccessVariableNode(String identifier, Location loc) {
+		super(loc);
+		this.identifier = identifier;
+		this.chainedAccess = null;
+	}
+
+	public AccessVariableNode(String identifier, ChainedAccessNode chainedAccess, Location loc) {
+		super(loc);
+		this.identifier = identifier;
+		this.chainedAccess = chainedAccess;
+	}
+
+	@Override
+	public String toJson() {
+		Json json = new Json();
+		json.addAttr("tipo", "variable");
+		json.addAttr("nombre-variable", identifier);
+		json.addAttr("encadenado", chainedAccess);
+		return json.toString();
+	}
+
+	public String identifier() {
+		return identifier;
+	}
+
+	/**
+	 * Valida que la variable con tal nombre exista en el ámbito actual y resuelve
+	 * su tipo. Si tiene un encadenado, también lo valida.
+	 */
+	@Override
+	public void validate(SymbolTable ts) throws ASTError {
+		Type varType, resolvedType;
+
+		// Obtener la variable del contexto actual de la TS.
+		try {
+			varType = ts.getVariableType(identifier);
+		} catch (error.semantic.declarations.InternalError e) {
+			throw new InternalError(loc, e.getMessage());
+		}
+
+		// Validar que la variable exista.
+		if (varType == null) {
+			throw new ASTError(loc,
+					"SE INTENTO ACCEDER A LA VARIABLE " + identifier + " PERO NO ESTA DEFINIDA EN EL AMBITO ACTUAL.");
+		}
+
+		// Validar que el tipo de la variable es el esperado.
+		if (chainedAccess != null) {
+			// Recursivo: resolver y validar el encadenado.
+			ClassEntry varTypeClass = ts.getClass(varType.type());
+			if (varTypeClass == null) {
+				// La clase debería existir ya que la TS ya está validada y consolidada.
+				throw new InternalError(loc,
+						"LA CLASE DE LA VARIABLE" + identifier + " NO EXISTE EN LA TS.");
+			}
+			resolvedType = chainedAccess.validateAndResolveType(ts, varTypeClass);
+		} else {
+			// Tope recursivo: devolver el tipo de la variable.
+			resolvedType = varType;
+		}
+
+		// Validar que el tipo resuelto es el esperado para la variable.
+		super.setResolveType(resolvedType);
+		super.validate(ts);
+
+	}
+}

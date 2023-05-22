@@ -1,16 +1,19 @@
 package semantic_analyzer.ast;
 
-import error.semantic.ASTError;
+import error.semantic.sentences.ASTError;
+import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import util.Json;
 
 public class ClassNode implements Node {
 	private String name;
 	private TreeList<MethodNode> methods;
+	protected Location loc; // Declaration location.
 
-	public ClassNode(String name, TreeList<MethodNode> methods) {
+	public ClassNode(String name, TreeList<MethodNode> methods, Location loc) {
 		this.name = name;
 		this.methods = methods;
+		this.loc = loc;
 	}
 
 	@Override
