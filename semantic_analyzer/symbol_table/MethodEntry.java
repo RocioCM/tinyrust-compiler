@@ -88,9 +88,18 @@ public class MethodEntry implements TableElement {
 
 	/**
 	 * Durante la etapa de consolidación, este método valida que el tipo de cada
-	 * argumento formal del método se corresponda con una clase declarada.
+	 * argumento formal, el tipo de retorno y el tipo de cada variable
+	 * declarada en el bloque se correspondan con una clase declarada.
 	 */
-	public void validateArgumentTypes(TableList<ClassEntry> classes) throws ConsolidationError {
+	public void validate(TableList<ClassEntry> classes) throws ConsolidationError {
+		// 1. Validar el tipo de retorno.
+		if (returnType.type() != "void" && classes.get(returnType.type()) == null) {
+			// Lanzar error si la clase de retorno no está declarada.
+			throw new ConsolidationError(locationDecl,
+					"LA CLASE DE RETORNO DEL METODO " + name + " ES DEL TIPO NO DECLARADO " + returnType);
+		}
+
+		// 2. Validar el tipo de los argumentos.
 		Iterator<ArgumentEntry> argumentsIter = arguments.values().iterator();
 		while (argumentsIter.hasNext()) { // Iterar sobre cada método de la clase.
 			ArgumentEntry arg = argumentsIter.next();
@@ -100,6 +109,19 @@ public class MethodEntry implements TableElement {
 						arg.locationDecl(),
 						"EL ARGUMENTO " + arg.name() + " DEL METODO " + name + " ES DEL TIPO NO DECLARADO "
 								+ arg.type().type());
+			}
+		}
+
+		// 3. Validar el tipo de las variables del bloque.
+		Iterator<VariableEntry> varsIter = blockVariables.values().iterator();
+		while (varsIter.hasNext()) { // Iterar sobre cada método de la clase.
+			VariableEntry var = varsIter.next();
+			if (classes.get(var.type().type()) == null) {
+				// Lanzar error si la clase de la variable no está declarada.
+				throw new ConsolidationError(
+						var.locationDecl(),
+						"LA VARIABLE " + var.name() + " EN EL BLOQUE DEL METODO " + name + " ES DEL TIPO NO DECLARADO "
+								+ var.type().type());
 			}
 		}
 	}

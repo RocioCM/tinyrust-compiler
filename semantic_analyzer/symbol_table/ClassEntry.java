@@ -130,18 +130,8 @@ public class ClassEntry implements TableElement {
 			Iterator<MethodEntry> methodsIter = methods.values().iterator();
 			while (methodsIter.hasNext()) { // Iterar sobre cada método de la clase.
 				MethodEntry method = methodsIter.next();
-				String returnType = method.returnType().type();
-				if (returnType != "void" && classes.get(method.returnType().type()) == null) {
-					// Lanzar error si la clase de retorno no está declarada.
-					throw new ConsolidationError(
-							method.locationDecl(),
-							"LA CLASE DE RETORNO DEL METODO " + method.name() + " ES DEL TIPO NO DECLARADO "
-									+ returnType);
-				}
-				method.validateArgumentTypes(classes); // Validar argumentos.
+				method.validate(classes);
 			}
-
-			// TODO VALIDAR TIPO DE VARIABLES DE CADA BLOQUE DE METODO.
 
 			// 4. Consolidar métodos.
 			Iterator<MethodEntry> superMethodsIter = superClass.methods().values().iterator();
@@ -223,6 +213,10 @@ public class ClassEntry implements TableElement {
 
 	public String extendsFrom() {
 		return extendsFrom;
+	}
+
+	public Location locationDecl() {
+		return locationDecl;
 	}
 
 	public void setExtendsFrom(String extendsFrom, Location loc) {

@@ -1,10 +1,12 @@
 class Hola {} 
+
 class Hola1 {
 	static fn hola() -> void {}
 	fn hola1() -> Array I32 {}
 	static fn hola2() -> I32 {}
 	fn hola3() -> Hola {}
 } 
+
 class Hola2: Hola {
 	create () {}
 	I32: create, destroy;

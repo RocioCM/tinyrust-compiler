@@ -11,7 +11,7 @@ class TinyRustCompiler {
 	public static void main(String[] args) {
 		try {
 			// Se lee la ruta del archivo de los argumentos de entrada.
-			String inputPath = args[0];
+			String inputPath = "./tests/semantic_sentences/test (1).rs"; // TODO: revert this.
 
 			if (!inputPath.endsWith(".rs")) {
 				throw new IOException("ERROR: EL ARCHIVO DE ENTRADA DEBE TENER EXTENSION .rs");
