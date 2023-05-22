@@ -1,0 +1,13 @@
+class Hola {
+	Str: create;
+	fn m1() -> void {
+		I32: create, self;
+	}
+}
+
+fn main() {
+}
+
+/* ERROR: SEMANTICO - DECLARACIONES 
+| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
+| LINEA 4 | COLUMNA 16 | NO ESTA PERMITIDO ASIGNAR EL IDENTIFICADOR "self" A ATRIBUTOS, VARIABLES O METODOS. | */

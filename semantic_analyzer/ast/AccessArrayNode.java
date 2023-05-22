@@ -9,7 +9,7 @@ import util.Json;
 
 public class AccessArrayNode extends AccessNode {
 	private AccessVariableNode variable;
-	private ExpressionNode indexAccess; // Índice del elemento que se quiere acceder.
+	private ExpressionNode indexAccess; // Indice del elemento que se quiere acceder.
 
 	public AccessArrayNode(AccessVariableNode variable, ExpressionNode indexAccess, Location loc) {
 		super(loc);
