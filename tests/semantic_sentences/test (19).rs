@@ -1,19 +1,9 @@
-class Derivada : Base {
-	I32: x;
-	fn m2(Str: a) -> void {
-	}
-}
-
 class Base {
-	pub Str: s;
-	I32: a;
+	pub Array Bool: a;
 	fn m1() -> void {
+		self.a = new I32[5]; // Tipo incorrecto de array.
 	}
 }
 
 fn main() {
-	Base: b1;
-	b1 = new Derivada();
-	(b1.m1());
 }
-/* CORRECTO: SEMANTICO - DECLARACIONES */

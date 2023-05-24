@@ -1,19 +1,17 @@
-class Derivada : Base {
-	I32: x;
-	fn m2(Str: a) -> void {
-	}
+class A {
 }
 
-class Base {
-	pub Str: s;
-	I32: a;
-	fn m1() -> void {
+class B: A {
+}
+
+class C {
+}
+
+class Clase: B {
+	fn metodo() -> Clase {
+		return new C();
 	}
 }
 
 fn main() {
-	Base: b1;
-	b1 = new Derivada();
-	(b1.m1());
 }
-/* CORRECTO: SEMANTICO - DECLARACIONES */

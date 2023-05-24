@@ -1,19 +1,16 @@
-class Derivada : Base {
-	I32: x;
-	fn m2(Str: a) -> void {
-	}
+class Base {
+	I32: a;
 }
 
-class Base {
-	pub Str: s;
-	I32: a;
-	fn m1() -> void {
+class Derivada: Base {
+	fn m1(Str: a) -> void {
+		a = 12; // Falla. El argumento "a" de tipo Str pisa el atributo "a" heredado de tipo I32.
 	}
 }
 
 fn main() {
-	Base: b1;
-	b1 = new Derivada();
-	(b1.m1());
 }
-/* CORRECTO: SEMANTICO - DECLARACIONES */
+
+/*ERROR: SEMANTICO - SENTENCIAS
+| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
+| LINEA 7 | COLUMNA 7 | SE ESPERABA UNA EXPRESION DE TIPO Str PERO SE ENCONTRO UNA EXPRESION DE TIPO I32 |*/

@@ -16,7 +16,6 @@ class Hola2: Hola {
 
 class Fibo: Hola2 {
 	fn destroy(Str: h) -> void {
-		a = someDifferentStuff();
 	}
 }
 
@@ -27,22 +26,36 @@ class Fibonacci: Fibo {
 	Char: chaU2;
 	pub Array I32: hola2, hola3, hola4;
 
-	fn hola() -> void {}
+	fn hola() -> void {
+		return;
+		return nil;
+	}
 
 	fn destroy(Str: s) -> void {
-		create = someOtherDifferentStuff();
-		self = breakingChange();
-		// TODO: chequear que ninguna VARIABLE se llame self. ni create??
+		Hola2: var;
+		var = new Fibo(); // Subclase
+		(IO.out_str("Hola"));
+		if (10<2) {};
+		if (true) {
+		} else if (false) {
+			(IO.out_i32(("").length()));
+		} else {
+			(IO.out_i32(--+-+-+-+++(("hola").length())));
+		}
+		while (true || false) {
+			(IO.out_char('a'));
+		}
 	}
 
 	fn hola3() -> Hola {
-		return 12;
+		return new Hola(); // Clase original
+		return new Hola2(); // Subclase
 	}
 
 	fn hola1(Hola: hola, Hola: h) -> I32 {
-		Hola: chau, chau2, adios; Hey: hou;
+		Hola: chau, chau2, adios; Hola: hey;
 		Array I32: c;
-		return;
+		return 12 / 0;
 	}
 	
 	pub Hola: test;
@@ -57,8 +70,8 @@ class Fibonacci: Fibo {
 
 fn main() {
 	Hola: a;
-	n[21] = 12;
-	a.b.c = !(1 + 2 * 3 != -10 + 2) || a / 4 % -+-5 < 5;	
+	a = new Fibonacci(new Char[2+3], new Fibo(), 3 /10, "Hola", new Hola()); 
+	// a.b.c = !(1 + 2 * 3 != -10 + 2) || a / 4 % -+-5 < 5;	
 }
 
 /* CORRECTO: SEMANTICO - DECLARACIONES */
