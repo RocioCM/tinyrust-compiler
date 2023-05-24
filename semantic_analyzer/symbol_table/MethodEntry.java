@@ -19,6 +19,17 @@ public class MethodEntry implements TableElement {
 
 	private TableList<VariableEntry> blockVariables;
 
+	public MethodEntry(String name, boolean isStatic, int position, Type returnType, Location loc) {
+		// Inicialización por defecto.
+		this.name = name;
+		this.position = position;
+		this.isStatic = isStatic;
+		this.returnType = returnType;
+		this.arguments = new TableList<ArgumentEntry>();
+		this.blockVariables = new TableList<VariableEntry>();
+		this.locationDecl = loc;
+	}
+
 	public MethodEntry(String name, boolean isStatic, int position, Location loc) {
 		// Inicialización por defecto.
 		this.name = name;

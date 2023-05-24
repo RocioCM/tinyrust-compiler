@@ -31,7 +31,7 @@ public abstract class ExpressionNode implements Node {
 					"SE ESPERABA QUE LA EXPRESION TUVIERA UN TIPO RESUELTO PARA ESTE MOMENTO, PERO SU TIPO ES null.");
 		}
 		if (expectedResolveType != null
-				&& !resolveType.equals(expectedResolveType)) {
+				&& !resolveType.equals(expectedResolveType) && !ts.isSubclass(resolveType, expectedResolveType)) {
 			throw new UnmatchedTypeError(loc, expectedResolveType, resolveType);
 		}
 	}

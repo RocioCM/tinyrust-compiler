@@ -9,6 +9,7 @@ import error.semantic.declarations.ConsolidationError;
 import error.semantic.declarations.DuplicatedEntityIdError;
 import error.semantic.declarations.IllegalSelfDeclarationError;
 import error.semantic.declarations.MultipleConstructorsError;
+import semantic_analyzer.types.ClassType;
 import semantic_analyzer.types.Type;
 import util.Json;
 
@@ -26,7 +27,7 @@ public class ClassEntry implements TableElement {
 	public ClassEntry(String name, Location loc) {
 		this.name = name;
 		this.locationDecl = loc;
-		this.constructor = new ConstructorEntry(false, loc);
+		this.constructor = new ConstructorEntry(false, new ClassType(name), loc);
 		this.methods = new TableList<MethodEntry>();
 		this.attributes = new TableList<AttributeEntry>();
 	}
@@ -88,7 +89,7 @@ public class ClassEntry implements TableElement {
 			throw new MultipleConstructorsError(loc);
 		}
 
-		ConstructorEntry constructor = new ConstructorEntry(true, loc);
+		ConstructorEntry constructor = new ConstructorEntry(true, new ClassType(name), loc);
 		this.constructor = constructor;
 		return constructor;
 	}

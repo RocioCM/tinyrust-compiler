@@ -95,6 +95,7 @@ public abstract class MethodCallNode extends ExpressionNode {
         }
 
         super.setResolveType(resolveType);
+        super.validateType(ts);
     }
 
     /**

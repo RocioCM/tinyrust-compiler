@@ -25,7 +25,8 @@ public class AbstractSyntaxTree implements Node {
 	@Override
 	public void validate(SymbolTable ts) throws ASTError {
 		if (!ts.isConsolidated()) {
-			throw new ASTError(0, 0, "SOLO SE PUEDE VALIDAR EL AST LUEGO DE CONSOLIDAR LA TABLA DE SIMBOLOS.");
+			throw new InternalError(new Location(-1, -1),
+					"SOLO SE PUEDE VALIDAR EL AST LUEGO DE CONSOLIDAR LA TABLA DE SIMBOLOS.");
 		}
 		classes.validate(ts);
 	}

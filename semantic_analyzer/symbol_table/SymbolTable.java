@@ -157,6 +157,32 @@ public class SymbolTable implements TableElement {
 	}
 
 	/**
+	 * Dados dos tipos de datos o clases, valida si la primera es una subclase de la
+	 * segunda.
+	 * 
+	 * @return true si la primer clase es igual o es una subclase de la segunda,
+	 *         false en el caso contrario.
+	 */
+	public boolean isSubclass(Type subclass, Type superclass) {
+		Boolean isSub = subclass.equals(superclass); // Con toda probabilidad esto es false.
+
+		// Se sube por el árbol de clases desde la subclase hasta hallar la superclase o
+		// hasta llegar a la clase base Object.
+		String className = subclass.type();
+		while (!className.equals("Object") && !isSub) {
+			if (className.equals(superclass.type())) {
+				// Se encontró la superclase en el árbol.
+				isSub = true;
+			} else {
+				// Subir en el arbol de clases.
+				className = classes.get(className).extendsFrom();
+			}
+		}
+
+		return isSub;
+	}
+
+	/**
 	 * Dado el identificador de una variable, busca la entidad dentro del método
 	 * actual o como atributo de la clase actual.
 	 * 
@@ -168,9 +194,10 @@ public class SymbolTable implements TableElement {
 	 */
 	public Type getVariableType(String name) throws InternalError {
 		Type varClass = null;
-		if (name.equals("self")) {
+		if (name.equals("self") && !currentClass.name().equals("main")) {
 			// Devolver la clase actual si se busca la variable self.
 			varClass = new ClassType(currentClass.name());
+
 		} else {
 			// Buscar la variable dentro del método.
 			VariableEntry var = currentMethod().getVariable(name);
@@ -188,10 +215,6 @@ public class SymbolTable implements TableElement {
 			}
 		}
 		return varClass;
-	}
-
-	public MethodEntry getMethod(String name) {
-		return null;
 	}
 
 	/**

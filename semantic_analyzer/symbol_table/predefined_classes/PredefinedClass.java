@@ -6,14 +6,16 @@ import error.semantic.SemanticalError;
 import error.semantic.declarations.DuplicatedEntityIdError;
 import error.semantic.declarations.IllegalSelfDeclarationError;
 import semantic_analyzer.symbol_table.ClassEntry;
+import semantic_analyzer.symbol_table.ConstructorEntry;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.MethodEntry;
 import semantic_analyzer.symbol_table.TableList;
+import semantic_analyzer.types.ClassType;
 import semantic_analyzer.types.Type;
 
 public abstract class PredefinedClass extends ClassEntry {
 	public PredefinedClass(String name) {
-		super(name, false, null, new Location(-1, -1));
+		super(name, false, new ConstructorEntry(false, new ClassType(name), new Location(-1, -1)), new Location(-1, -1));
 	}
 
 	protected void addMethod(String name, boolean isStatic) throws SemanticalError {
