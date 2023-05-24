@@ -1,19 +1,8 @@
-class Derivada : Base {
+class Derivada  {
 	I32: x;
-	fn m2(Str: a) -> void {
-	}
-}
-
-class Base {
-	pub Str: s;
-	I32: a;
-	fn m1() -> void {
-	}
+	Array Bool: y;
 }
 
 fn main() {
-	Base: b1;
-	b1 = new Derivada();
-	(b1.m1());
+	(new Derivada().y[0]); // Atributo privado.
 }
-/* CORRECTO: SEMANTICO - DECLARACIONES */

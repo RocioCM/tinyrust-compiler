@@ -27,4 +27,8 @@ public class AttributeEntry extends VariableEntry {
 		json.addAttr("tipo", type);
 		return json.toString();
 	}
+
+	public boolean isPublic() {
+		return isPublic;
+	}
 }

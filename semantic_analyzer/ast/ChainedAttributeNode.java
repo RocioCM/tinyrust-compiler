@@ -40,6 +40,17 @@ public class ChainedAttributeNode extends ChainedAccessNode {
                     + accessedClass.name() + ", PERO LA CLASE NO POSEE TAL ATRIBUTO.");
         }
 
+        // Validar que no se accedan atributos privados de otras clases.
+        try {
+            if (!attrEntry.isPublic() && !accessedClass.name().equals(ts.currentClass().name())) {
+                // Si el atributo es privado, no se puede acceder desde una clase distinta.
+                throw new ASTError(loc, "EL CAMPO " + super.accessedEntity() + " DE LA CLASE "
+                        + accessedClass.name() + " NO ES VISIBLE EN ESTE CONTEXTO PORQUE ES PRIVADO.");
+            }
+        } catch (error.semantic.declarations.InternalError e) {
+            throw new InternalError(loc, e.getMessage());
+        }
+
         if (super.chainedAccess() != null) {
             // Recursivo: resolver y validar el encadenado si existe.
             ClassEntry attrClass = ts.getClass(attrEntry.type().type());

@@ -1,6 +1,7 @@
 package semantic_analyzer.ast;
 
 import error.semantic.sentences.ASTError;
+import error.semantic.sentences.InternalError;
 import error.semantic.sentences.NotFoundError;
 import semantic_analyzer.symbol_table.AttributeEntry;
 import semantic_analyzer.symbol_table.ClassEntry;
@@ -37,6 +38,17 @@ public class ChainedArrayNode extends ChainedAccessNode {
         if (attrEntry == null) {
             throw new NotFoundError(loc, "SE INTENTO ACCEDER AL ATRIBUTO " + super.accessedEntity() + " DE LA CLASE "
                     + accessedClass.name() + ", PERO LA CLASE NO POSEE TAL ATRIBUTO.");
+        }
+
+        // Validar que no se accedan atributos privados de otras clases.
+        try {
+            if (!attrEntry.isPublic() && !accessedClass.name().equals(ts.currentClass().name())) {
+                // Si el atributo es privado, no se puede acceder desde una clase distinta.
+                throw new ASTError(loc, "EL CAMPO " + super.accessedEntity() + " DE LA CLASE "
+                        + accessedClass.name() + " NO ES VISIBLE EN ESTE CONTEXTO PORQUE ES PRIVADO.");
+            }
+        } catch (error.semantic.declarations.InternalError e) {
+            throw new InternalError(loc, e.getMessage());
         }
 
         // Validar que el atributo es de tipo arreglo y que el índice es de tipo I32.
