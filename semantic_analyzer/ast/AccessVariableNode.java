@@ -11,6 +11,7 @@ import util.Json;
 public class AccessVariableNode extends AccessNode {
 	private String identifier;
 	private ChainedAccessNode chainedAccess;
+	private Boolean mandatoryChain = false;
 
 	public AccessVariableNode(String identifier, Location loc) {
 		super(loc);
@@ -22,6 +23,13 @@ public class AccessVariableNode extends AccessNode {
 		super(loc);
 		this.identifier = identifier;
 		this.chainedAccess = chainedAccess;
+	}
+
+	public AccessVariableNode(String identifier, ChainedAccessNode chainedAccess, Boolean mandatoryChain, Location loc) {
+		super(loc);
+		this.identifier = identifier;
+		this.chainedAccess = chainedAccess;
+		this.mandatoryChain = mandatoryChain;
 	}
 
 	@Override
@@ -57,6 +65,13 @@ public class AccessVariableNode extends AccessNode {
 		if (varType == null) {
 			throw new ASTError(loc,
 					"SE INTENTO ACCEDER A LA VARIABLE " + identifier + " PERO NO ESTA DEFINIDA EN EL AMBITO ACTUAL.");
+		}
+
+		if (chainedAccess == null && mandatoryChain) {
+			// En caso de que sea obligatorio tener al menos un encadenado, pero no haya
+			// ninguno. Ejemplo: acceso self simple.
+			throw new ASTError(loc,
+					"NO SE PERMITE REASIGNAR EL IDENTIFICADOR \"self\", ESTE ES UNA REFERENCIA A LA CLASE ACTUAL.");
 		}
 
 		// Validar que el tipo de la variable es el esperado.

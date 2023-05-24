@@ -624,7 +624,7 @@ public class SyntacticAnalyzer {
 	private AccessVariableNode AsignacionSelfSimple() throws LexicalError, SyntacticalError {
 		Token nameToken = matchLexema("self"); // Si no matchea, este método arrojará la excepción.
 		ChainedAttributeNode chainNode = EncadenadoSimpleN();
-		return new AccessVariableNode(nameToken.getLexema(), chainNode, nameToken);
+		return new AccessVariableNode(nameToken.getLexema(), chainNode, true, nameToken);
 	}
 
 	private TreeList<ExpressionNode> ListaExpresiones() throws LexicalError, SyntacticalError {
