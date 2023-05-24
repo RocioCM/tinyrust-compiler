@@ -67,6 +67,15 @@ public class AccessVariableNode extends AccessNode {
 					"SE INTENTO ACCEDER A LA VARIABLE " + identifier + " PERO NO ESTA DEFINIDA EN EL AMBITO ACTUAL.");
 		}
 
+		// TODO: obtener el atributo en ts.getVariableType(identifier); y validar ahí.
+		// // Validar que no se accedan atributos privados heredados de otras clases.
+		// if (attrEntry.isInherited()) {
+		// // Si el atributo es privado, no se puede acceder desde una clase distinta.
+		// throw new ASTError(loc, "EL ATRIBUTO " + attrEntry.name() + " DE LA CLASE "
+		// + ts.currentClass().name() + " NO ES VISIBLE EN ESTE CONTEXTO PORQUE ES UN
+		// ATRIBUTO PRIVADO HEREDADO.");
+		// }
+
 		if (chainedAccess == null && mandatoryChain) {
 			// En caso de que sea obligatorio tener al menos un encadenado, pero no haya
 			// ninguno. Ejemplo: acceso self simple.
