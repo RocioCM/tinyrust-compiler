@@ -2,7 +2,9 @@ class Hola {}
 
 class Hola1 {
 	static fn hola() -> void {}
-	fn hola1() -> Array I32 {}
+	fn hola1() -> Array I32 {
+		// TODO: este bloque deberia tirar error porque no respeta el tipo de retorno.
+	}
 	static fn hola2() -> I32 {}
 	fn hola3() -> Hola {}
 } 
