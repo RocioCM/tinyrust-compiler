@@ -5,15 +5,13 @@ class Derivada : Base {
 }
 
 class Base {
-	pub Str: s;
-	I32: a;
-	fn m1() -> void {
+	pub Derivada: s;
+	Derivada: a;
+	fn m1() -> Base {
+		return self;
 	}
 }
 
 fn main() {
-	Base: b1;
-	b1 = new Derivada();
-	(b1.m1());
+	(new Base().s.m1().a.m1());
 }
-/* CORRECTO: SEMANTICO - DECLARACIONES */

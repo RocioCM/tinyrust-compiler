@@ -1,19 +1,21 @@
 class Derivada : Base {
 	I32: x;
 	fn m2(Str: a) -> void {
+		s = self;
+		b = self.s;
+		self.s = self.m1();
 	}
 }
 
 class Base {
-	pub Str: s;
-	I32: a;
-	fn m1() -> void {
+	pub Derivada: s;
+	pub Base: b;
+	pub I32: a;
+	fn m1() -> Base {
+		return self;
 	}
 }
 
 fn main() {
-	Base: b1;
-	b1 = new Derivada();
-	(b1.m1());
+	(new Base().s.m1().a + (new Base().a * 3 < 5));
 }
-/* CORRECTO: SEMANTICO - DECLARACIONES */

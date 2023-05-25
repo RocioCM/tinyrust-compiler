@@ -12,8 +12,5 @@ class Base {
 }
 
 fn main() {
-	Base: b1;
-	b1 = new Derivada();
-	(b1.m1());
+	(new Base().m1().a);
 }
-/* CORRECTO: SEMANTICO - DECLARACIONES */
