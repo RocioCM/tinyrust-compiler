@@ -16,7 +16,6 @@ public class MethodEntry implements TableElement {
 	private Type returnType;
 	private boolean isStatic = false;
 	private TableList<ArgumentEntry> arguments;
-
 	private TableList<VariableEntry> blockVariables;
 
 	public MethodEntry(String name, boolean isStatic, int position, Type returnType, Location loc) {
@@ -60,6 +59,7 @@ public class MethodEntry implements TableElement {
 		json.addAttr("static", isStatic);
 		json.addAttr("tipoRetorno", returnType);
 		json.addAttr("argumentosFormales", arguments);
+		json.addAttr("variablesBloque", blockVariables);
 		return json.toString();
 	}
 
