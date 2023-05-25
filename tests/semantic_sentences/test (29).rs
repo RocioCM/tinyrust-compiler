@@ -1,19 +1,9 @@
-class Derivada : Base {
-	I32: x;
-	fn m2(Str: a) -> void {
-	}
-}
-
-class Base {
-	pub Str: s;
-	I32: a;
-	fn m1() -> void {
+class Derivada {
+	static fn m1(Array I32: var) -> void {
+		var[0] = 1;
 	}
 }
 
 fn main() {
-	Base: b1;
-	b1 = new Derivada();
-	(b1.m1());
+	(Derivada.m1(new Bool[5]));
 }
-/* CORRECTO: SEMANTICO - DECLARACIONES */

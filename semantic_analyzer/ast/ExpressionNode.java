@@ -5,6 +5,7 @@ import error.semantic.sentences.InternalError;
 import error.semantic.sentences.UnmatchedTypeError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
+import semantic_analyzer.types.Array;
 import semantic_analyzer.types.Type;
 
 public abstract class ExpressionNode implements Node {
@@ -25,13 +26,25 @@ public abstract class ExpressionNode implements Node {
 		this.loc = loc;
 	}
 
+	/**
+	 * Valida que el tipo resuelto para la expresión coincide con el tipo esperado
+	 * para esta expresión dado su contexto. Si no hay un tipo esperado definido,
+	 * cualquier tipo resuelto es aceptado.
+	 * 
+	 * @param ts - Tabla de símbolos consolidada.
+	 * @throws ASTError - Si el tipo resuelto no coincide con el tipo esperado.
+	 */
 	public void validateType(SymbolTable ts) throws ASTError {
 		if (resolveType == null) {
 			throw new InternalError(loc,
 					"SE ESPERABA QUE LA EXPRESION TUVIERA UN TIPO RESUELTO PARA ESTE MOMENTO, PERO SU TIPO ES null.");
 		}
 		if (expectedResolveType != null
-				&& !resolveType.equals(expectedResolveType) && !ts.isSubclass(resolveType, expectedResolveType)) {
+				&& !resolveType.equals(expectedResolveType)
+				&& ((resolveType instanceof Array || !ts.isSubclass(resolveType, expectedResolveType)))) {
+			// Si el tipo no coincide porque es una subclase, no se lanza excepción.
+			// Si el tipo no coincide y es un arreglo, es porque el subtipo no
+			// coincide y sí se lanza excepción.
 			throw new UnmatchedTypeError(loc, expectedResolveType, resolveType);
 		}
 	}

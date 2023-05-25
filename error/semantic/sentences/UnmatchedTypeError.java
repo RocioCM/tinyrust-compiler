@@ -7,8 +7,8 @@ public class UnmatchedTypeError extends ASTError {
 
 	public UnmatchedTypeError(Location loc, Type expected, Type resolved) {
 		super(loc,
-				"SE ESPERABA UNA EXPRESION DE TIPO " + expected.type() + " PERO SE ENCONTRO UNA EXPRESION DE TIPO "
-						+ resolved.type());
+				"SE ESPERABA UNA EXPRESION DE TIPO " + expected.toJson() + " PERO SE ENCONTRO UNA EXPRESION DE TIPO "
+						+ resolved.toJson());
 	}
 
 }

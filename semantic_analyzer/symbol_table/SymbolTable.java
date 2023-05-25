@@ -164,12 +164,12 @@ public class SymbolTable implements TableElement {
 	 *         false en el caso contrario.
 	 */
 	public boolean isSubclass(Type subclass, Type superclass) {
-		Boolean isSub = subclass.equals(superclass); // Con toda probabilidad esto es false.
+		Boolean isSub = false;
 
 		// Se sube por el árbol de clases desde la subclase hasta hallar la superclase o
 		// hasta llegar a la clase base Object.
 		String className = subclass.type();
-		while (!className.equals("Object") && !isSub) {
+		while (!className.equals(null) && !isSub) {
 			if (className.equals(superclass.type())) {
 				// Se encontró la superclase en el árbol.
 				isSub = true;

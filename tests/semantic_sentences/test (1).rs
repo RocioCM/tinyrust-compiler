@@ -11,7 +11,7 @@ class Hola1 {
 
 class Hola2: Hola {
 	create () {}
-	I32: create, destroy;
+	pub Bool: create, destroy;
 	fn destroy(Str: n) -> void {}
 	fn hola3() -> Hola {}
 } 
@@ -22,7 +22,7 @@ class Fibo: Hola2 {
 }
 
 class Fibonacci: Fibo {
-	Hola: create2;
+	pub Hola2: create2;
 	Bool: destroy2;
 	I32: hola1, hola, chau;
 	Char: chaU2;
@@ -73,7 +73,8 @@ class Fibonacci: Fibo {
 fn main() {
 	Hola: a;
 	a = new Fibonacci(new Char[2+3], new Fibo(), 3 /10, "Hola", new Hola()); 
-	// a.b.c = !(1 + 2 * 3 != -10 + 2) || a / 4 % -+-5 < 5;	
+	a.holas = new Bool[3];
+	a.create2.destroy = !(1 + 2 * 3 != -10 + 2) || a / 4 % -+-5 < 5;	
 }
 
 /* CORRECTO: SEMANTICO - DECLARACIONES */
