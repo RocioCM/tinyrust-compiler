@@ -1,6 +1,7 @@
 package semantic_analyzer.ast;
 
 import error.semantic.sentences.ASTError;
+import error.semantic.sentences.InternalError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import util.Json;
@@ -25,16 +26,22 @@ public class AccessMethodNode extends MethodCallNode {
 
     @Override
     public void validate(SymbolTable ts) throws ASTError {
-        if (methodName() == "create") {
+        if (super.methodName() == "create") {
             throw new ASTError(loc,
                     "SE INTENTO ACCEDER EXPLICITAMENTE AL METODO create DE LA CLASE ACTUAL, ESTE METODO ES ACCESIBLE UNICAMENTE A TRAVES DEL CONSTRUCTOR DE LA CLASE.");
         }
 
-        // Validar que el método NO sea estático.
-        if (super.getMethod(ts).isStatic()) {
-            throw new ASTError(loc,
-                    "SE INTENTO INVOCAR DE MANERA DINAMICA AL METODO ESTATICO " + super.methodName()
-                            + " DE LA CLASE " + super.className());
+        // Validar que un método NO estático no sea invocado dentro de un método
+        // estático.
+        try {
+            if (ts.currentMethod().isStatic() && !super.getMethod(ts).isStatic()) {
+                throw new ASTError(loc,
+                        "SE INTENTO ACCEDER AL METODO NO ESTATICO " + super.methodName()
+                                + " DENTRO DEL METODO ESTATICO " + ts.currentMethod().name()
+                                + ". NO SE PERMITE ACCEDER A METODOS DINAMICOS DENTRO DE UN CONTEXTO ESTATICO.");
+            }
+        } catch (error.semantic.declarations.InternalError e) {
+            throw new InternalError(loc, e.getMessage());
         }
 
         super.validate(ts); // Validar que la llamada al método sea válida.

@@ -67,6 +67,25 @@ public class AccessVariableNode extends AccessNode {
 					"SE INTENTO ACCEDER A LA VARIABLE " + identifier + " PERO NO ESTA DEFINIDA EN EL AMBITO ACTUAL.");
 		}
 
+		if (chainedAccess == null && mandatoryChain) {
+			// En caso de que sea obligatorio tener al menos un encadenado, pero no haya
+			// ninguno. Ejemplo: acceso self simple.
+			throw new ASTError(loc,
+					"NO SE PERMITE REASIGNAR EL IDENTIFICADOR \"self\", ESTE ES UNA REFERENCIA A LA CLASE ACTUAL.");
+		}
+
+		// El acceso a self se trata de forma especial, ya que es una referencia.
+		if (identifier.equals("self")) {
+			try {
+				if (ts.currentMethod().isStatic()) {
+					throw new ASTError(loc,
+							"NO SE PERMITE ACCEDER A LA REFERENCIA \"self\" DENTRO DE UN METODO ESTATICO.");
+				}
+			} catch (error.semantic.declarations.InternalError e) {
+				throw new InternalError(loc, e.getMessage());
+			}
+		}
+
 		// TODO: obtener el atributo en ts.getVariableType(identifier); y validar ahí.
 		// // Validar que no se accedan atributos privados heredados de otras clases.
 		// if (attrEntry.isInherited()) {
@@ -75,13 +94,19 @@ public class AccessVariableNode extends AccessNode {
 		// + ts.currentClass().name() + " NO ES VISIBLE EN ESTE CONTEXTO PORQUE ES UN
 		// ATRIBUTO PRIVADO HEREDADO.");
 		// }
-
-		if (chainedAccess == null && mandatoryChain) {
-			// En caso de que sea obligatorio tener al menos un encadenado, pero no haya
-			// ninguno. Ejemplo: acceso self simple.
-			throw new ASTError(loc,
-					"NO SE PERMITE REASIGNAR EL IDENTIFICADOR \"self\", ESTE ES UNA REFERENCIA A LA CLASE ACTUAL.");
-		}
+		// TODO Validar que no se accede a un atributo (de instancia) en un método
+		// estático.
+		// try {
+		// if (ts.currentMethod().isStatic()) {
+		// throw new ASTError(loc,
+		// "SE INTENTO ACCEDER AL ATRIBUTO " + identifier
+		// + " DENTRO DEL METODO ESTATICO " + ts.currentMethod().name()
+		// + ". NO SE PERMITE ACCEDER A ATRIBUTOS DINAMICOS DENTRO DE UN CONTEXTO
+		// ESTATICO.");
+		// }
+		// } catch (error.semantic.declarations.InternalError e) {
+		// throw new InternalError(loc, e.getMessage());
+		// }
 
 		// Validar que el tipo de la variable es el esperado.
 		if (chainedAccess != null) {
