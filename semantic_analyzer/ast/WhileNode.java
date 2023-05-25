@@ -29,6 +29,9 @@ public class WhileNode extends SentenceNode {
 	public void validate(SymbolTable ts) throws ASTError {
 		condition.setExpectedResolveType(new Bool()); // Validar que el tipo de la condición sea booleano
 		condition.validate(ts);
+
+		block.setExpectedReturnType(super.expectedReturnType());
 		block.validate(ts); // Validar las sentencias del bloque.
+		super.setResolvedReturnType(block.resolvedReturnType()); // Para validar el retorno del método.
 	}
 }

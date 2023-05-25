@@ -33,10 +33,19 @@ public class IfElseNode extends SentenceNode {
 		// Validar que la condición sea una expresión booleana:
 		condition.setExpectedResolveType(new Bool());
 		condition.validate(ts);
+
 		// Validar las sentencias de cada bloque.
+		block.setExpectedReturnType(super.expectedReturnType());
 		block.validate(ts);
 		if (elseBlock != null) {
+			elseBlock.setExpectedReturnType(super.expectedReturnType());
 			elseBlock.validate(ts);
+
+			// Validar el retorno de ambos bloques.
+			if (block.resolvedReturnType() != null // El bloque if tiene un retorno.
+					&& block.resolvedReturnType().equals(elseBlock.resolvedReturnType())) {
+				super.setResolvedReturnType(block.resolvedReturnType());
+			}
 		}
 	}
 }

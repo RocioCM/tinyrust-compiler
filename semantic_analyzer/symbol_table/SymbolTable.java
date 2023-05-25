@@ -17,6 +17,7 @@ import semantic_analyzer.symbol_table.predefined_classes.Object;
 import semantic_analyzer.symbol_table.predefined_classes.Str;
 import semantic_analyzer.types.ClassType;
 import semantic_analyzer.types.Type;
+import semantic_analyzer.types.Void;
 import util.Json;
 
 public class SymbolTable implements TableElement {
@@ -166,16 +167,18 @@ public class SymbolTable implements TableElement {
 	public boolean isSubclass(Type subclass, Type superclass) {
 		Boolean isSub = false;
 
-		// Se sube por el árbol de clases desde la subclase hasta hallar la superclase o
-		// hasta llegar a la clase base Object.
-		String className = subclass.type();
-		while (!className.equals(null) && !isSub) {
-			if (className.equals(superclass.type())) {
-				// Se encontró la superclase en el árbol.
-				isSub = true;
-			} else {
-				// Subir en el arbol de clases.
-				className = classes.get(className).extendsFrom();
+		if (!subclass.equals(new Void())) { // Void no está en la TS.
+			// Se sube por el árbol de clases desde la subclase hasta hallar la superclase o
+			// hasta llegar a la clase base Object.
+			String className = subclass.type();
+			while (className != null && !isSub) {
+				if (className.equals(superclass.type())) {
+					// Se encontró la superclase en el árbol.
+					isSub = true;
+				} else {
+					// Subir en el arbol de clases.
+					className = classes.get(className).extendsFrom();
+				}
 			}
 		}
 

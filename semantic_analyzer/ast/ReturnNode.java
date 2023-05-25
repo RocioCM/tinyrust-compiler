@@ -1,10 +1,8 @@
 package semantic_analyzer.ast;
 
-import error.semantic.sentences.InternalError;
 import error.semantic.sentences.ASTError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
-import semantic_analyzer.types.Type;
 import util.Json;
 
 public class ReturnNode extends SentenceNode {
@@ -31,13 +29,11 @@ public class ReturnNode extends SentenceNode {
 	@Override
 	public void validate(SymbolTable ts) throws ASTError {
 		// Validar que el tipo de la expresión coincida con el de retorno del método.
-		try {
-			Type expectedType = ts.currentMethod().returnType();
-			returnValue.setExpectedResolveType(expectedType);
-		} catch (error.semantic.declarations.InternalError e) {
-			throw new InternalError(loc, e.getMessage());
-		}
+		returnValue.setExpectedResolveType(super.expectedReturnType());
 		returnValue.validate(ts);
 
+		// Si la validación de returnValue pasó, significa que el tipo resuelto es
+		// válido para el método.
+		super.setResolvedReturnType(super.expectedReturnType());
 	}
 }
