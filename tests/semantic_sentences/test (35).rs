@@ -9,7 +9,9 @@ class Ejemplo {
 			if (true) {
 				return 1;
 			}
+			// Falta return aca.
 		}
+		// o aca.
 	}
 }
 

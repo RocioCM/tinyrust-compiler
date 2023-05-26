@@ -1,13 +1,12 @@
 class Derivada : Base {
-	I32: x;
+	pub I32: x;
 	fn m2(Str: a) -> void {
 	}
 }
 
 class Base {
-	I32: x;
 	fn m1() -> void {
-		x.y = 10;
+		x.y = 10; // x es de la subclase
 	}
 }
 

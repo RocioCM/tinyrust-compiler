@@ -1,19 +1,14 @@
 class Clase {
 	fn metodo() -> I32 {
 		if (false) {
-			return 2;
+			if (false) {
+				return 3;
+			} else {while(true)(nil);}
+			// Deberia incluir un return dentro del else o en esta linea o afuera del if mas externo.
 		} else {
-			return 1;
-		}
-
-		if (false) {
-			return 3;
-		}
-
-		if (false) {
-			// Deberia incluir un return dentro del if.
-		} else {
-			return 1;
+			{if (false){
+				return 2;
+			}};
 		}
 	}
 }

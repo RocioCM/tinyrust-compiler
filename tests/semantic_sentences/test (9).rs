@@ -1,3 +1,3 @@
 fn main() {
-	if (12 || true) {} else {}
+	if (true || 12) {} else {}
 }

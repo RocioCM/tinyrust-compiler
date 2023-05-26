@@ -3,7 +3,7 @@ class Derivada : Base {
 	fn m2(Str: a) -> void {
 		s = self;
 		b = self.s;
-		self.s = self.m1();
+		self.s = self;
 	}
 }
 
@@ -12,6 +12,7 @@ class Base {
 	pub Base: b;
 	pub I32: a;
 	fn m1() -> Base {
+		self.b = s;
 		return self;
 	}
 }

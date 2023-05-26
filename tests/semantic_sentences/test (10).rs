@@ -1,5 +1,5 @@
 fn main() {
-	if (12 || true) {} else {
+	if (true) {} else {
 		return; // bien
 		return nil; // bien
 		return 12; // mal

@@ -11,6 +11,6 @@ class Base {
 	}
 }
 
-fn main() {
+fn main() { // TODO check this test outputs the right error.
 	(new Base().m1().a);
 }

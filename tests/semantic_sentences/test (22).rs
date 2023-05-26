@@ -1,5 +1,5 @@
 class Base {
-	I32: a;
+	pub I32: a;
 }
 
 class Derivada: Base {

@@ -80,7 +80,24 @@ class Fibonacci: Fibo {
 	static fn hola4() -> Array I32 {
 		return hola4();
 	}
-	static fn hola2(Array Str: hola, Hola2: chau, I32: hola33_12, Str: ho_la, Hola: hola21) -> void {}
+	static fn hola2(Array Str: hola, Hola2: chau, I32: hola33_12, Str: ho_la, Hola: hola21) -> I32 {
+		if (false) {
+			{
+				{return 1;};
+				{if (false){
+					return 2;
+				}};
+			}
+		} else {
+			return 1;
+		}
+
+		if (false) {
+			return 3;
+		}
+
+		if (true) {} else {return 5;}
+	}
 	pub Array Bool: holas, holaa, chau2;
 	create (Array Char: hola, Hola2: chau, I32: hola33_12, Str: ho_la, Hola: hola21) {
 		Bool: x;

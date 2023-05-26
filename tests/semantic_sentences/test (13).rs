@@ -2,7 +2,7 @@ class Clase {
 	fn metodo() -> I32 {
 		{
 			{
-				while (true) {
+				while (12 < 3 * 2) {
 					return; // mal, espera i32.
 				}
 			}
