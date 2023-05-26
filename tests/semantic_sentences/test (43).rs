@@ -1,19 +1,14 @@
 class Derivada : Base {
-	I32: x;
+	pub Array Bool: x;
 	fn m2(Str: a) -> void {
 	}
 }
 
 class Base {
-	pub Str: s;
-	I32: a;
-	fn m1() -> void {
-	}
 }
 
 fn main() {
-	Base: b1;
-	b1 = new Derivada();
-	(b1.m1());
+	Base a;
+	a = new Derivada();
+	a.x = new Bool[3]; // Error: No existe el atributo x en la clase Base, solo en la clase Derivada y no es accesible debido a que el tipo estatico de a es Base,
 }
-/* CORRECTO: SEMANTICO - DECLARACIONES */

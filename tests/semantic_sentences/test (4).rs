@@ -7,7 +7,7 @@ class Derivada : Base {
 class Base {
 	I32: x;
 	fn m1() -> void {
-		x.y = 10
+		x.y = 10;
 	}
 }
 

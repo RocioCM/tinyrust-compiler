@@ -26,7 +26,7 @@ public class AccessMethodNode extends MethodCallNode {
 
     @Override
     public void validate(SymbolTable ts) throws ASTError {
-        if (super.methodName() == "create") {
+        if (super.methodName().equals("create")) {
             throw new ASTError(loc,
                     "SE INTENTO ACCEDER EXPLICITAMENTE AL METODO create DE LA CLASE ACTUAL, ESTE METODO ES ACCESIBLE UNICAMENTE A TRAVES DEL CONSTRUCTOR DE LA CLASE.");
         }

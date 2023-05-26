@@ -1,19 +1,34 @@
-class Hola {} 
+class Hola {
+} 
 
 class Hola1 {
 	static fn hola() -> void {}
 	fn hola1() -> Array I32 {
-		// TODO: este bloque deberia tirar error porque no respeta el tipo de retorno.
+		return new I32[2];
+		if (false) {}
 	}
-	static fn hola2() -> I32 {}
-	fn hola3() -> Hola {}
+	static fn hola2() -> I32 {
+		if (true) {
+			return 1;
+		} else {
+			return 2;
+		}
+	}
+	fn hola3() -> Hola {
+		while (true) {
+			return new Hola();
+		}
+	}
 } 
 
 class Hola2: Hola {
 	create () {}
 	pub Bool: create, destroy;
 	fn destroy(Str: n) -> void {}
-	fn hola3() -> Hola {}
+	fn hola3() -> Hola {
+		while (true) {}
+		{{{return new Hola1().hola3();}} {{{{;}}}}}
+	}
 } 
 
 class Fibo: Hola2 {
@@ -36,7 +51,7 @@ class Fibonacci: Fibo {
 	fn destroy(Str: s) -> void {
 		Hola2: var;
 		var = new Fibo(); // Subclase
-		(IO.out_str("Hola"));
+		(IO.out_string("Hola"));
 		if (10<2) {};
 		if (true) {
 		} else if (false) {
@@ -56,25 +71,30 @@ class Fibonacci: Fibo {
 
 	fn hola1(Hola: hola, Hola: h) -> I32 {
 		Hola: chau, chau2, adios; Hola: hey;
-		Array I32: c;
-		return 12 / 0;
+		Array I32: create;
+		return create[12 / 0];
 	}
 	
 	pub Hola: test;
 
-	static fn hola4() -> Array I32 {}
-	static fn hola2(Array Str: hola, Hola2: chau, I32: hola33_12, Str: ho_la, Hola: hola21) -> Hola {}
+	static fn hola4() -> Array I32 {
+		return hola4();
+	}
+	static fn hola2(Array Str: hola, Hola2: chau, I32: hola33_12, Str: ho_la, Hola: hola21) -> void {}
 	pub Array Bool: holas, holaa, chau2;
 	create (Array Char: hola, Hola2: chau, I32: hola33_12, Str: ho_la, Hola: hola21) {
+		Bool: x;
+		x = ((1 + 2 * (5/ 7) % 10) < IO.in_i32()) || hola1(hola21, self) > self.hola1(hola21, self) && IO.in_str().length() != 10;
 	}
 }
 
 
 fn main() {
-	Hola: a;
+	Fibonacci: a;
+	Hola: b;
 	a = new Fibonacci(new Char[2+3], new Fibo(), 3 /10, "Hola", new Hola()); 
+	b = a;
 	a.holas = new Bool[3];
-	a.create2.destroy = !(1 + 2 * 3 != -10 + 2) || a / 4 % -+-5 < 5;	
+	a.create2.destroy = !(1 + 2 * 3 != -10 + 2) || a.hola2[2] / 4 % -+-5 < 5;	
 }
 
-/* CORRECTO: SEMANTICO - DECLARACIONES */

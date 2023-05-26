@@ -40,7 +40,7 @@ public abstract class ExpressionNode implements Node {
 					"SE ESPERABA QUE LA EXPRESION TUVIERA UN TIPO RESUELTO PARA ESTE MOMENTO, PERO SU TIPO ES null.");
 		}
 		if (expectedResolveType != null
-				&& !resolveType.equals(expectedResolveType)
+				&& !expectedResolveType.equals(resolveType)
 				&& ((resolveType instanceof Array || !ts.isSubclass(resolveType, expectedResolveType)))) {
 			// Si el tipo no coincide porque es una subclase, no se lanza excepción.
 			// Si el tipo no coincide y es un arreglo, es porque el subtipo no

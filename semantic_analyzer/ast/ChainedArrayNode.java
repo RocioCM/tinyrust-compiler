@@ -70,7 +70,7 @@ public class ChainedArrayNode extends ChainedAccessNode {
      */
     private void validate(SymbolTable ts, AttributeEntry attr, String className) throws ASTError {
         // Validar el tipo del atributo.
-        if (!attr.type().equals(new Array())) {
+        if (!new Array().equals(attr.type())) {
             throw new ASTError(loc,
                     "SE INTENTO ACCEDER A UN INDICE DEL ATRIBUTO " + super.accessedEntity() + " DE LA CLASE "
                             + className + ", PERO EL ATRIBUTO NO ES DE TIPO Array.");

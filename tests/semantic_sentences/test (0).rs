@@ -1,7 +1,7 @@
 class Fibonacci {
 	I32: suma;
 	I32: i,j;
-	fn sucesion_fib(I32: n)-> I32{
+	fn sucesion_fib(I32: n)-> void {
 		i=0; j=0; suma=0;
 		while (i<= n){
 			if (i==0){
@@ -27,14 +27,14 @@ class Fibonacci {
 		suma=0;
 	}
 	fn imprimo_numero(I32: num) -> void{
-		(IO.out_str("f_"));
+		(IO.out_string("f_"));
 		(IO.out_i32(num));
-		(IO.out_str("="));
+		(IO.out_string("="));
 	}
 	fn imprimo_sucesion(I32: s) -> void{
 		//"el valor es: ";
 		(IO.out_i32(s));
-		(IO.out_str("\n"));
+		(IO.out_string("\n"));
 	}
 }
 fn main(){
@@ -45,4 +45,3 @@ fn main(){
 	(fib.sucesion_fib(n));
 }
 
-/* CORRECTO: SEMANTICO - DECLARACIONES */

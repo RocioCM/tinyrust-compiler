@@ -30,7 +30,6 @@ class Fibonacci: Fibo {
 	fn destroy(Str: s) -> void {
 		create = someOtherDifferentStuff();
 		self = breakingChange();
-		// TODO: chequear que ninguna VARIABLE se llame self. ni create??
 	}
 
 	fn hola3() -> Hola {

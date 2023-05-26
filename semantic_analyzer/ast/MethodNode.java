@@ -46,8 +46,8 @@ public class MethodNode implements Node {
 				block.setExpectedReturnType(expectedReturnType);
 				block.validate(ts); // Se validan las sentencias del bloque.
 
-				// Se valida el tipo de retorno del bloque.
-				if (!expectedReturnType.equals(block.resolvedReturnType())) {
+				// Se valida el tipo de retorno del bloque. Excepto si es el constructor.
+				if (!name.equals("create") && !expectedReturnType.equals(block.resolvedReturnType())) {
 					// El bloque no retorna el tipo correcto en todas sus ramas.
 					throw new ASTError(loc, "EL METODO " + name + " DEBE RETORNAR UN VALOR DEL TIPO "
 							+ expectedReturnType.toJson() + " EN TODAS LAS RAMAS DEL BLOQUE.");

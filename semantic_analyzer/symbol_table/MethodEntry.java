@@ -104,7 +104,7 @@ public class MethodEntry implements TableElement {
 	 */
 	public void validate(TableList<ClassEntry> classes) throws ConsolidationError {
 		// 1. Validar el tipo de retorno.
-		if (returnType.type() != "void" && classes.get(returnType.type()) == null) {
+		if (!returnType.equals(new Void()) && classes.get(returnType.type()) == null) {
 			// Lanzar error si la clase de retorno no está declarada.
 			throw new ConsolidationError(locationDecl,
 					"LA CLASE DE RETORNO DEL METODO " + name + " ES DEL TIPO NO DECLARADO " + returnType);
