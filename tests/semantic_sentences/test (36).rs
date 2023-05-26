@@ -11,6 +11,6 @@ class Base {
 	}
 }
 
-fn main() { // TODO check this test outputs the right error.
-	(new Base().m1().a);
+fn main() {
+	(new Base().m1().a); // m1 retorna void, no se puede acceder "a".
 }

@@ -2,9 +2,12 @@ package semantic_analyzer.ast;
 
 import error.semantic.sentences.InternalError;
 import error.semantic.sentences.ASTError;
+import semantic_analyzer.symbol_table.AttributeEntry;
 import semantic_analyzer.symbol_table.ClassEntry;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
+import semantic_analyzer.symbol_table.VariableEntry;
+import semantic_analyzer.types.ClassType;
 import semantic_analyzer.types.Type;
 import util.Json;
 
@@ -54,17 +57,52 @@ public class AccessVariableNode extends AccessNode {
 	public void validate(SymbolTable ts) throws ASTError {
 		Type varType, resolvedType;
 
-		// Obtener la variable del contexto actual de la TS.
-		try {
-			varType = ts.getVariableType(identifier);
-		} catch (error.semantic.declarations.InternalError e) {
-			throw new InternalError(loc, e.getMessage());
-		}
+		// 1. Obtener el tipo de la variable.
+		if (identifier.equals("self")) {
+			// El acceso a self se trata de forma especial,
+			// ya que es una referencia no una variable.
+			try {
+				varType = new ClassType(ts.currentClass().name());
 
-		// Validar que la variable exista.
-		if (varType == null) {
-			throw new ASTError(loc,
-					"SE INTENTO ACCEDER A LA VARIABLE " + identifier + " PERO NO ESTA DEFINIDA EN EL AMBITO ACTUAL.");
+				// Validar que no se acceda self en un contexto estático.
+				if (ts.currentMethod().isStatic()) {
+					throw new ASTError(loc,
+							"NO SE PERMITE ACCEDER A LA REFERENCIA \"self\" DENTRO DE UN METODO ESTATICO.");
+				}
+			} catch (error.semantic.declarations.InternalError e) {
+				throw new InternalError(loc, e.getMessage());
+			}
+
+		} else {
+			// Si es una variable normal, se obtiene del contexto actual de la TS.
+			try {
+				VariableEntry var = ts.getVariable(identifier);
+
+				// Validar que la variable exista.
+				if (var == null) {
+					throw new ASTError(loc,
+							"SE INTENTO ACCEDER A LA VARIABLE " + identifier + " PERO NO ESTA DEFINIDA EN EL AMBITO ACTUAL.");
+				}
+
+				// Validar que no se accede a un atributo (de instancia) en un método estático.
+				if (ts.currentMethod().isStatic()) {
+					throw new ASTError(loc,
+							"SE INTENTO ACCEDER AL ATRIBUTO " + identifier
+									+ " DENTRO DEL METODO ESTATICO " + ts.currentMethod().name()
+									+ ". NO SE PERMITE ACCEDER A ATRIBUTOS DINAMICOS DENTRO DE UN CONTEXTO ESTATICO.");
+				}
+
+				// Validar que no se accedan atributos privados heredados de otras clases.
+				if (var instanceof AttributeEntry && ((AttributeEntry) (var)).isInherited()) {
+					throw new ASTError(loc, "EL ATRIBUTO " + var.name() + " DE LA CLASE "
+							+ ts.currentClass().name() + " NO ES VISIBLE EN ESTE CONTEXTO PORQUE ES UN ATRIBUTO PRIVADO HEREDADO.");
+				}
+
+				varType = var.type();
+
+			} catch (error.semantic.declarations.InternalError e) {
+				throw new InternalError(loc, e.getMessage());
+			}
 		}
 
 		if (chainedAccess == null && mandatoryChain) {
@@ -73,40 +111,6 @@ public class AccessVariableNode extends AccessNode {
 			throw new ASTError(loc,
 					"NO SE PERMITE REASIGNAR EL IDENTIFICADOR \"self\", ESTE ES UNA REFERENCIA A LA CLASE ACTUAL.");
 		}
-
-		// El acceso a self se trata de forma especial, ya que es una referencia.
-		if (identifier.equals("self")) {
-			try {
-				if (ts.currentMethod().isStatic()) {
-					throw new ASTError(loc,
-							"NO SE PERMITE ACCEDER A LA REFERENCIA \"self\" DENTRO DE UN METODO ESTATICO.");
-				}
-			} catch (error.semantic.declarations.InternalError e) {
-				throw new InternalError(loc, e.getMessage());
-			}
-		}
-
-		// TODO: obtener el atributo en ts.getVariableType(identifier); y validar ahí.
-		// // Validar que no se accedan atributos privados heredados de otras clases.
-		// if (attrEntry.isInherited()) {
-		// // Si el atributo es privado, no se puede acceder desde una clase distinta.
-		// throw new ASTError(loc, "EL ATRIBUTO " + attrEntry.name() + " DE LA CLASE "
-		// + ts.currentClass().name() + " NO ES VISIBLE EN ESTE CONTEXTO PORQUE ES UN
-		// ATRIBUTO PRIVADO HEREDADO.");
-		// }
-		// TODO Validar que no se accede a un atributo (de instancia) en un método
-		// estático.
-		// try {
-		// if (ts.currentMethod().isStatic()) {
-		// throw new ASTError(loc,
-		// "SE INTENTO ACCEDER AL ATRIBUTO " + identifier
-		// + " DENTRO DEL METODO ESTATICO " + ts.currentMethod().name()
-		// + ". NO SE PERMITE ACCEDER A ATRIBUTOS DINAMICOS DENTRO DE UN CONTEXTO
-		// ESTATICO.");
-		// }
-		// } catch (error.semantic.declarations.InternalError e) {
-		// throw new InternalError(loc, e.getMessage());
-		// }
 
 		// Validar que el tipo de la variable es el esperado.
 		if (chainedAccess != null) {

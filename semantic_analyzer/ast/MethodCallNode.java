@@ -11,6 +11,7 @@ import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.MethodEntry;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Type;
+import semantic_analyzer.types.Void;
 
 public abstract class MethodCallNode extends ExpressionNode {
     private String className; // Si es null indica que debe accederse a la clase actual.
@@ -81,6 +82,14 @@ public abstract class MethodCallNode extends ExpressionNode {
         // Validar el encadenado si existe.
         if (chainedAccess != null) {
             // Recursivo: resolver y validar el encadenado.
+
+            // Si el método retorna void, entonces no se puede encadenar nada.
+            if (methodEntry.returnType().equals(new Void())) {
+                throw new ASTError(loc, "EL METODO " + methodName
+                        + " NO RETORNA NINGUN VALOR, NO SE PUEDE ACCEDER A ENCADENADOS DE void.");
+            }
+
+            // Buscar la clase en la TS para validar el encadenado.
             ClassEntry returnTypeClass = ts.getClass(methodEntry.returnType().type());
             if (returnTypeClass == null) {
                 // La clase debería existir ya que la TS ya está validada y consolidada.
@@ -88,7 +97,10 @@ public abstract class MethodCallNode extends ExpressionNode {
                         "LA CLASE DE RETORNO DEL METODO " + methodName + " DE LA CLASE "
                                 + className + " NO EXISTE EN LA TS.");
             }
+
+            // Llamado recursivo.
             resolveType = chainedAccess.validateAndResolveType(ts, returnTypeClass);
+
         } else {
             // Si no hay encadenado, devolver el tipo de retorno del método.
             resolveType = methodEntry.returnType();

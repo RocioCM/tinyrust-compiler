@@ -15,7 +15,6 @@ import semantic_analyzer.symbol_table.predefined_classes.I32;
 import semantic_analyzer.symbol_table.predefined_classes.IO;
 import semantic_analyzer.symbol_table.predefined_classes.Object;
 import semantic_analyzer.symbol_table.predefined_classes.Str;
-import semantic_analyzer.types.ClassType;
 import semantic_analyzer.types.Type;
 import semantic_analyzer.types.Void;
 import util.Json;
@@ -195,29 +194,18 @@ public class SymbolTable implements TableElement {
 	 *         devuelve null.
 	 * @see - Validación de AST
 	 */
-	public Type getVariableType(String name) throws InternalError {
-		Type varClass = null;
-		if (name.equals("self") && !currentClass.name().equals("main")) {
-			// Devolver la clase actual si se busca la variable self.
-			varClass = new ClassType(currentClass.name());
+	public VariableEntry getVariable(String name) throws InternalError {
+		// 1. Buscar la variable dentro del método o como argumento.
+		VariableEntry var = currentMethod().getVariable(name);
 
-		} else {
-			// Buscar la variable dentro del método.
-			VariableEntry var = currentMethod().getVariable(name);
-			if (var != null) {
-				// Se encontró la variable en el bloque o como argumento del método.
-				varClass = var.type();
-			} else {
-				// Buscar la variable como atributo de la clase.
-				var = currentClass().attributes().get(name);
-				if (var != null) {
-					varClass = var.type();
-				}
-				// Si el nombre no se corresponde con ninguna variable, se retorna null y el
-				// invocador debe manejar el caso.
-			}
+		// 2. Buscar la variable como atributo de la clase.
+		if (var == null) {
+			var = currentClass().attributes().get(name);
 		}
-		return varClass;
+
+		// Si el nombre no se corresponde con ninguna variable, se retorna null y el
+		// invocador debe manejar el caso.
+		return var;
 	}
 
 	/**

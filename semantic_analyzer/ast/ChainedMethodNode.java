@@ -11,6 +11,7 @@ import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.MethodEntry;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Type;
+import semantic_analyzer.types.Void;
 import util.Json;
 
 public class ChainedMethodNode extends ChainedAccessNode {
@@ -47,6 +48,13 @@ public class ChainedMethodNode extends ChainedAccessNode {
 
 		if (super.chainedAccess() != null) {
 			// Recursivo: resolver y validar el encadenado si existe.
+
+			// Si el método retorna void, entonces no se puede encadenar nada.
+			if (methodEntry.returnType().equals(new Void())) {
+				throw new ASTError(loc, "EL METODO " + super.accessedEntity()
+						+ " NO RETORNA NINGUN VALOR, NO SE PUEDE ACCEDER A ENCADENADOS DE void.");
+			}
+
 			ClassEntry returnTypeClass = ts.getClass(methodEntry.returnType().type());
 			if (returnTypeClass == null) {
 				// La clase debería existir ya que la TS ya está validada y consolidada.
@@ -54,7 +62,10 @@ public class ChainedMethodNode extends ChainedAccessNode {
 						"LA CLASE DE RETORNO DEL METODO " + super.accessedEntity() + " DE LA CLASE "
 								+ accessedClass.name() + " NO EXISTE EN LA TS.");
 			}
+
+			// Llamado recursivo.
 			returnType = super.chainedAccess().validateAndResolveType(ts, returnTypeClass);
+
 		} else {
 			// Tope recursivo: devolver el tipo de retorno del método.
 			returnType = methodEntry.returnType();

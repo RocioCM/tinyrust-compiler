@@ -8,5 +8,5 @@ class Derivada : Base {
 	}
 }
 
-fn main() { // TODO check this test outputs the right error.
+fn main() {
 }
