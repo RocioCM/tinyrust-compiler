@@ -18,6 +18,7 @@ public class ConstructorCallNode extends MethodCallNode {
 		json.addAttr("tipo", "llamada constructor");
 		json.addAttr("clase", super.className());
 		json.addAttr("argumentos", super.arguments());
+		json.addAttr("tipo-resuelto", super.resolveType());
 		json.addAttr("encadenado", super.chainedAccess());
 		return json.toString();
 	}

@@ -23,6 +23,7 @@ public class AccessArrayNode extends AccessNode {
 		json.addAttr("tipo", "acceso arreglo simple");
 		json.addAttr("nombre-variable", variable);
 		json.addAttr("expresion-acceso", indexAccess);
+		json.addAttr("tipo-resuelto", super.resolveType());
 		return json.toString();
 	}
 

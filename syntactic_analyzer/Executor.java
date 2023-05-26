@@ -14,8 +14,7 @@ import util.Logger;
  * excepciones que se puedan lanzar durante el proceso.
  */
 public class Executor {
-	public void run(String inputPath) {
-		String outputPath = null; // En esta etapa toda la salida se hace por pantalla.
+	public void run(String inputPath, String outputPath) {
 		String basePath = inputPath.substring(0, inputPath.length() - 3); // Eliminar extensión .rs
 
 		try {

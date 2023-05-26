@@ -24,6 +24,7 @@ public class ConstructorArrayCallNode extends ExpressionNode {
 		json.addAttr("tipo", "llamada constructor arreglo");
 		json.addAttr("tipo-dato", elementsType);
 		json.addAttr("tamaño", size);
+		json.addAttr("tipo-resuelto", super.resolveType());
 		return json.toString();
 	}
 

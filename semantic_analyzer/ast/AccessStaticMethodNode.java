@@ -18,6 +18,7 @@ public class AccessStaticMethodNode extends MethodCallNode {
 		json.addAttr("clase", super.className());
 		json.addAttr("metodo", super.methodName());
 		json.addAttr("argumentos", super.arguments());
+		json.addAttr("tipo-resuelto", super.resolveType());
 		json.addAttr("encadenado", super.chainedAccess());
 		return json.toString();
 	}
