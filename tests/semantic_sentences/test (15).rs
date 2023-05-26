@@ -1,0 +1,11 @@
+class Clase {
+	fn metodo() -> I32 {
+		return 9110000 % nil;
+	}
+}
+
+fn main() {
+}
+/* ERROR: SEMANTICO - SENTENCIAS
+| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
+| LINEA 3 | COLUMNA 20 | SE ESPERABA UNA EXPRESION DE TIPO "I32" PERO SE ENCONTRO UNA EXPRESION DE TIPO "void" | */

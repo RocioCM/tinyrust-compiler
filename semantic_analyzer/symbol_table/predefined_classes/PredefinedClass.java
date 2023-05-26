@@ -2,24 +2,28 @@ package semantic_analyzer.symbol_table.predefined_classes;
 
 import java.util.HashMap;
 
-import error.semantic.DuplicatedEntityIdError;
-import error.semantic.IllegalSelfDeclarationError;
 import error.semantic.SemanticalError;
+import error.semantic.declarations.DuplicatedEntityIdError;
+import error.semantic.declarations.IllegalSelfDeclarationError;
 import semantic_analyzer.symbol_table.ClassEntry;
+import semantic_analyzer.symbol_table.ConstructorEntry;
+import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.MethodEntry;
-import semantic_analyzer.symbol_table.types.Type;
+import semantic_analyzer.symbol_table.TableList;
+import semantic_analyzer.types.ClassType;
+import semantic_analyzer.types.Type;
 
 public abstract class PredefinedClass extends ClassEntry {
 	public PredefinedClass(String name) {
-		super(name, false, null);
+		super(name, false, new ConstructorEntry(false, new ClassType(name), new Location(-1, -1)), new Location(-1, -1));
 	}
 
 	protected void addMethod(String name, boolean isStatic) throws SemanticalError {
-		super.addMethod(name, isStatic, -1, -1);
+		super.addMethod(name, isStatic, null);
 	}
 
 	protected void addMethod(String name, boolean isStatic, Type returnType) throws SemanticalError {
-		MethodEntry method = super.addMethod(name, isStatic, -1, -1);
+		MethodEntry method = super.addMethod(name, isStatic, new Location(-1, -1));
 		method.setReturnType(returnType);
 	}
 
@@ -27,12 +31,12 @@ public abstract class PredefinedClass extends ClassEntry {
 			throws IllegalSelfDeclarationError, DuplicatedEntityIdError {
 		MethodEntry method = super.methods().get(methodName);
 		if (method != null) {
-			method.addArgument(argName, argType);
+			method.addArgument(argName, argType, new Location(-1, -1));
 		}
 	}
 
 	@Override
-	public void consolidate(HashMap<String, ClassEntry> classesTree) {
+	public void consolidate(TableList<ClassEntry> classes, HashMap<String, ClassEntry> classesTree) {
 		// Tope recursivo de consolidación. Todas las clases predefinidas se consideran
 		// ya consolidadas, dado que heredan de Object o es la clase Object en si misma.
 		super.setConsolidated(true);

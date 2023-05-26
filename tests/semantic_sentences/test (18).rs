@@ -1,0 +1,7 @@
+fn main() {
+	Array Bool: hola;
+	hola = new I32[5]; // Tipo incorrecto de array.
+}
+/* ERROR: SEMANTICO - SENTENCIAS
+| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
+| LINEA 3 | COLUMNA 16 | SE ESPERABA UNA EXPRESION DE TIPO "Array-Bool" PERO SE ENCONTRO UNA EXPRESION DE TIPO "Array-I32" | */

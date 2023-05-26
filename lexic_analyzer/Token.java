@@ -1,21 +1,20 @@
 package lexic_analyzer;
 
+import semantic_analyzer.symbol_table.Location;
+
 /**
  * La clase Token representa cualquier token del lenguaje TinyRust+.
  * Registra el número de linea y columna de comienzo del token, identificador de
  * tipo de token y su lexema.
  */
-public class Token {
+public class Token extends Location {
 	private String token;
 	private String lexema;
-	private int line;
-	private int col;
 
 	public Token(String token, String lexema, int line, int col) {
+		super(line, col);
 		this.token = token;
 		this.lexema = lexema;
-		this.line = line;
-		this.col = col;
 	}
 
 	/**
@@ -35,27 +34,11 @@ public class Token {
 		return this.lexema;
 	}
 
-	public int getLine() {
-		return this.line;
-	}
-
-	public int getCol() {
-		return this.col;
-	}
-
 	public void setToken(String token) {
 		this.token = token;
 	}
 
 	public void setLexema(String lexema) {
 		this.lexema = lexema;
-	}
-
-	public void setLine(int line) {
-		this.line = line;
-	}
-
-	public void setCol(int col) {
-		this.col = col;
 	}
 }

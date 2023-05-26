@@ -1,11 +1,11 @@
 package semantic_analyzer.symbol_table.predefined_classes;
 
-import error.semantic.InternalError;
-import semantic_analyzer.symbol_table.types.Array;
-import semantic_analyzer.symbol_table.types.Bool;
-import semantic_analyzer.symbol_table.types.I32;
-import semantic_analyzer.symbol_table.types.Str;
-import semantic_analyzer.symbol_table.types.Char;
+import error.semantic.declarations.InternalError;
+import semantic_analyzer.types.Array;
+import semantic_analyzer.types.Bool;
+import semantic_analyzer.types.Char;
+import semantic_analyzer.types.I32;
+import semantic_analyzer.types.Str;
 
 public class IO extends PredefinedClass {
 

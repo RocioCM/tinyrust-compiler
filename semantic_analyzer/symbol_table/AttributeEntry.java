@@ -1,23 +1,24 @@
 package semantic_analyzer.symbol_table;
 
-import semantic_analyzer.symbol_table.types.Type;
+import semantic_analyzer.types.Type;
 import util.Json;
 
 public class AttributeEntry extends VariableEntry {
 	private boolean isPublic = false;
-	private Location locationDecl;
+	private boolean isInherited = false;
 
-	public AttributeEntry(String name, Type type, int position, boolean isPublic, int line, int col) {
+	public AttributeEntry(String name, Type type, int position, boolean isPublic, Location loc) {
 		// Inicialización por defecto.
-		super(name, type, position);
+		super(name, type, position, loc);
 		this.isPublic = isPublic;
-		locationDecl = new Location(line, col);
+		this.isInherited = false;
 	}
 
 	public AttributeEntry(AttributeEntry attr, int position) {
 		// Clonar instancia.
-		super(attr.name, attr.type, position);
+		super(attr.name, attr.type, position, attr.locationDecl);
 		this.isPublic = attr.isPublic;
+		this.isInherited = true;
 	}
 
 	@Override
@@ -30,7 +31,11 @@ public class AttributeEntry extends VariableEntry {
 		return json.toString();
 	}
 
-	public Location locationDecl() {
-		return locationDecl;
+	public boolean isPublic() {
+		return isPublic;
+	}
+
+	public boolean isInherited() {
+		return isInherited;
 	}
 }

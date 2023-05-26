@@ -1,0 +1,15 @@
+class Base {
+	I32: a;
+}
+
+class Derivada : Base {
+	fn m2() -> void {
+		a = 3;
+	}
+}
+
+fn main() {
+}
+/* ERROR: SEMANTICO - SENTENCIAS
+| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
+| LINEA 7 | COLUMNA 3 | EL ATRIBUTO a DE LA CLASE Derivada NO ES VISIBLE EN ESTE CONTEXTO PORQUE ES UN ATRIBUTO PRIVADO HEREDADO. | */

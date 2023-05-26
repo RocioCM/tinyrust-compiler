@@ -1,0 +1,13 @@
+class Derivada {
+	I32: x;
+	fn m2(Str: a) -> void {
+		self = self;
+	}
+}
+
+
+fn main() {
+}
+/* ERROR: SEMANTICO - SENTENCIAS
+| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
+| LINEA 4 | COLUMNA 3 | NO SE PERMITE REASIGNAR EL IDENTIFICADOR "self", ESTE ES UNA REFERENCIA A LA CLASE ACTUAL. | */

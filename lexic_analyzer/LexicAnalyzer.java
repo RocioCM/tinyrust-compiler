@@ -381,7 +381,8 @@ public class LexicAnalyzer {
 	 * @throws BadIdentifierError    si el literal entero está unido a un
 	 *                               identificador.
 	 */
-	private boolean matchIntLiteral(char initialChar, Token token) throws InvalidCharacterError, BadIdentifierError {
+	private boolean matchIntLiteral(char initialChar, Token token)
+			throws InvalidLiteralError, InvalidCharacterError, BadIdentifierError {
 		char nextChar = readWithoutConsumeChar();
 		// Consume todos los dígitos contiguos que encuentra.
 		while (isDigit(nextChar)) {
@@ -400,6 +401,13 @@ public class LexicAnalyzer {
 			}
 			throw new BadIdentifierError(token.getLine(), token.getCol(), token.getLexema());
 		} else {
+			try {
+				// Validar que el número está en el rango de los I32 (32 bits: -2^31...2^31-1)
+				Integer.parseInt(token.getLexema());
+			} catch (NumberFormatException e) {
+				throw new InvalidLiteralError(token.getLine(), token.getCol(),
+						"EL LITERAL NUMERICO EXCEDE EL RANGO DE LOS NUMEROS ENTEROS DE 32 BITS.");
+			}
 			// Se identifica el token como literal entero exitosamente.
 			token.setToken("lit_int");
 		}

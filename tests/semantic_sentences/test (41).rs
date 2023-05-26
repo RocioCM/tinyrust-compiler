@@ -1,0 +1,11 @@
+class Base {
+	fn m1() -> void {
+		(self.create());
+	}
+}
+
+fn main() {
+}
+/* ERROR: SEMANTICO - SENTENCIAS
+| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |
+| LINEA 3 | COLUMNA 9 | SE INTENTO ACCEDER AL METODO create DE LA CLASE Base, PERO LA CLASE NO IMPLEMENTA TAL METODO. | */

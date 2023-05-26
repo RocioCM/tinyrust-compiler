@@ -193,13 +193,64 @@ public class Logger {
 	}
 
 	/**
+	 * Imprime un mensaje de éxito en del análisis semántico de sentencias.
+	 * 
+	 * @param outputPath (Opcional) - Ruta del archivo de salida
+	 */
+	public static void semanticSentSuccess(String outputPath) {
+		if (outputPath == null) { // No se especificó archivo de salida.
+			// Se escribe el output en la terminal.
+			System.out.println("CORRECTO: SEMANTICO - SENTENCIAS");
+		} else {
+			try {
+				// Se abre el archivo de salida especificado y se escribe el output.
+				FileWriter fileWriter = getOutputFileWriter(outputPath, true);
+				fileWriter.write("CORRECTO: SEMANTICO - SENTENCIAS\n");
+				fileWriter.close();
+
+			} catch (IOException e) {
+				System.out.println("ERROR IO: NO SE PUDO ESCRIBIR EN EL ARCHIVO DE SALIDA.");
+				System.exit(1);
+			}
+		}
+	}
+
+	/**
+	 * Muestra con formato un error generado durante el análisis semántico de
+	 * sentencias.
+	 * 
+	 * @param error      - error generado por el analizador semántico
+	 * @param outputPath (Opcional) - Ruta del archivo de salida
+	 */
+	public static void semanticSentError(SemanticalError error, String outputPath) {
+		if (outputPath == null) { // No se especificó archivo de salida.
+			// Se escribe el output en la terminal.
+			System.out.println("ERROR: SEMANTICO - SENTENCIAS");
+			System.out.println("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |");
+			System.out.println(error.getMessage());
+		} else {
+			try {
+				// Se abre el archivo de salida especificado y se escribe el output.
+				FileWriter fileWriter = getOutputFileWriter(outputPath, true);
+				fileWriter.write("ERROR: SEMANTICO - SENTENCIAS\n");
+				fileWriter.write("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |\n");
+				fileWriter.write(error.getMessage() + "\n");
+				fileWriter.close();
+			} catch (IOException e) {
+				System.out.println("ERROR IO: NO SE PUDO ESCRIBIR EN EL ARCHIVO DE SALIDA.");
+				System.exit(1);
+			}
+		}
+	}
+
+	/**
 	 * Guarda en el archivo destino el JSON generado a partir de la Tabla de
-	 * Símbolos.
+	 * Símbolos o AST.
 	 * 
 	 * @param json       - Cadena en formato JSON
 	 * @param outputPath - Ruta del archivo de salida.
 	 */
-	public static void createTsJson(String json, String outputPath) {
+	public static void createJson(String json, String outputPath) {
 		try {
 			// Se abre el archivo de salida especificado y se escribe el output.
 			FileWriter fileWriter = getOutputFileWriter(outputPath, false);
@@ -223,11 +274,7 @@ public class Logger {
 	 */
 	private static FileWriter getOutputFileWriter(String outputPath, boolean append) throws IOException {
 		File outputFile = new File(outputPath);
-		if (outputFile.createNewFile()) {
-			System.out.println("ARCHIVO DE SALIDA CREADO EN " + outputPath);
-		} else {
-			System.out.println("ARCHIVO DE SALIDA ESCRITO EN " + outputPath);
-		}
+		outputFile.createNewFile(); // Crear el archivo de salida si aun no existe.
 
 		// Si el archivo ya existe, se escribe el output al final del archivo existente.
 		return new FileWriter(outputPath, append);
