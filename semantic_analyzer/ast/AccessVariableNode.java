@@ -64,6 +64,12 @@ public class AccessVariableNode extends AccessNode {
 			try {
 				varType = new ClassType(ts.currentClass().name());
 
+				// Validar que no se acceda self en el método main.
+				if (ts.currentClass().name().equals("main")) {
+					throw new ASTError(loc,
+							"SE INTENTO ACCEDER A LA VARIABLE " + identifier + " PERO NO ESTA DEFINIDA EN EL AMBITO ACTUAL.");
+				}
+
 				// Validar que no se acceda self en un contexto estático.
 				if (ts.currentMethod().isStatic()) {
 					throw new ASTError(loc,
@@ -84,18 +90,21 @@ public class AccessVariableNode extends AccessNode {
 							"SE INTENTO ACCEDER A LA VARIABLE " + identifier + " PERO NO ESTA DEFINIDA EN EL AMBITO ACTUAL.");
 				}
 
-				// Validar que no se accede a un atributo (de instancia) en un método estático.
-				if (ts.currentMethod().isStatic()) {
-					throw new ASTError(loc,
-							"SE INTENTO ACCEDER AL ATRIBUTO " + identifier
-									+ " DENTRO DEL METODO ESTATICO " + ts.currentMethod().name()
-									+ ". NO SE PERMITE ACCEDER A ATRIBUTOS DINAMICOS DENTRO DE UN CONTEXTO ESTATICO.");
-				}
+				if (var instanceof AttributeEntry) {
+					// Validar que no se accede a un atributo (de instancia) en un método estático.
+					if (ts.currentMethod().isStatic()) {
+						throw new ASTError(loc,
+								"SE INTENTO ACCEDER AL ATRIBUTO " + identifier
+										+ " DENTRO DEL METODO ESTATICO " + ts.currentMethod().name()
+										+ ". NO SE PERMITE ACCEDER A ATRIBUTOS DINAMICOS DENTRO DE UN CONTEXTO ESTATICO.");
+					}
 
-				// Validar que no se accedan atributos privados heredados de otras clases.
-				if (var instanceof AttributeEntry && ((AttributeEntry) (var)).isInherited()) {
-					throw new ASTError(loc, "EL ATRIBUTO " + var.name() + " DE LA CLASE "
-							+ ts.currentClass().name() + " NO ES VISIBLE EN ESTE CONTEXTO PORQUE ES UN ATRIBUTO PRIVADO HEREDADO.");
+					// Validar que no se accedan atributos privados heredados de otras clases.
+					AttributeEntry attr = (AttributeEntry) (var);
+					if (attr.isInherited() && !attr.isPublic()) {
+						throw new ASTError(loc, "EL ATRIBUTO " + var.name() + " DE LA CLASE "
+								+ ts.currentClass().name() + " NO ES VISIBLE EN ESTE CONTEXTO PORQUE ES UN ATRIBUTO PRIVADO HEREDADO.");
+					}
 				}
 
 				varType = var.type();

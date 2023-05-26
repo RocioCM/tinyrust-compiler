@@ -45,3 +45,4 @@ fn main(){
 	(fib.sucesion_fib(n));
 }
 
+// CORRECTO: SEMANTICO - SENTENCIAS

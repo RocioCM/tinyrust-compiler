@@ -115,3 +115,4 @@ fn main() {
 	a.create2.destroy = !(1 + 2 * 3 != -10 + 2) || a.hola2[2] / 4 % -+-5 < 5;	
 }
 
+// CORRECTO: SEMANTICO - SENTENCIAS

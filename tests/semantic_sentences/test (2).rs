@@ -15,4 +15,4 @@ fn main() {
 	Base: b1;
 	b1 = new Derivada();
 	(b1.m1());
-}
+}// CORRECTO: SEMANTICO - SENTENCIAS
