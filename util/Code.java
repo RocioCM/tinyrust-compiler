@@ -12,7 +12,7 @@ public class Code {
 	}
 
 	public void addLine(String line) {
-		code.concat("\n" + line);
+		this.code = code + line + "\n";
 	}
 
 	public String getCode() {
