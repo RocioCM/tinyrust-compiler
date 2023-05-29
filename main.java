@@ -1,6 +1,7 @@
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import syntactic_analyzer.Executor;
+import semantic_analyzer.Executor;
 
 /**
  * Punto de entrada del compilador de TinyRust+.
@@ -9,10 +10,11 @@ import syntactic_analyzer.Executor;
  */
 class TinyRustCompiler {
 	public static void main(String[] args) {
+		String inputPath = null, outputPath = null;
+
 		try {
 			// Se lee la ruta del archivo de los argumentos de entrada.
-			String inputPath = args[0];
-			String outputPath = null;
+			inputPath = args[0];
 
 			if (!inputPath.endsWith(".rs")) {
 				throw new IOException("ERROR: EL ARCHIVO DE ENTRADA DEBE TENER EXTENSION .rs");
@@ -28,6 +30,9 @@ class TinyRustCompiler {
 
 		} catch (ArrayIndexOutOfBoundsException e) {
 			System.out.println("ERROR: DEBE ESPECIFICARSE UN ARCHIVO DE ENTRADA EN EL COMANDO.");
+			System.exit(1);
+		} catch (FileNotFoundException error) {
+			System.out.println("\nERROR IO: NO SE ENCONTRO UN ARCHIVO DE ENTRADA EN LA RUTA " + inputPath);
 			System.exit(1);
 		} catch (IOException e) {
 			System.out.println(e.getMessage());

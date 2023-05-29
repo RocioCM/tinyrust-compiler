@@ -30,7 +30,7 @@ public class Executor {
 			System.out.println("\nERROR IO: NO SE ENCONTRO UN ARCHIVO DE ENTRADA EN LA RUTA " + inputPath);
 			System.exit(1);
 		} catch (LexicalError error) {
-			Logger.lexicError(error, outputPath);
+			Logger.error("LEXICO", error, outputPath);
 			System.exit(1);
 		}
 	}
