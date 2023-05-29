@@ -15,4 +15,6 @@ public interface Node extends TableElement {
 	 *                  inválidos.
 	 */
 	public void validate(SymbolTable ts) throws ASTError;
+
+	public String generateCode();
 }

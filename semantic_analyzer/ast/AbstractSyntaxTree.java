@@ -4,6 +4,7 @@ import error.semantic.sentences.InternalError;
 import error.semantic.sentences.ASTError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
+import util.Code;
 import util.Json;
 
 public class AbstractSyntaxTree implements Node {
@@ -29,6 +30,14 @@ public class AbstractSyntaxTree implements Node {
 					"SOLO SE PUEDE VALIDAR EL AST LUEGO DE CONSOLIDAR LA TABLA DE SIMBOLOS.");
 		}
 		classes.validate(ts);
+	}
+
+	@Override
+	public String generateCode() {
+		Code asm = new Code(classes.generateCode());
+		asm.addLine("li $v0, 10 # 10 is the exit syscall.");
+		asm.addLine("syscall # execute the syscall.");
+		return asm.getCode();
 	}
 
 	public void addMain(BlockNode block, Location loc) throws InternalError {
