@@ -4,5 +4,6 @@
 # Output files
 *.o
 *.j
+*.asm
 *.ts.json
 *.ast.json
