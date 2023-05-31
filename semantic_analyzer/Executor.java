@@ -40,7 +40,7 @@ public class Executor {
 			// Generar los archivos de salida:
 			String tsJson = ts.toJson();
 			String astJson = ast.toJson();
-			String asmCode = ast.generateCode();
+			String asmCode = ast.generateCode(ts);
 
 			Logger.success("SEMANTICO - SENTENCIAS", outputPath);
 

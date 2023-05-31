@@ -4,6 +4,7 @@ import error.semantic.sentences.ASTError;
 import error.semantic.sentences.InternalError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
+import util.Code;
 import util.Json;
 
 public class ClassNode implements Node {
@@ -45,5 +46,14 @@ public class ClassNode implements Node {
 		} catch (error.semantic.declarations.InternalError e) {
 			throw new InternalError(loc, e.getMessage());
 		}
+	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		Code code = new Code();
+		// TODO 1: agregar clase al CIR?
+
+		methods.generateCode(ts); // Registrar el código de cada método.
+		return code.getCode();
 	}
 }

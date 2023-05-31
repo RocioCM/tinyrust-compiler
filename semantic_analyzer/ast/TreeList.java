@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import error.semantic.sentences.ASTError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
+import util.Code;
 import util.Json;
 
 public class TreeList<T extends Node> extends LinkedList<T> implements Node {
@@ -57,5 +58,16 @@ public class TreeList<T extends Node> extends LinkedList<T> implements Node {
 			// Validar cada nodo de la lista.
 			nodesIter.next().validate(ts);
 		}
+	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		Code code = new Code();
+		Iterator<T> nodesIter = this.iterator();
+		while (nodesIter.hasNext()) {
+			// Generar código para cada nodo de la lista.
+			code.add(nodesIter.next().generateCode(ts));
+		}
+		return code.getCode();
 	}
 }

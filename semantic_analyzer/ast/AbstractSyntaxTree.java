@@ -33,8 +33,8 @@ public class AbstractSyntaxTree implements Node {
 	}
 
 	@Override
-	public String generateCode() {
-		Code asm = new Code(classes.generateCode());
+	public String generateCode(SymbolTable ts) throws ASTError {
+		Code asm = new Code(classes.generateCode(ts));
 		asm.addLine("li $v0, 10 # 10 is the exit syscall.");
 		asm.addLine("syscall # execute the syscall.");
 		return asm.getCode();
