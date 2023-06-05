@@ -56,7 +56,7 @@ public class AbstractSyntaxTree implements Node {
 		if (classes != null) {
 			classes.add(new ClassNode("Object", new TreeList<MethodNode>()));
 			classes.add(new ClassNode("IO", new TreeList<MethodNode>(
-					new MethodNode("out_string"),
+					new MethodNode("out_str"),
 					new MethodNode("out_i32"),
 					new MethodNode("out_bool"),
 					new MethodNode("out_char"),
