@@ -1,4 +1,4 @@
-package semantic_analyzer;
+package semantic_analyzer.symbol_table;
 
 import java.io.FileNotFoundException;
 
@@ -7,16 +7,15 @@ import error.semantic.SemanticalError;
 import error.semantic.sentences.ASTError;
 import error.syntactic.SyntacticalError;
 import semantic_analyzer.ast.AbstractSyntaxTree;
-import semantic_analyzer.symbol_table.SymbolTable;
 import syntactic_analyzer.SyntacticAnalyzer;
 import util.Logger;
 
 /**
- * Ejecutor que instancia la TS, el AST y el analizador sintáctico e inicia su
+ * Ejecutor que instancia la TS y el analizador sintáctico e inicia su
  * ejecución.
  * Muestra los resultados de la ejecución, interceptando todas las posibles
  * excepciones que se puedan lanzar durante el proceso.
- * Genera los archivos de salida esperados si el análisis es exitoso.
+ * Genera el archivo de salida JSON de la TS si el análisis es exitoso.
  */
 public class Executor {
 	public void run(String inputPath, String outputPath) throws FileNotFoundException {
@@ -25,7 +24,7 @@ public class Executor {
 		try {
 			// Inicializar el analizador y las estructuras semánticas intermedias:
 			SymbolTable ts = new SymbolTable(inputPath);
-			AbstractSyntaxTree ast = new AbstractSyntaxTree(inputPath);
+			AbstractSyntaxTree ast = new AbstractSyntaxTree(inputPath); // Se instancia pero no es validado.
 			SyntacticAnalyzer syntactic = new SyntacticAnalyzer(inputPath, ts, ast);
 
 			// Primera pasada de análisis:
@@ -35,18 +34,13 @@ public class Executor {
 
 			// Segunda pasada de análisis semántico:
 			ts.consolidate();
-			ast.validate(ts);
 
-			// Generar los archivos de salida:
+			// Generar el archivo de salida:
 			String tsJson = ts.toJson();
-			String astJson = ast.toJson();
-			String asmCode = ast.generateCode();
 
-			Logger.success("SEMANTICO - SENTENCIAS", outputPath);
+			Logger.success("SEMANTICO - DECLARACIONES", outputPath);
 
 			Logger.createFile(tsJson, basePath.concat(".ts.json"));
-			Logger.createFile(astJson, basePath.concat(".ast.json"));
-			Logger.createFile(asmCode, basePath.concat(".asm"));
 
 		} catch (LexicalError error) {
 			Logger.error("LEXICO", error, outputPath);

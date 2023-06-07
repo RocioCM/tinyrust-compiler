@@ -1,7 +1,7 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import semantic_analyzer.Executor;
+import code_generator.Executor;
 
 /**
  * Punto de entrada del compilador de TinyRust+.
