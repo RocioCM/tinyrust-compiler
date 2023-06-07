@@ -5,6 +5,7 @@ import error.semantic.sentences.InternalError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Type;
+import util.Code;
 import util.Json;
 
 public class MethodNode implements Node {
@@ -58,5 +59,25 @@ public class MethodNode implements Node {
 		} catch (error.semantic.declarations.InternalError e) {
 			throw new InternalError(loc, e.getMessage());
 		}
+	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		Code code = new Code();
+		String label = "metodo-nombreclase-" + name; // TODO: retrieve class name from ts.
+		int arguments = 2; // TODO: retrieve number of args from ts.
+
+		code.addLine(label, ": move $fp $sp   # Save current stack pointer in frame pointer.");
+		code.pushToStackFrom("$ra"); // Save return address to stack.
+
+		code.add(block.generateCode(ts));
+
+		code.popFromStackTo("$ra");
+		code.addLine("addiu $sp $sp ", String.valueOf((arguments + 1) * 4),
+				"   # Restore stack to its state before this function's execution.");
+		code.addLine("lw $fp 0($sp)   # Restore caller frame pointer from stack.");
+		code.addLine("jr $ra   # Jump to next instruction address after function call.");
+
+		return code.getCode();
 	}
 }
