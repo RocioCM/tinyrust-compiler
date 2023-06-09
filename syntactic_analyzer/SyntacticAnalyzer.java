@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import error.lexic.LexicalError;
 import error.semantic.SemanticalError;
-import error.semantic.declarations.InternalError;
+import error.semantic.sentences.InternalError;
 import error.syntactic.SyntacticalError;
 import error.syntactic.UnexpectedToken;
 import lexic_analyzer.LexicAnalyzer;

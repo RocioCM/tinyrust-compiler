@@ -44,6 +44,12 @@ public abstract class ChainedAccessNode implements Node {
 
 	abstract protected Type validateAndResolveType(SymbolTable ts, ClassEntry accessedClass) throws ASTError;
 
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+	}
+
 	public void setChainedAccess(ChainedAccessNode chainedAccess) {
 		this.chainedAccess = chainedAccess;
 	}

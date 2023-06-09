@@ -21,6 +21,7 @@ public class TreeList<T extends Node> extends LinkedList<T> implements Node {
 		this.loc = loc;
 	}
 
+	@SafeVarargs
 	public TreeList(T... items) {
 		super(Arrays.asList(items)); // Agregar a la lista los items predefinidos.
 		this.loc = new Location(-1, -1); // En caso de que la ubicación no sea relevante.

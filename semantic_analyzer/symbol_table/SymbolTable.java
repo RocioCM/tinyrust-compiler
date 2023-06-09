@@ -6,7 +6,7 @@ import java.util.Iterator;
 import error.semantic.SemanticalError;
 import error.semantic.declarations.ConsolidationError;
 import error.semantic.declarations.DuplicatedEntityIdError;
-import error.semantic.declarations.InternalError;
+import error.semantic.sentences.InternalError;
 import error.semantic.declarations.MultipleConstructorsError;
 import semantic_analyzer.symbol_table.predefined_classes.Array;
 import semantic_analyzer.symbol_table.predefined_classes.Bool;

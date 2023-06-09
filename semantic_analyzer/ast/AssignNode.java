@@ -31,4 +31,10 @@ public class AssignNode extends SentenceNode {
 		rightSide.setExpectedResolveType(leftSide.resolveType());
 		rightSide.validate(ts);
 	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+	}
 }

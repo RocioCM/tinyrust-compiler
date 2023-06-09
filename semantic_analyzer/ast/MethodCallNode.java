@@ -36,13 +36,8 @@ public abstract class MethodCallNode extends ExpressionNode {
 
         // Obtener la entrada de la TS de la clase accedida.
         if (className == null) {
-            try {
-                classEntry = ts.currentClass();
-                className = classEntry.name();
-            } catch (error.semantic.declarations.InternalError e) {
-                // Lanzar un error si no existe una clase actual.
-                throw new InternalError(loc, e.getMessage());
-            }
+            classEntry = ts.currentClass();
+            className = classEntry.name();
         } else {
             classEntry = ts.getClass(className);
             if (classEntry == null) {

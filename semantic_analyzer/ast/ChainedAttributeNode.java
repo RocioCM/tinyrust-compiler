@@ -41,17 +41,13 @@ public class ChainedAttributeNode extends ChainedAccessNode {
         }
 
         // Validar que no se accedan atributos privados de otras clases.
-        try {
-            if (!attrEntry.isPublic() // El atributo es privado.
-                    && (attrEntry.isInherited() // Es heredado (no visible) o...
-                            || !accessedClass.name().equals(ts.currentClass().name())) // La clase no es la actual.
-            ) {
-                // Si el atributo es privado, no se puede acceder desde una clase distinta.
-                throw new ASTError(loc, "EL CAMPO " + super.accessedEntity() + " DE LA CLASE "
-                        + accessedClass.name() + " NO ES VISIBLE EN ESTE CONTEXTO PORQUE ES PRIVADO.");
-            }
-        } catch (error.semantic.declarations.InternalError e) {
-            throw new InternalError(loc, e.getMessage());
+        if (!attrEntry.isPublic() // El atributo es privado.
+                && (attrEntry.isInherited() // Es heredado (no visible) o...
+                        || !accessedClass.name().equals(ts.currentClass().name())) // La clase no es la actual.
+        ) {
+            // Si el atributo es privado, no se puede acceder desde una clase distinta.
+            throw new ASTError(loc, "EL CAMPO " + super.accessedEntity() + " DE LA CLASE "
+                    + accessedClass.name() + " NO ES VISIBLE EN ESTE CONTEXTO PORQUE ES PRIVADO.");
         }
 
         if (super.chainedAccess() != null) {

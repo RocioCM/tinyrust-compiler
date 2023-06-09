@@ -1,6 +1,8 @@
 package semantic_analyzer.ast;
 
+import error.semantic.sentences.ASTError;
 import semantic_analyzer.symbol_table.Location;
+import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Type;
 
 public abstract class SentenceNode implements Node {
@@ -12,6 +14,14 @@ public abstract class SentenceNode implements Node {
         this.loc = loc;
         this.returnType = null;
         this.expectedReturnType = null;
+    }
+
+    @Override
+    public String generateCode(SymbolTable ts) throws ASTError {
+        return "";
+        // TODO Auto-generated method stub
+        // throw new UnsupportedOperationException("Unimplemented method
+        // 'generateCode'");
     }
 
     public Type resolvedReturnType() {

@@ -1,7 +1,6 @@
 package semantic_analyzer.ast;
 
 import error.semantic.sentences.ASTError;
-import error.semantic.sentences.InternalError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import util.Code;
@@ -36,24 +35,22 @@ public class ClassNode implements Node {
 
 	@Override
 	public void validate(SymbolTable ts) throws ASTError {
-		try {
-			// Se actualiza el estado de la TS para poder acceder a los métodos y atributos
-			// de la clase.
-			ts.startClass(name);
-			methods.validate(ts); // Validar cada método de la clase.
-			ts.endClass();
+		// Se actualiza el estado de la TS para poder acceder a los métodos y atributos
+		// de la clase.
+		ts.startClass(name);
+		methods.validate(ts); // Validar cada método de la clase.
+		ts.endClass();
 
-		} catch (error.semantic.declarations.InternalError e) {
-			throw new InternalError(loc, e.getMessage());
-		}
 	}
 
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
 		Code code = new Code();
-		// TODO 1: agregar clase al CIR?
+		// TODO 1: agregar la VT de la clase?
+		// Generarla con los labels de los métodos de la TS, porque en los métodos del
+		// AST faltan los métodos heredados.
 
-		methods.generateCode(ts); // Registrar el código de cada método.
+		code.add(methods.generateCode(ts)); // Registrar el código de cada método.
 		return code.getCode();
 	}
 }

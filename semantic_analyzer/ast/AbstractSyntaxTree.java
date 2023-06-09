@@ -34,7 +34,17 @@ public class AbstractSyntaxTree implements Node {
 
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
-		Code asm = new Code(classes.generateCode(ts));
+		Code asm = new Code();
+		asm.addLine(".data"); /// Hardcoded. Fun fact: can't repeat data labels. So just override their value
+													/// when needed.
+		asm.addLine("mensaje1: .asciiz \"Introduzca un entero y apriete enter: ... \\n\""); /// Hardcoded
+
+		asm.addLine(".text");
+		asm.addLine(".globl main");
+		asm.addLine("jal main # start ejecution in main function.");
+
+		asm.add(classes.generateCode(ts));
+
 		asm.addLine("li $v0, 10 # 10 is the exit syscall.");
 		asm.addLine("syscall # execute the syscall.");
 		return asm.getCode();
@@ -56,23 +66,23 @@ public class AbstractSyntaxTree implements Node {
 		if (classes != null) {
 			classes.add(new ClassNode("Object", new TreeList<MethodNode>()));
 			classes.add(new ClassNode("IO", new TreeList<MethodNode>(
-					new MethodNode("out_str"),
-					new MethodNode("out_i32"),
-					new MethodNode("out_bool"),
-					new MethodNode("out_char"),
-					new MethodNode("out_array"),
-					new MethodNode("in_str"),
-					new MethodNode("in_i32"),
-					new MethodNode("in_bool"),
-					new MethodNode("in_Char"))));
+					new MethodNode("out_str", ""), /// TODO complete this ASM code from some constants or utils.
+					new MethodNode("out_i32", ""),
+					new MethodNode("out_bool", ""),
+					new MethodNode("out_char", ""),
+					new MethodNode("out_array", ""),
+					new MethodNode("in_str", ""),
+					new MethodNode("in_i32", ""),
+					new MethodNode("in_bool", ""),
+					new MethodNode("in_Char", ""))));
 			classes.add(new ClassNode("I32", new TreeList<MethodNode>()));
 			classes.add(new ClassNode("Str", new TreeList<MethodNode>(
-					new MethodNode("length"),
-					new MethodNode("concat"),
-					new MethodNode("substr"))));
+					new MethodNode("length", ""),
+					new MethodNode("concat", ""),
+					new MethodNode("substr", ""))));
 			classes.add(new ClassNode("Char", new TreeList<MethodNode>()));
 			classes.add(new ClassNode("Bool", new TreeList<MethodNode>()));
-			classes.add(new ClassNode("Array", new TreeList<MethodNode>(new MethodNode("length"))));
+			classes.add(new ClassNode("Array", new TreeList<MethodNode>(new MethodNode("length", ""))));
 		} else {
 			throw new InternalError(new Location(-1, -1),
 					"SE INTENTO REGISTRAR LAS CLASES PREDEFINIDAS EN EL AST PERO LA LISTA DE CLASES ES NULA.");

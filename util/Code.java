@@ -30,7 +30,7 @@ public class Code {
 	 */
 	public void pushToStackFrom(String reg) {
 		addLine("sw " + reg + " 0($sp)   # add data to stack top.");
-		addLine("addiu $sp $sp -4)   # move stack pointer down.");
+		addLine("addiu $sp $sp -4   # move stack pointer down.");
 	}
 
 	/**
@@ -41,7 +41,7 @@ public class Code {
 	 */
 	public void popFromStackTo(String reg) {
 		addLine("lw " + reg + " 4($sp)   # retrieve data from stack top.");
-		addLine("addiu $sp $sp 4)   # move stack pointer up.");
+		addLine("addiu $sp $sp 4   # move stack pointer up.");
 	}
 
 	public String getCode() {
