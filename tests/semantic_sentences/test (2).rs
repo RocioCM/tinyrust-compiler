@@ -11,8 +11,15 @@ class Base {
 	}
 }
 
+class Base_hola__chau: Base {
+	fn m_1() -> void {
+	}
+}
+
 fn main() {
-	Base: b1;
-	b1 = new Derivada();
-	(b1.m1());
+	(1+2);
+
+	// Base: b1;
+	// b1 = new Derivada();
+	// (b1.m1());
 }// CORRECTO: SEMANTICO - SENTENCIAS

@@ -54,8 +54,10 @@ public abstract class ExpressionNode implements Node {
 
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
+		return "";
 		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+		// throw new UnsupportedOperationException("Unimplemented method
+		// 'generateCode'");
 	}
 
 	public Type resolveType() {

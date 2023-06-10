@@ -78,13 +78,15 @@ public class MethodNode implements Node {
 		if (mocked) {
 			code.add(mockedCode);
 		} else {
-			code.addLine(".text");
-			code.addLine("li $v0, 4 #Mensaje para que sepa que debe introducir un entero");
-			code.addLine("la $a0, mensaje1");
-			code.addLine("syscall");
+			// code.addLine(".text"); /// Hardcoded
+			// code.addLine("li $v0, 4 #Mensaje para que sepa que debe introducir un
+			// entero");
+			// code.addLine("la $a0, mensaje1");
+			// code.addLine("syscall");
 
 			// TODO next: code expression logic and test expressions work here in main
 			// method.
+			code.add(block.generateCode(ts));
 		}
 
 		code.popFromStackTo("$ra"); // Get return address from stack.

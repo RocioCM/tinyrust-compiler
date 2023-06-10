@@ -35,9 +35,14 @@ public class AbstractSyntaxTree implements Node {
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
 		Code asm = new Code();
-		asm.addLine(".data"); /// Hardcoded. Fun fact: can't repeat data labels. So just override their value
-													/// when needed.
-		asm.addLine("mensaje1: .asciiz \"Introduzca un entero y apriete enter: ... \\n\""); /// Hardcoded
+		asm.addLine(".data"); // Mensajes amigables para input.
+		asm.addLine("msg_in_str: .asciiz \"Introduzca texto y presione Enter:... \\n\"");
+		asm.addLine("msg_in_char: .asciiz \"Introduzca un caracter y presione Enter:... \\n\"");
+		asm.addLine("msg_in_int: .asciiz \"Introduzca un entero y presione Enter:... \\n\"");
+		asm.addLine("msg_in_bool: .asciiz \"Introduzca true o false y presione Enter:... \\n\"");
+
+		/// Fun fact: can't repeat data labels. So just override their value
+		/// when needed.
 
 		asm.addLine(".text");
 		asm.addLine(".globl main");

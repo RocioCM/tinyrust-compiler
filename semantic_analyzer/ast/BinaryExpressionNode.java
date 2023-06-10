@@ -6,6 +6,7 @@ import error.semantic.sentences.UnmatchedTypeError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Type;
+import util.Code;
 import util.Json;
 
 public class BinaryExpressionNode extends ExpressionNode {
@@ -67,6 +68,19 @@ public class BinaryExpressionNode extends ExpressionNode {
 			throw new UnmatchedTypeError(loc, leftOperand.resolveType(), rightOperand.resolveType());
 		}
 		super.validateType(ts); // Validar que esta expresión sea del tipo esperado para su contexto.
+	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		Code code = new Code();
+		code.add(rightOperand.generateCode(ts));
+		code.pushToStackFrom("$a0"); // Save right operand value to Stack.
+
+		code.add(leftOperand.generateCode(ts));
+		code.popFromStackTo("$t1"); // Move right operand from stack to temporal register.
+		code.addLine("add $a0 $a0 $t1    # Sum up the two expressions results.");
+
+		return code.getCode();
 	}
 
 	public void setLeftOperand(ExpressionNode leftOperand) {

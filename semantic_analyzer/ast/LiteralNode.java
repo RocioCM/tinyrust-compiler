@@ -9,6 +9,7 @@ import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Bool;
 import semantic_analyzer.types.Void;
+import util.Code;
 import util.Json;
 
 public class LiteralNode extends ExpressionNode {
@@ -54,6 +55,13 @@ public class LiteralNode extends ExpressionNode {
 		json.addAttr("valor", String.valueOf(literal.value()));
 		json.addAttr("tipo-dato", super.resolveType());
 		return json.toString();
+	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		Code code = new Code();
+		code.addLine("li $a0, ", literal.value().toString(), "    # Save literal to accumulator.");
+		return code.getCode();
 	}
 
 }
