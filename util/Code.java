@@ -59,6 +59,8 @@ public class Code {
 		popFromStackTo("$a0"); // Retrieve output value from stack.
 		addLine("li $v0, ", String.valueOf(syscallId), "    # Load output syscall id.");
 		addLine("syscall    # Print out value.");
+		/// TODO: add breakline after each print. Remove the hardcoded new lines from
+		/// constants.
 		return this;
 	}
 
@@ -123,8 +125,8 @@ public class Code {
 		// Error messages
 		addLine("msg_div_error: .asciiz \"Error de ejecucion: division por cero. \\n\"");
 		// Boolean values labels
-		addLine("bool_true: .asciiz \"true\"");
-		addLine("bool_false: .asciiz \"false\"");
+		addLine("bool_true: .asciiz \"true\\n\"");
+		addLine("bool_false: .asciiz \"false\\n\"");
 		// Reserved spaces
 		addLine("temp_i32: .word 0");
 		addLine(".text    # End data segment.");

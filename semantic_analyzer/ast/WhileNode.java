@@ -4,6 +4,7 @@ import error.semantic.sentences.ASTError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Bool;
+import util.Code;
 import util.Json;
 
 public class WhileNode extends SentenceNode {
@@ -41,10 +42,18 @@ public class WhileNode extends SentenceNode {
 
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
-		String whileLabel = "while-" + id;
-		String finallyLabel = "after-while-" + id;
+		Code code = new Code();
+		String whileLabel = "while_" + id;
+		String finallyLabel = "after_while_" + id;
 
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+		code.addLine(whileLabel, ":");
+		code.addLine(condition.generateCode(ts));
+		code.addLine("beq $a0, $0, ", finallyLabel, "    # WHILE: stop looping if condition is false.");
+
+		code.add(block.generateCode(ts));
+		code.addLine("j ", whileLabel, "    # Jump back to loop start.");
+
+		code.addLine(finallyLabel, ":");
+		return code.getCode();
 	}
 }

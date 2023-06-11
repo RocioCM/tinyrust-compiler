@@ -4,6 +4,7 @@ import error.semantic.sentences.ASTError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Bool;
+import util.Code;
 import util.Json;
 
 public class IfElseNode extends SentenceNode {
@@ -55,11 +56,23 @@ public class IfElseNode extends SentenceNode {
 
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
-		String ifLabel = "if-" + id;
-		String elseLabel = "else-" + id;
-		String finallyLabel = "after-if-" + id;
+		Code code = new Code(condition.generateCode(ts));
+		String elseLabel = "else_" + id;
+		String finallyLabel = "after_else_" + id;
 
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+		code.addLine("beq $a0, $0, ", elseLabel, "    # IF: branch to else block if condition is false.");
+
+		// If block
+		code.add(block.generateCode(ts));
+		code.addLine("j ", finallyLabel, "    # Jump to code after else block.");
+
+		// Else block
+		code.addLine(elseLabel, ":");
+		if (elseBlock != null) {
+			code.add(elseBlock.generateCode(ts));
+		}
+
+		code.addLine(finallyLabel, ":");
+		return code.getCode();
 	}
 }
