@@ -73,11 +73,11 @@ public class BinaryExpressionNode extends ExpressionNode {
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
 		Code code = new Code();
-		code.add(rightOperand.generateCode(ts));
-		code.pushToStackFrom("$a0"); // Save right operand value to Stack.
-
 		code.add(leftOperand.generateCode(ts));
-		code.popFromStackTo("$t1"); // Move right operand from stack to temporal register.
+		code.pushToStackFrom("$a0"); // Save left operand value to Stack.
+
+		code.add(rightOperand.generateCode(ts));
+		code.popFromStackTo("$t1"); // Move left operand from stack to temporal register.
 
 		// Implement ASM operation according to operator.
 		/// TODO: use the right instructions for each case.
@@ -130,11 +130,5 @@ public class BinaryExpressionNode extends ExpressionNode {
 
 	public void setLeftOperand(ExpressionNode leftOperand) {
 		this.leftOperand = leftOperand;
-	}
-
-	@Override
-	public String generateCode(SymbolTable ts) throws ASTError {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
 	}
 }
