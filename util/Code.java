@@ -62,6 +62,21 @@ public class Code {
 		return this;
 	}
 
+	public Code writeOutputBool(int syscallId) {
+		popFromStackTo("$a0"); // Retrieve output value from stack.
+		addLine("beq $a0, $0, set_bool_false     # Save true string address in a0.");
+		addLine("la $a0, bool_true    # Save true string address in a0.");
+		addLine("j output_bool    # Jump to print instruction.");
+
+		addLine("set_bool_false: ");
+		addLine("la $a0, bool_false    # Save false string address in a0.");
+
+		addLine("output_bool: ");
+		addLine("li $v0, ", String.valueOf(syscallId), "    # Load output syscall id.");
+		addLine("syscall    # Print out value.");
+		return this;
+	}
+
 	public Code readInputLiteral(int syscallId, String msgLabel) {
 		// Show user friendly input message.
 		addLine("la $t1, " + msgLabel + "   # Save string addr in temporal register.");
@@ -91,6 +106,35 @@ public class Code {
 		addLine("sw $v0, 0($t1)    # Save input value to data segment.");
 		addLine("lw $a0, 0($t1)    # Save input value to accumulator.");
 
+		return this;
+	}
+
+	/**
+	 * Agrega al segmento de datos un grupo de constantes que serán utilizadas
+	 * durante la ejecución.
+	 */
+	public Code addConstants() {
+		addLine(".data");
+		// User friendly messages for input
+		addLine("msg_in_str: .asciiz \"Introduzca texto y presione Enter:... \\n\"");
+		addLine("msg_in_char: .asciiz \"Introduzca un caracter y presione Enter:... \\n\"");
+		addLine("msg_in_i32: .asciiz \"Introduzca un entero y presione Enter:... \\n\"");
+		addLine("msg_in_bool: .asciiz \"Introduzca true o false y presione Enter:... \\n\"");
+		// Error messages
+		addLine("msg_div_error: .asciiz \"Error de ejecucion: division por cero. \\n\"");
+		// Boolean values labels
+		addLine("bool_true: .asciiz \"true\"");
+		addLine("bool_false: .asciiz \"false\"");
+		// Reserved spaces
+		addLine("temp_i32: .word 0");
+		addLine(".text    # End data segment.");
+
+		return this;
+	}
+
+	public Code exitProgram() {
+		addLine("li $v0, 10 # 10 is the exit syscall.");
+		addLine("syscall # execute the syscall.");
 		return this;
 	}
 

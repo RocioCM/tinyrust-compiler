@@ -41,12 +41,7 @@ public class AbstractSyntaxTree implements Node {
 	public String generateCode(SymbolTable ts) throws ASTError {
 		Code asm = new Code();
 
-		asm.addLine(".data"); // User friendly messages for users.
-		asm.addLine("msg_in_str: .asciiz \"Introduzca texto y presione Enter:... \\n\"");
-		asm.addLine("msg_in_char: .asciiz \"Introduzca un caracter y presione Enter:... \\n\"");
-		asm.addLine("msg_in_i32: .asciiz \"Introduzca un entero y presione Enter:... \\n\"");
-		asm.addLine("msg_in_bool: .asciiz \"Introduzca true o false y presione Enter:... \\n\"");
-		asm.addLine("temp_i32: .word 0");
+		asm.addConstants(); // Init some constants in data segment.
 
 		// Generate Virtual Method Tables. The VTs associate methods from classes with
 		// its corresponding ASM label.
@@ -54,21 +49,23 @@ public class AbstractSyntaxTree implements Node {
 
 		asm.addLine(".text");
 		asm.addLine(".globl main");
-
-		// Create mocked Stack Frame for main method
-
 		asm.addLine("jal main # start ejecution in main function.");
-
-		// This will be executed when main method execution is completed.
-		asm.addLine("li $v0, 10 # 10 is the exit syscall.");
-		asm.addLine("syscall # execute the syscall.");
+		asm.exitProgram(); // This will be executed when main method execution is completed.
 
 		asm.add(classes.generateCode(ts));
+
+		// Error handling subroutines.
+		asm.addLine("");
+		asm.addLine("error_zero_division:");
+		/// TODO print error with line and column.
+		asm.exitProgram();
 
 		return asm.getCode();
 	}
 
 	private void generateVirtualTables(SymbolTable ts, Code asm) {
+		asm.addLine(".data");
+
 		// Iterate over all classes to generate each VT.
 		Iterator<ClassNode> classesIter = classes.iterator();
 		while (classesIter.hasNext()) {
@@ -124,7 +121,7 @@ public class AbstractSyntaxTree implements Node {
 					/// some constants or utils.
 					new MethodNode("out_str", new Code().writeOutput(4).getCode()),
 					new MethodNode("out_i32", new Code().writeOutput(1).getCode()),
-					new MethodNode("out_bool", new Code().writeOutput(1).getCode()), ///
+					new MethodNode("out_bool", new Code().writeOutputBool(4).getCode()),
 					new MethodNode("out_char", new Code().writeOutput(4).getCode()), ///
 					new MethodNode("out_array", new Code().writeOutput(4).getCode()), ///
 					new MethodNode("in_str", ""), ///

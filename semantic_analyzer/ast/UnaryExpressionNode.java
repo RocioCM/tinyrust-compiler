@@ -4,6 +4,7 @@ import error.semantic.sentences.ASTError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Type;
+import util.Code;
 import util.Json;
 
 public class UnaryExpressionNode extends ExpressionNode {
@@ -37,7 +38,24 @@ public class UnaryExpressionNode extends ExpressionNode {
 
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+		Code code = new Code(operand.generateCode(ts));
+
+		switch (operator) {
+			case "+":
+				code.addLine("nop    # Positive integer sign doesnt change value.");
+				break;
+
+			case "-":
+				code.addLine("neg $a0 $a0    # Toggle number sign.");
+				break;
+
+			case "!":
+				code.addLine("not $a0 $a0    # Bitwise complement operand value.");
+				break;
+
+			default:
+				break;
+		}
+		return code.getCode();
 	}
 }
