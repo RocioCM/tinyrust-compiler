@@ -55,22 +55,43 @@ public class Code {
 
 	}
 
-	public Code writeOutput(int syscallId, String label) {
+	public Code writeOutput(int syscallId) {
+		popFromStackTo("$a0"); // Retrieve output value from stack.
 		addLine("li $v0, ", String.valueOf(syscallId), "    # Load output syscall id.");
-		addLine("la $a0, ", label, "    # Load out value.");
 		addLine("syscall    # Print out value.");
 		return this;
-
 	}
 
-	public Code readInput(int syscallId) {
-		writeOutput(4, "msg_in_4");
+	public Code readInputLiteral(int syscallId, String msgLabel) {
+		// Show user friendly input message.
+		addLine("la $t1, " + msgLabel + "   # Save string addr in temporal register.");
+		pushToStackFrom("$t1");
+		writeOutput(4);
 
+		// Expect input value.
 		addLine("li $v0, ", String.valueOf(syscallId), "   # Load input syscall id.");
 		addLine("syscall    # Get input value.");
-		addLine("sw $v0, $a0   # Save input value to accumulator.");
-		return this;
+		addLine("la $t1, temp_i32    # Reserve aligned space for input value.");
+		addLine("sw $v0, 0($t1)    # Save input value to data segment.");
+		addLine("lw $a0, 0($t1)    # Save input value to accumulator.");
 
+		return this;
+	}
+
+	public Code readInputString(int syscallId, String msgLabel) {
+		// Show user friendly input message.
+		addLine("la $t1, " + msgLabel + "   # Save string addr in temporal register.");
+		pushToStackFrom("$t1");
+		writeOutput(4);
+
+		// Expect input value.
+		addLine("li $v0, ", String.valueOf(syscallId), "   # Load input syscall id.");
+		addLine("syscall    # Get input value.");
+		addLine("la $t1, temp_i32    # Reserve aligned space for input value.");
+		addLine("sw $v0, 0($t1)    # Save input value to data segment.");
+		addLine("lw $a0, 0($t1)    # Save input value to accumulator.");
+
+		return this;
 	}
 
 	public String getCode() {

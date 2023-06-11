@@ -44,7 +44,6 @@ public class AccessStaticMethodNode extends MethodCallNode {
 
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+		return super.generateCode(ts);
 	}
 }

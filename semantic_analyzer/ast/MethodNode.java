@@ -74,15 +74,15 @@ public class MethodNode implements Node {
 		code.addLine(label + ":");
 
 		if (mocked) {
-			// code.add(mockedCode); /// TODO uncomment
+			code.add(mockedCode);
 		} else {
 			/// TODO Load variable declarations from TS, using the type's default value.
 
 			code.add(block.generateCode(ts));
+			// Add implicit void return if explicit return not present.
+			code.addLine("add $a0, $0, $0    # Clean accumulator to return nil.");
 		}
 
-		// Add implicit void return.
-		code.addLine("add $a0, $0, $0    # Clean accumulator to return nil.");
 		code.addLine("jr $ra    # Jump to next instruction address after function call.");
 
 		return code.getCode();

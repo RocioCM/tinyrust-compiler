@@ -146,18 +146,18 @@ public abstract class MethodCallNode extends ExpressionNode {
         code.addLine("la $fp, 0($sp)    # Set the new frame pointer.");
 
         // Push arguments to the stack in inverse order.
-        for (int i = arguments.size(); i <= 0; i--) {
+        for (int i = arguments.size() - 1; i >= 0; i--) {
             code.add(arguments.get(i).generateCode(ts));
             code.pushToStackFrom("$a0");
         }
 
         // Call method.
-        code.add("jal " + Code.generateLabel("method", className, methodName, "") + "    # Jump to method code.");
+        code.addLine("jal " + Code.generateLabel("method", className, methodName, "") + "    # Jump to method code.");
 
         // Method cleanup after method call returns.
         code.addLine("la $sp, 0($fp)    # Remove arguments and variables from stack.");
-        code.popFromStackTo("$fp"); // Restore caller frame pointer from stack.
         code.popFromStackTo("$ra"); // Restore caller return address from stack.
+        code.popFromStackTo("$fp"); // Restore caller frame pointer from stack.
 
         // Tip: at this point, when returning from the method,
         // the return value is at $a0.

@@ -1,8 +1,13 @@
 package semantic_analyzer.ast;
 
 import error.semantic.sentences.InternalError;
+
+import java.util.Iterator;
+
 import error.semantic.sentences.ASTError;
+import semantic_analyzer.symbol_table.ClassEntry;
 import semantic_analyzer.symbol_table.Location;
+import semantic_analyzer.symbol_table.MethodEntry;
 import semantic_analyzer.symbol_table.SymbolTable;
 import util.Code;
 import util.Json;
@@ -35,11 +40,13 @@ public class AbstractSyntaxTree implements Node {
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
 		Code asm = new Code();
-		asm.addLine(".data"); // Mensajes amigables para input.
+
+		asm.addLine(".data"); // User friendly messages for users.
 		asm.addLine("msg_in_str: .asciiz \"Introduzca texto y presione Enter:... \\n\"");
 		asm.addLine("msg_in_char: .asciiz \"Introduzca un caracter y presione Enter:... \\n\"");
-		asm.addLine("msg_in_int: .asciiz \"Introduzca un entero y presione Enter:... \\n\"");
+		asm.addLine("msg_in_i32: .asciiz \"Introduzca un entero y presione Enter:... \\n\"");
 		asm.addLine("msg_in_bool: .asciiz \"Introduzca true o false y presione Enter:... \\n\"");
+		asm.addLine("temp_i32: .word 0");
 
 		// Generate Virtual Method Tables. The VTs associate methods from classes with
 		// its corresponding ASM label.
@@ -49,8 +56,6 @@ public class AbstractSyntaxTree implements Node {
 		asm.addLine(".globl main");
 
 		// Create mocked Stack Frame for main method
-		asm.pushToStackFrom("$0"); // Push initial frame pointer to stack.
-		asm.pushToStackFrom("$0"); // Push initial return address to stack.
 
 		asm.addLine("jal main # start ejecution in main function.");
 
@@ -117,23 +122,23 @@ public class AbstractSyntaxTree implements Node {
 			classes.add(new ClassNode("IO", new TreeList<MethodNode>(
 					/// TODO complete this ASM code from
 					/// some constants or utils.
-					new MethodNode("out_str", new Code().writeOutput(4, "4($sp)").getCode()),
-					new MethodNode("out_i32", new Code().writeOutput(1, "4($sp)").getCode()),
-					new MethodNode("out_bool", new Code().writeOutput(1, "4($sp)").getCode()),
-					new MethodNode("out_char", new Code().writeOutput(4, "4($sp)").getCode()),
-					new MethodNode("out_array", new Code().writeOutput(4, "4($sp)").getCode()),
-					new MethodNode("in_str", ""),
-					new MethodNode("in_i32", ""),
-					new MethodNode("in_bool", ""),
-					new MethodNode("in_Char", ""))));
+					new MethodNode("out_str", new Code().writeOutput(4).getCode()),
+					new MethodNode("out_i32", new Code().writeOutput(1).getCode()),
+					new MethodNode("out_bool", new Code().writeOutput(1).getCode()), ///
+					new MethodNode("out_char", new Code().writeOutput(4).getCode()), ///
+					new MethodNode("out_array", new Code().writeOutput(4).getCode()), ///
+					new MethodNode("in_str", ""), ///
+					new MethodNode("in_i32", new Code().readInputLiteral(5, "msg_in_i32").getCode()),
+					new MethodNode("in_bool", ""), ///
+					new MethodNode("in_Char", "")))); ///
 			classes.add(new ClassNode("I32", new TreeList<MethodNode>()));
 			classes.add(new ClassNode("Str", new TreeList<MethodNode>(
-					new MethodNode("length", ""),
-					new MethodNode("concat", ""),
-					new MethodNode("substr", ""))));
+					new MethodNode("length", ""), ///
+					new MethodNode("concat", ""), ///
+					new MethodNode("substr", "")))); ///
 			classes.add(new ClassNode("Char", new TreeList<MethodNode>()));
 			classes.add(new ClassNode("Bool", new TreeList<MethodNode>()));
-			classes.add(new ClassNode("Array", new TreeList<MethodNode>(new MethodNode("length", ""))));
+			classes.add(new ClassNode("Array", new TreeList<MethodNode>(new MethodNode("length", "")))); ///
 		} else {
 			throw new InternalError(new Location(-1, -1),
 					"SE INTENTO REGISTRAR LAS CLASES PREDEFINIDAS EN EL AST PERO LA LISTA DE CLASES ES NULA.");
