@@ -83,10 +83,10 @@ public class BinaryExpressionNode extends ExpressionNode {
 		/// TODO: use the right instructions for each case.
 		switch (operator) {
 			case "+":
-				code.addLine("add $a0 $a0 $t1    # Sum up the two expressions results.");
+				code.addLine("add $a0 $t1 $a0     # Sum up the two expressions results.");
 				break;
 			case "-":
-				code.addLine("add $a0 $a0 $t1    # Sum up the two expressions results.");
+				code.addLine("sub $a0 $t1 $a0   # Substract the two expressions results.");
 				break;
 			case "&&":
 				code.addLine("add $a0 $a0 $t1    # Sum up the two expressions results.");

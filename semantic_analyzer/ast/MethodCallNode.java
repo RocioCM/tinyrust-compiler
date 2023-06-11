@@ -140,20 +140,27 @@ public abstract class MethodCallNode extends ExpressionNode {
         /// TODO: the self reference must be pushed to stack before this so we can
         /// access its attrs in the method.
 
-        code.pushToStackFrom("$fp"); // Save the current frame pointer.
-        code.pushToStackFrom("$ra"); // Save the return address.
-
+        // Save caller method state to stack.
+        code.pushToStackFrom("$fp"); // Save the caller frame pointer to stack.
+        code.pushToStackFrom("$ra"); // Save the caller return address to stack.
         code.addLine("la $fp, 0($sp)    # Set the new frame pointer.");
 
-        // Push arguments to the stack.
-        for (int i = 0; i < arguments.size(); i++) {
+        // Push arguments to the stack in inverse order.
+        for (int i = arguments.size(); i <= 0; i--) {
             code.add(arguments.get(i).generateCode(ts));
             code.pushToStackFrom("$a0");
         }
 
-        code.add("jal " + Code.generateLabel("metodo", className, methodName, "") + "    # Jump to method code.");
+        // Call method.
+        code.add("jal " + Code.generateLabel("method", className, methodName, "") + "    # Jump to method code.");
 
-        // When returning from the method, the return value is in $a0.
+        // Method cleanup after method call returns.
+        code.addLine("la $sp, 0($fp)    # Remove arguments and variables from stack.");
+        code.popFromStackTo("$fp"); // Restore caller frame pointer from stack.
+        code.popFromStackTo("$ra"); // Restore caller return address from stack.
+
+        // Tip: at this point, when returning from the method,
+        // the return value is at $a0.
         /// TODO: resolve chained access. Generate its code.
 
         return code.getCode();

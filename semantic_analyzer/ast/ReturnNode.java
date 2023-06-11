@@ -43,9 +43,10 @@ public class ReturnNode extends SentenceNode {
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
 		Code code = new Code(returnValue.generateCode(ts));
-		// Result value expression is already on the accumulator.
-		// TODO Jump and link to method cleanup or do cleanup here and jump and link to
-		// return address.
+
+		// Tip: at this point, result value is already on the accumulator.
+		code.addLine("jr $ra    # Jump to next instruction address after function call.");
+
 		return code.getCode();
 	}
 }

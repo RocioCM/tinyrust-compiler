@@ -54,4 +54,8 @@ public class ClassNode implements Node {
 		code.add(methods.generateCode(ts)); // Registrar el código de cada método.
 		return code.getCode();
 	}
+
+	public String name() {
+		return this.name;
+	}
 }

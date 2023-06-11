@@ -41,18 +41,62 @@ public class AbstractSyntaxTree implements Node {
 		asm.addLine("msg_in_int: .asciiz \"Introduzca un entero y presione Enter:... \\n\"");
 		asm.addLine("msg_in_bool: .asciiz \"Introduzca true o false y presione Enter:... \\n\"");
 
-		/// Fun fact: can't repeat data labels. So just override their value
-		/// when needed.
+		// Generate Virtual Method Tables. The VTs associate methods from classes with
+		// its corresponding ASM label.
+		generateVirtualTables(ts, asm);
 
 		asm.addLine(".text");
 		asm.addLine(".globl main");
+
+		// Create mocked Stack Frame for main method
+		asm.pushToStackFrom("$0"); // Push initial frame pointer to stack.
+		asm.pushToStackFrom("$0"); // Push initial return address to stack.
+
 		asm.addLine("jal main # start ejecution in main function.");
+
+		// This will be executed when main method execution is completed.
+		asm.addLine("li $v0, 10 # 10 is the exit syscall.");
+		asm.addLine("syscall # execute the syscall.");
 
 		asm.add(classes.generateCode(ts));
 
-		asm.addLine("li $v0, 10 # 10 is the exit syscall.");
-		asm.addLine("syscall # execute the syscall.");
 		return asm.getCode();
+	}
+
+	private void generateVirtualTables(SymbolTable ts, Code asm) {
+		// Iterate over all classes to generate each VT.
+		Iterator<ClassNode> classesIter = classes.iterator();
+		while (classesIter.hasNext()) {
+			String className = classesIter.next().name();
+			ClassEntry classTSEntry = ts.getClass(className);
+
+			// Retrieve methods from TS instead of AST, because AST doesn't include
+			// inherited methods.
+			classTSEntry.methods().values().forEach((method) -> {
+				String vtLabel = Code.generateLabel("labelmethod", className, method.name(), "");
+
+				if (method.isInherited()) {
+					// Method is inherited, so get the super-method label "recursively".
+					ClassEntry superClassTSEntry = ts.getClass(classTSEntry.extendsFrom());
+					MethodEntry superMethod = superClassTSEntry.methods().get(method.name());
+					while (superMethod.isInherited()) {
+						// Go up the classes tree until the method implementation.
+						superClassTSEntry = ts.getClass(superClassTSEntry.extendsFrom());
+						superMethod = superClassTSEntry.methods().get(method.name());
+					}
+
+					// Found method implementation, then generate label on that super-class.
+					String methodLabel = Code.generateLabel("labelmethod", superClassTSEntry.name(), method.name(), "");
+					asm.addLine(vtLabel, ": .word ", methodLabel);
+
+				} else {
+					// Method isn't inherited, so its label is resolved directly.
+					String methodLabel = className.equals("main") && method.name().equals("main") ? "main"
+							: Code.generateLabel("method", className, method.name(), "");
+					asm.addLine(vtLabel, ": .word ", methodLabel);
+				}
+			});
+		}
 	}
 
 	public void addMain(BlockNode block, Location loc) throws InternalError {

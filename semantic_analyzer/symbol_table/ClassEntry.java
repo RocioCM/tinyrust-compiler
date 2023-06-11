@@ -188,7 +188,7 @@ public class ClassEntry implements TableElement {
 					}
 				} else {
 					// El método no se redefine, entonces se agrega a la subclase.
-					MethodEntry newMethod = new MethodEntry(superMethod, methods.size() + 1); // Clonar
+					MethodEntry newMethod = new MethodEntry(superMethod, methods.size() + 1, true); // Clonar
 					methods.put(newMethod.name(), newMethod);
 				}
 			}

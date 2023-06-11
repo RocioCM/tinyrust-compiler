@@ -30,7 +30,7 @@ public class SimpleExpressionNode extends SentenceNode {
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
 		Code code = new Code(expression.generateCode(ts));
-		code.addLine("addi $a0, $0, $0    # Clear accumulator as expression is not used.");
+		code.addLine("add $a0, $0, $0    # Clear accumulator as expression is not used.");
 		return code.getCode();
 	}
 }

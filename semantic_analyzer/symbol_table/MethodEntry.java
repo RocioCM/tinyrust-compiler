@@ -15,6 +15,7 @@ public class MethodEntry implements TableElement {
 	private int position;
 	private Type returnType;
 	private boolean isStatic = false;
+	private boolean isInherited = false;
 	private TableList<ArgumentEntry> arguments;
 	private TableList<VariableEntry> blockVariables;
 
@@ -40,11 +41,12 @@ public class MethodEntry implements TableElement {
 		this.locationDecl = loc;
 	}
 
-	public MethodEntry(MethodEntry method, int position) {
+	public MethodEntry(MethodEntry method, int position, boolean isInherited) {
 		// Clonar instancia.
 		this.name = method.name;
 		this.position = position;
 		this.isStatic = method.isStatic;
+		this.isInherited = isInherited;
 		this.returnType = method.returnType;
 		this.arguments = new TableList<ArgumentEntry>(method.arguments);
 		this.blockVariables = new TableList<VariableEntry>(method.blockVariables);
@@ -163,6 +165,10 @@ public class MethodEntry implements TableElement {
 
 	public boolean isStatic() {
 		return isStatic;
+	}
+
+	public boolean isInherited() {
+		return isInherited;
 	}
 
 	public void setStatic(boolean isStatic) {
