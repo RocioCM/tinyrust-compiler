@@ -67,7 +67,6 @@ public class LiteralNode extends ExpressionNode {
 
 		if (literal instanceof Str) {
 			String label = "literal_str_" + stringId;
-
 			code.addLine(".data    # Save string into the data segment");
 			code.addLine(label, ": .asciiz \"",
 					literal.value().toString().replaceAll("\\\\", "\\\\"), "\""); /// TODO FIX Escape string's escape chars.

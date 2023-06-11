@@ -17,12 +17,10 @@ public abstract class SentenceNode implements Node {
     }
 
     @Override
-    public String generateCode(SymbolTable ts) throws ASTError {
-        return "";
-        // TODO Auto-generated method stub
-        // throw new UnsupportedOperationException("Unimplemented method
-        // 'generateCode'");
-    }
+    abstract public void validate(SymbolTable ts) throws ASTError;
+
+    @Override
+    abstract public String generateCode(SymbolTable ts) throws ASTError;
 
     public Type resolvedReturnType() {
         return returnType;

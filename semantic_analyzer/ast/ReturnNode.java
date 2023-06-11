@@ -8,7 +8,6 @@ import util.Json;
 
 public class ReturnNode extends SentenceNode {
 	private ExpressionNode returnValue;
-	private String cleanUpLabel; /// TODO: calc this during validate.
 
 	public ReturnNode(Location loc) {
 		super(loc);
@@ -42,11 +41,8 @@ public class ReturnNode extends SentenceNode {
 
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
-		Code code = new Code(returnValue.generateCode(ts));
-
-		// Tip: at this point, result value is already on the accumulator.
-		code.addLine("jr $ra    # Jump to next instruction address after function call.");
-
+		Code code = new Code(returnValue.generateCode(ts)); // This stores result value on the accumulator.
+		code.addLine("j cleanup_method    # Jump to method cleanup and return to caller.");
 		return code.getCode();
 	}
 }

@@ -83,7 +83,7 @@ public class MethodNode implements Node {
 			code.addLine("add $a0, $0, $0    # Clean accumulator to return nil.");
 		}
 
-		code.addLine("jr $ra    # Jump to next instruction address after function call.");
+		code.addLine("j cleanup_method    # Jump to method cleanup and return to caller.");
 
 		return code.getCode();
 	}

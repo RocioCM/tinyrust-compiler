@@ -54,6 +54,13 @@ public class AbstractSyntaxTree implements Node {
 
 		asm.add(classes.generateCode(ts));
 
+		// Subroutine cleanup and jump back.
+		// This is generic for every method, then it's just written once,
+		asm.addLine("");
+		asm.addLine("cleanup_method:");
+		asm.addLine("la $sp, 0($fp)    # Remove arguments and variables from stack.");
+		asm.addLine("jr $ra    # Jump back to caller's next instruction address after method execution.");
+
 		// Error handling subroutines.
 		asm.addLine("");
 		asm.addLine("error_zero_division:");
@@ -117,8 +124,7 @@ public class AbstractSyntaxTree implements Node {
 		if (classes != null) {
 			classes.add(new ClassNode("Object", new TreeList<MethodNode>()));
 			classes.add(new ClassNode("IO", new TreeList<MethodNode>(
-					/// TODO complete this ASM code from
-					/// some constants or utils.
+					/// TODO complete this ASM code from some constants or utils.
 					new MethodNode("out_str", new Code().writeOutput(4).getCode()),
 					new MethodNode("out_i32", new Code().writeOutput(1).getCode()),
 					new MethodNode("out_bool", new Code().writeOutputBool(4).getCode()),

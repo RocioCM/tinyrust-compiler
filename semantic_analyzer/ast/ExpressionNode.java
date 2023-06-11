@@ -53,12 +53,7 @@ public abstract class ExpressionNode implements Node {
 	abstract public void validate(SymbolTable ts) throws ASTError;
 
 	@Override
-	public String generateCode(SymbolTable ts) throws ASTError {
-		return "";
-		// TODO Auto-generated method stub
-		// throw new UnsupportedOperationException("Unimplemented method
-		// 'generateCode'");
-	}
+	abstract public String generateCode(SymbolTable ts) throws ASTError;
 
 	public Type resolveType() {
 		return resolveType;
