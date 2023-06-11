@@ -60,7 +60,7 @@ public class MethodNode implements Node {
 		// Preprocesar datos para la generación de código.
 		String className = ts.currentClass().name();
 		this.label = className.equals("main") && name.equals("main") ? "main"
-				: "metodo_" + className.replaceAll("_", "__") + "_" + name;
+				: Code.generateLabel("metodo", className, name, "");
 		this.argsSize = ts.currentMethod().arguments().size();
 
 		ts.endMethod();
@@ -72,11 +72,11 @@ public class MethodNode implements Node {
 
 		code.addLine("");
 		code.addLine(label + ":");
-		code.addLine("move $fp $sp   # Save current stack pointer in frame pointer.");
-		code.pushToStackFrom("$ra"); // Save return address to stack.
+		// code.addLine("move $fp $sp # Save current stack pointer in frame pointer.");
+		// code.pushToStackFrom("$ra"); // Save return address to stack. ///
 
 		if (mocked) {
-			code.add(mockedCode);
+			// code.add(mockedCode); /// TODO uncomment
 		} else {
 			// code.addLine(".text"); /// Hardcoded
 			// code.addLine("li $v0, 4 #Mensaje para que sepa que debe introducir un
@@ -86,14 +86,25 @@ public class MethodNode implements Node {
 
 			// TODO next: code expression logic and test expressions work here in main
 			// method.
+
+			/// TODO Load variable declarations from TS, using the type's default value.
+
 			code.add(block.generateCode(ts));
 		}
 
-		code.popFromStackTo("$ra"); // Get return address from stack.
-		code.addLine("addiu $sp $sp ", String.valueOf((argsSize + 1) * 4),
-				"   # Restore stack to its state before this function's execution.");
-		code.addLine("lw $fp 0($sp)   # Restore caller frame pointer from stack.");
-		code.addLine("jr $ra   # Jump to next instruction address after function call.");
+		// Method cleanup.
+		code.addLine("la $sp, 0($fp)    # Remove arguments and variables from stack.");
+		code.popFromStackTo("$fp"); // Restore caller frame pointer from stack.
+		code.addLine("lw $t0 0($ra)    # Save current return address in temporal register.");
+		code.popFromStackTo("$ra"); // Restore caller return address from stack.
+		code.addLine("jr $t0 # Jump to next instruction address after function call.");
+
+		/// TODO: remove this code.
+		// code.popFromStackTo("$ra"); // Get return address from stack. ///
+		// code.addLine("addiu $sp $sp ", String.valueOf((argsSize + 1) * 4),
+		// code.addLine("lw $fp 0($sp) # Restore caller frame pointer from stack.");
+		// code.addLine("jr $ra # Jump to next instruction address after function
+		// call.");
 
 		return code.getCode();
 	}

@@ -71,11 +71,13 @@ public class AbstractSyntaxTree implements Node {
 		if (classes != null) {
 			classes.add(new ClassNode("Object", new TreeList<MethodNode>()));
 			classes.add(new ClassNode("IO", new TreeList<MethodNode>(
-					new MethodNode("out_str", ""), /// TODO complete this ASM code from some constants or utils.
-					new MethodNode("out_i32", ""),
-					new MethodNode("out_bool", ""),
-					new MethodNode("out_char", ""),
-					new MethodNode("out_array", ""),
+					/// TODO complete this ASM code from
+					/// some constants or utils.
+					new MethodNode("out_str", new Code().writeOutput(4, "4($sp)").getCode()),
+					new MethodNode("out_i32", new Code().writeOutput(1, "4($sp)").getCode()),
+					new MethodNode("out_bool", new Code().writeOutput(1, "4($sp)").getCode()),
+					new MethodNode("out_char", new Code().writeOutput(4, "4($sp)").getCode()),
+					new MethodNode("out_array", new Code().writeOutput(4, "4($sp)").getCode()),
 					new MethodNode("in_str", ""),
 					new MethodNode("in_i32", ""),
 					new MethodNode("in_bool", ""),

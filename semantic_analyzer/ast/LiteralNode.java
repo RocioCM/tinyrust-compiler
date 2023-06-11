@@ -60,7 +60,21 @@ public class LiteralNode extends ExpressionNode {
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
 		Code code = new Code();
-		code.addLine("li $a0, ", literal.value().toString(), "    # Save literal to accumulator.");
+
+		if (literal instanceof Str) {
+			code.addLine(".data");
+			code.addLine("msg_in_str: .asciiz ", literal.value().toString(), "    # Save literal to accumulator.");
+			code.addLine("li $a0, ", literal.value().toString(), "    # Save literal to accumulator.");
+
+			code.addLine("li $a0, ", literal.value().toString(), "    # Save literal to accumulator.");
+		} else if (literal instanceof I32) {
+			code.addLine("li $a0, ", literal.value().toString(), "    # Save int literal to accumulator.");
+		} else if (literal instanceof I32) {
+			code.addLine("li $a0, ", literal.value().toString(), "    # Save int literal to accumulator.");
+		} else if (literal instanceof I32) {
+			code.addLine("li $a0, ", literal.value().toString(), "    # Save int literal to accumulator.");
+		}
+
 		return code.getCode();
 	}
 

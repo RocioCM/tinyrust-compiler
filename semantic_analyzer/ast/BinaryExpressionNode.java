@@ -78,7 +78,52 @@ public class BinaryExpressionNode extends ExpressionNode {
 
 		code.add(leftOperand.generateCode(ts));
 		code.popFromStackTo("$t1"); // Move right operand from stack to temporal register.
-		code.addLine("add $a0 $a0 $t1    # Sum up the two expressions results.");
+
+		// Implement ASM operation according to operator.
+		/// TODO: use the right instructions for each case.
+		switch (operator) {
+			case "+":
+				code.addLine("add $a0 $a0 $t1    # Sum up the two expressions results.");
+				break;
+			case "-":
+				code.addLine("add $a0 $a0 $t1    # Sum up the two expressions results.");
+				break;
+			case "&&":
+				code.addLine("add $a0 $a0 $t1    # Sum up the two expressions results.");
+				break;
+			case "||":
+				code.addLine("add $a0 $a0 $t1    # Sum up the two expressions results.");
+				break;
+			case "==":
+				code.addLine("add $a0 $a0 $t1    # Sum up the two expressions results.");
+				break;
+			case "!=":
+				code.addLine("add $a0 $a0 $t1    # Sum up the two expressions results.");
+				break;
+			case "<":
+				code.addLine("add $a0 $a0 $t1    # Sum up the two expressions results.");
+				break;
+			case "<=":
+				code.addLine("add $a0 $a0 $t1    # Sum up the two expressions results.");
+				break;
+			case ">":
+				code.addLine("add $a0 $a0 $t1    # Sum up the two expressions results.");
+				break;
+			case ">=":
+				code.addLine("add $a0 $a0 $t1    # Sum up the two expressions results.");
+				break;
+			case "*":
+				code.addLine("add $a0 $a0 $t1    # Sum up the two expressions results.");
+				break;
+			case "/":
+				code.addLine("add $a0 $a0 $t1    # Sum up the two expressions results.");
+				break;
+			case "%":
+				code.addLine("add $a0 $a0 $t1    # Sum up the two expressions results.");
+				break;
+			default:
+				break;
+		}
 
 		return code.getCode();
 	}

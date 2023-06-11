@@ -12,6 +12,7 @@ import semantic_analyzer.symbol_table.MethodEntry;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Type;
 import semantic_analyzer.types.Void;
+import util.Code;
 
 public abstract class MethodCallNode extends ExpressionNode {
     private String className; // Si es null indica que debe accederse a la clase actual.
@@ -130,6 +131,32 @@ public abstract class MethodCallNode extends ExpressionNode {
             argsIterator.next().setExpectedResolveType(argFormalType);
         }
         arguments.validate(ts); // Validará que cada expresión tenga el tipo esperado.
+    }
+
+    @Override
+    public String generateCode(SymbolTable ts) throws ASTError {
+        Code code = new Code();
+
+        /// TODO: the self reference must be pushed to stack before this so we can
+        /// access its attrs in the method.
+
+        code.pushToStackFrom("$fp"); // Save the current frame pointer.
+        code.pushToStackFrom("$ra"); // Save the return address.
+
+        code.addLine("la $fp, 0($sp)    # Set the new frame pointer.");
+
+        // Push arguments to the stack.
+        for (int i = 0; i < arguments.size(); i++) {
+            code.add(arguments.get(i).generateCode(ts));
+            code.pushToStackFrom("$a0");
+        }
+
+        code.add("jal " + Code.generateLabel("metodo", className, methodName, "") + "    # Jump to method code.");
+
+        // When returning from the method, the return value is in $a0.
+        /// TODO: resolve chained access. Generate its code.
+
+        return code.getCode();
     }
 
     public String className() {
