@@ -51,7 +51,7 @@ public class ClassNode implements Node {
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
 		Code code = new Code();
-		// TODO 1: agregar clase al CIR?
+		// TODO 1: agregar clase al CIR? Noup, armar su Virtual Method Table.
 
 		methods.generateCode(ts); // Registrar el código de cada método.
 		return code.getCode();

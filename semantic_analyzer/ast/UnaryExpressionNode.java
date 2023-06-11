@@ -34,4 +34,10 @@ public class UnaryExpressionNode extends ExpressionNode {
 		operand.validate(ts); // Validar que el tipo del operando es el esperado para este operador.
 		super.validateType(ts); // Validar que esta expresión es del tipo esperado para su contexto.
 	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+	}
 }

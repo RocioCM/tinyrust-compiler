@@ -52,6 +52,9 @@ public abstract class ExpressionNode implements Node {
 	@Override
 	abstract public void validate(SymbolTable ts) throws ASTError;
 
+	@Override
+	abstract public String generateCode(SymbolTable ts) throws ASTError;
+
 	public Type resolveType() {
 		return resolveType;
 	}

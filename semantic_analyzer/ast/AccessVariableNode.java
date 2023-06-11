@@ -140,4 +140,10 @@ public class AccessVariableNode extends AccessNode {
 		super.setResolveType(resolvedType);
 		super.validateType(ts);
 	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+	}
 }

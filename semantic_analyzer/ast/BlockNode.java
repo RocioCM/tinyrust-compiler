@@ -48,4 +48,9 @@ public class BlockNode extends SentenceNode {
 			super.setResolvedReturnType(new Void());
 		}
 	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		return sentences.generateCode(ts); // Generar código para las sentencias del bloque.
+	}
 }

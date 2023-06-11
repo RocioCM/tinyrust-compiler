@@ -37,4 +37,10 @@ public class ConstructorArrayCallNode extends ExpressionNode {
 		// Validar que esta expresión es del tipo esperado.
 		super.validateType(ts);
 	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+	}
 }

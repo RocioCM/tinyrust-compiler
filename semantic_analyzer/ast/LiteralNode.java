@@ -9,9 +9,12 @@ import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Bool;
 import semantic_analyzer.types.Void;
+import util.Code;
 import util.Json;
 
 public class LiteralNode extends ExpressionNode {
+	static private int stringLiteralCounter = 0;
+	private int stringId;
 	private PrimitiveType<?> literal;
 
 	public LiteralNode(String value, String type, Location loc) {
@@ -25,6 +28,8 @@ public class LiteralNode extends ExpressionNode {
 				break;
 			case "lit_string":
 				this.literal = new Str(value.substring(1, value.length() - 1)); // Eliminar comillas dobles del literal.
+				this.stringId = LiteralNode.stringLiteralCounter + 1;
+				LiteralNode.stringLiteralCounter++;
 				break;
 			case "lit_int":
 				this.literal = new I32(Integer.valueOf(value)); // Convierte el valor de String a int.
@@ -54,6 +59,20 @@ public class LiteralNode extends ExpressionNode {
 		json.addAttr("valor", String.valueOf(literal.value()));
 		json.addAttr("tipo-dato", super.resolveType());
 		return json.toString();
+	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		Code code = new Code();
+		if (literal instanceof Str) {
+			String label = "literal-str-" + stringId;
+			code.addLine(".data # Save string into the data segment...");
+			code.addLine(label, ".asciiz \"", String.valueOf(literal.value()), "\"");
+		} else {
+			// TODO: generate code for other literals.
+		}
+
+		return code.getCode();
 	}
 
 }
