@@ -49,6 +49,7 @@ public class ClassNode implements Node {
 		// TODO 1: agregar la VT de la clase?
 		// Generarla con los labels de los métodos de la TS, porque en los métodos del
 		// AST faltan los métodos heredados.
+		// TODO 1: agregar clase al CIR? Noup, armar su Virtual Method Table.
 
 		code.add(methods.generateCode(ts)); // Registrar el código de cada método.
 		return code.getCode();

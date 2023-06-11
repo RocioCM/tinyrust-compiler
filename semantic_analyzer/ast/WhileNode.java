@@ -7,6 +7,8 @@ import semantic_analyzer.types.Bool;
 import util.Json;
 
 public class WhileNode extends SentenceNode {
+	static private int instancesCounter = 0; // Contador para asignar un id único al nodo.
+	private int id;
 	private ExpressionNode condition;
 	private SentenceNode block;
 
@@ -14,6 +16,8 @@ public class WhileNode extends SentenceNode {
 		super(loc);
 		this.condition = condition;
 		this.block = block;
+		this.id = WhileNode.instancesCounter + 1;
+		WhileNode.instancesCounter++;
 	}
 
 	@Override
@@ -33,5 +37,14 @@ public class WhileNode extends SentenceNode {
 		block.setExpectedReturnType(super.expectedReturnType());
 		block.validate(ts); // Validar las sentencias del bloque.
 		super.setResolvedReturnType(block.resolvedReturnType()); // Para validar el retorno del método.
+	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		String whileLabel = "while-" + id;
+		String finallyLabel = "after-while-" + id;
+
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
 	}
 }

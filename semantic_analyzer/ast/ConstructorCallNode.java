@@ -27,4 +27,10 @@ public class ConstructorCallNode extends MethodCallNode {
 	public void validate(SymbolTable ts) throws ASTError {
 		super.validate(ts); // Validar que la llamada al método create sea válida.
 	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+	}
 }

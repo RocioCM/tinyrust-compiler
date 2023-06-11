@@ -131,4 +131,10 @@ public class BinaryExpressionNode extends ExpressionNode {
 	public void setLeftOperand(ExpressionNode leftOperand) {
 		this.leftOperand = leftOperand;
 	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+	}
 }

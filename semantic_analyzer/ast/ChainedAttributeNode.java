@@ -67,4 +67,10 @@ public class ChainedAttributeNode extends ChainedAccessNode {
 
         return returnType;
     }
+
+    @Override
+    public String generateCode(SymbolTable ts) throws ASTError {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+    }
 }

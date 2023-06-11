@@ -48,4 +48,10 @@ public class ReturnNode extends SentenceNode {
 		// return address.
 		return code.getCode();
 	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+	}
 }

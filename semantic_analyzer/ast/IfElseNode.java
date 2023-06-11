@@ -7,6 +7,8 @@ import semantic_analyzer.types.Bool;
 import util.Json;
 
 public class IfElseNode extends SentenceNode {
+	static private int instancesCounter = 0; // Contador para asignar un id único al nodo.
+	private int id;
 	private ExpressionNode condition;
 	private SentenceNode block;
 	private SentenceNode elseBlock;
@@ -16,6 +18,8 @@ public class IfElseNode extends SentenceNode {
 		this.condition = condition;
 		this.block = block;
 		this.elseBlock = elseBlock;
+		this.id = IfElseNode.instancesCounter + 1;
+		IfElseNode.instancesCounter++;
 	}
 
 	@Override
@@ -47,5 +51,15 @@ public class IfElseNode extends SentenceNode {
 				super.setResolvedReturnType(block.resolvedReturnType());
 			}
 		}
+	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		String ifLabel = "if-" + id;
+		String elseLabel = "else-" + id;
+		String finallyLabel = "after-if-" + id;
+
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
 	}
 }

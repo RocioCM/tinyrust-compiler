@@ -51,6 +51,6 @@ public class BlockNode extends SentenceNode {
 
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
-		return sentences.generateCode(ts);
+		return sentences.generateCode(ts); // Generate code for block sentences.
 	}
 }

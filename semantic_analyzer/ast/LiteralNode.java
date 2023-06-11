@@ -13,6 +13,8 @@ import util.Code;
 import util.Json;
 
 public class LiteralNode extends ExpressionNode {
+	static private int stringLiteralCounter = 0;
+	private int stringId;
 	private PrimitiveType<?> literal;
 
 	public LiteralNode(String value, String type, Location loc) {
@@ -26,6 +28,8 @@ public class LiteralNode extends ExpressionNode {
 				break;
 			case "lit_string":
 				this.literal = new Str(value.substring(1, value.length() - 1)); // Eliminar comillas dobles del literal.
+				this.stringId = LiteralNode.stringLiteralCounter + 1;
+				LiteralNode.stringLiteralCounter++;
 				break;
 			case "lit_int":
 				this.literal = new I32(Integer.valueOf(value)); // Convierte el valor de String a int.
@@ -62,20 +66,26 @@ public class LiteralNode extends ExpressionNode {
 		Code code = new Code();
 
 		if (literal instanceof Str) {
-			code.addLine(".data");
-			code.addLine("msg_in_str: .asciiz ", literal.value().toString(), "    # Save literal to accumulator.");
-			code.addLine("li $a0, ", literal.value().toString(), "    # Save literal to accumulator.");
+			String label = "literal-str-" + stringId;
 
-			code.addLine("li $a0, ", literal.value().toString(), "    # Save literal to accumulator.");
+			code.addLine(".data    # Save string into the data segment");
+			code.addLine(label, ": .asciiz \"",
+					literal.value().toString().replaceAll("\\", "\\\\"), "\""); // Escape string's escape chars.
+			code.addLine(".text    # Continue writing instructions to the code section.");
+			code.addLine("la $a0, ", label, "    # Save string addr to accumulator.");
+
 		} else if (literal instanceof I32) {
 			code.addLine("li $a0, ", literal.value().toString(), "    # Save int literal to accumulator.");
-		} else if (literal instanceof I32) {
-			code.addLine("li $a0, ", literal.value().toString(), "    # Save int literal to accumulator.");
-		} else if (literal instanceof I32) {
-			code.addLine("li $a0, ", literal.value().toString(), "    # Save int literal to accumulator.");
+
+		} else if (literal instanceof Bool) {
+			code.addLine("li $a0, ", literal.value().toString() == "true" ? "1" : "0",
+					"    # Save bool as bit representation to accumulator.");
+
+		} else if (literal instanceof Char) {
+			code.addLine("li $a0, ", String.valueOf(literal.value().toString().charAt(0)),
+					"    # Save char ascii code to accumulator.");
 		}
 
 		return code.getCode();
 	}
-
 }

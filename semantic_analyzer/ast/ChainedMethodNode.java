@@ -101,4 +101,10 @@ public class ChainedMethodNode extends ChainedAccessNode {
 	public TreeList<ExpressionNode> arguments() {
 		return arguments;
 	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+	}
 }
