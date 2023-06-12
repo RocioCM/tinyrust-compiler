@@ -1,8 +1,11 @@
 package semantic_analyzer.ast;
 
+import java.util.HashMap;
+
 import error.semantic.sentences.ASTError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
+import semantic_analyzer.symbol_table.VariableEntry;
 import semantic_analyzer.types.Type;
 import util.Code;
 import util.Json;
@@ -13,7 +16,7 @@ public class MethodNode implements Node {
 	private Boolean mocked = false; // Indicador de si es una clase predefinida y el método es un placeholder.
 	private String mockedCode = ""; // Código ASM pre-armado de funciones mock.
 	private String label; // Label del método para generación de código.
-	private int argsSize; // Cantidad de argumentos para generación de código.
+	private HashMap<Number, VariableEntry> variables; // Variables del bloque indexadas.
 	protected Location loc; // Declaration location.
 
 	public MethodNode(String name, String mockedCode) {
@@ -61,8 +64,7 @@ public class MethodNode implements Node {
 		String className = ts.currentClass().name();
 		this.label = className.equals("main") && name.equals("main") ? "main"
 				: Code.generateLabel("method", className, name);
-		this.argsSize = ts.currentMethod().arguments().size();
-
+		this.variables = ts.currentMethod().indexedVariables();
 		ts.endMethod();
 	}
 
@@ -76,7 +78,16 @@ public class MethodNode implements Node {
 		if (mocked) {
 			code.add(mockedCode);
 		} else {
-			/// TODO Load variable declarations from TS, using the type's default value.
+			code.pushToStackFrom("$fp"); // Save the caller frame pointer to stack.
+			code.addLine("la $fp, 4($sp)    # Set the new frame pointer.");
+
+			for (int i = 0; i < variables.size(); i++) {
+				VariableEntry var = variables.get(i + 1);
+				code.addLine("add $a0, $0, $0    # Clean accumulator to store nil on the variable.");
+				code.pushToStackFrom("$a0"); // Save variable value to stack.
+				/// TODO Use the type's default value for str, char and array.
+				/// Defaults: bool 0, int 0, Object nil, Array nil, char ??, str "".
+			}
 
 			code.add(block.generateCode(ts));
 			// Add implicit void return if explicit return not present.

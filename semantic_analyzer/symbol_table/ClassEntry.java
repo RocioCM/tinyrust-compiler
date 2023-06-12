@@ -264,7 +264,7 @@ public class ClassEntry implements TableElement {
 		return this.methods;
 	}
 
-	public MethodEntry constructor() {
+	public ConstructorEntry constructor() {
 		return this.constructor;
 	}
 

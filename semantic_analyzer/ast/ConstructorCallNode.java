@@ -3,13 +3,18 @@ package semantic_analyzer.ast;
 import error.semantic.sentences.ASTError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
+import util.Code;
 import util.Json;
 
 public class ConstructorCallNode extends MethodCallNode {
+	static private int instancesCounter = 0;
+	private int id;
 
 	public ConstructorCallNode(String className, TreeList<ExpressionNode> arguments,
 			ChainedAccessNode chainedAccess, Location loc) {
 		super(className, "create", arguments, chainedAccess, loc);
+		this.id = instancesCounter + 1;
+		instancesCounter++;
 	}
 
 	@Override
@@ -30,7 +35,23 @@ public class ConstructorCallNode extends MethodCallNode {
 
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+		Code code = new Code();
+		String cirLabel = "cir_" + id;
+		String vtLabel = "vtable_" + super.className();
+		int attrsSize = ts.getClass(super.className()).attributes().size();
+
+		code.addLine(".data");
+		code.addLine(cirLabel, ": space(" + (attrsSize + 1) * 4, ")");
+
+		code.addLine(".text");
+		code.addLine("la $a0, ", vtLabel, "    # Save VT address to accumulator.");
+		code.addLine("sw $a0 ", cirLabel, "($0)    # Save VT address in CIR.");
+		code.addLine("la $a0, ", cirLabel, "    # Save CIR address to accumulator.");
+		code.pushToStackFrom("$a0");
+		/// TODO1: create CIR. And save its ref to a0. Then push it to stack. Test it
+
+		code.add(super.generateCode(ts)); // Invoke class constructor method.
+
+		return code.getCode();
 	}
 }

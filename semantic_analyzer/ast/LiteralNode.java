@@ -65,24 +65,32 @@ public class LiteralNode extends ExpressionNode {
 	public String generateCode(SymbolTable ts) throws ASTError {
 		Code code = new Code();
 
-		if (literal instanceof Str) {
-			String label = "literal_str_" + stringId;
-			code.addLine(".data    # Save string into the data segment");
-			code.addLine(label, ": .asciiz \"",
-					literal.value().toString().replaceAll("\\\\", "\\\\"), "\""); /// TODO FIX Escape string's escape chars.
-			code.addLine(".text    # Continue writing instructions to the code section.");
-			code.addLine("la $a0, ", label, "    # Save string addr to accumulator.");
+		switch (literal.type()) {
+			case "Str":
+				String label = "literal_str_" + stringId;
+				code.addLine(".data    # Save string into the data segment");
+				code.addLine(label, ": .asciiz \"",
+						literal.value().toString().replaceAll("\\\\", "\\\\"), "\""); /// TODO FIX Escape string's escape chars.
+				code.addLine(".text    # Continue writing instructions to the code section.");
+				code.addLine("la $a0, ", label, "    # Save string addr to accumulator.");
+				break;
 
-		} else if (literal instanceof I32) {
-			code.addLine("li $a0, ", literal.value().toString(), "    # Save int literal to accumulator.");
+			case "I32":
+				code.addLine("li $a0, ", literal.value().toString(), "    # Save int literal to accumulator.");
+				break;
 
-		} else if (literal instanceof Bool) {
-			code.addLine("li $a0, ", literal.value().toString() == "true" ? "1" : "0",
-					"    # Save bool as bit representation to accumulator.");
+			case "Bool":
+				code.addLine("li $a0, ", literal.value().toString() == "true" ? "1" : "0",
+						"    # Save bool as bit representation to accumulator.");
+				break;
 
-		} else if (literal instanceof Char) {
-			code.addLine("li $a0, ", String.valueOf(literal.value().toString().charAt(0)),
-					"    # Save char ascii code to accumulator.");
+			case "Char":
+				code.addLine("li $a0, ", String.valueOf(literal.value().toString().charAt(0)),
+						"    # Save char ascii code to accumulator.");
+				break;
+
+			default:
+				break;
 		}
 
 		return code.getCode();

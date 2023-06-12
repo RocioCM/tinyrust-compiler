@@ -141,8 +141,8 @@ public abstract class MethodCallNode extends ExpressionNode {
         /// access its attrs in the method.
 
         // Save caller method state to stack.
-        code.pushToStackFrom("$fp"); // Save the caller frame pointer to stack.
         code.pushToStackFrom("$ra"); // Save the caller return address to stack.
+        code.pushToStackFrom("$fp"); // Save the caller frame pointer to stack.
         code.addLine("la $fp, 0($sp)    # Set the new frame pointer.");
 
         // Push arguments to the stack in inverse order.
@@ -155,8 +155,8 @@ public abstract class MethodCallNode extends ExpressionNode {
         code.addLine("jal " + Code.generateLabel("method", className, methodName) + "    # Jump to method code.");
 
         // Restore registers after method call returns.
-        code.popFromStackTo("$ra"); // Restore caller return address from stack.
         code.popFromStackTo("$fp"); // Restore caller frame pointer from stack.
+        code.popFromStackTo("$ra"); // Restore caller return address from stack.
 
         // Tip: at this point, when returning from the method,
         // the return value is at $a0.

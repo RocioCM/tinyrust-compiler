@@ -3,6 +3,7 @@ package semantic_analyzer.ast;
 import error.semantic.sentences.ASTError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
+import util.Code;
 import util.Json;
 
 public class AssignNode extends SentenceNode {
@@ -34,9 +35,20 @@ public class AssignNode extends SentenceNode {
 
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
-		return "";
-		// TODO Auto-generated method stub
-		// throw new UnsupportedOperationException("Unimplemented method
-		// 'generateCode'");
+		Code code = new Code();
+		code.add(rightSide.generateCode(ts)); // Evaluate the right expression.
+		code.pushToStackFrom("$a0"); // Save the expression result in stack.
+
+		// Tip: AccessNode returns an address at $v0, and a value at $a0.
+		// Depending on the case, you may use the value or the address.
+
+		// Assign the right expression to the left address.
+		code.add(leftSide.generateCode(ts));
+		code.popFromStackTo("$t1"); // Save assignment value in temporary register.
+		code.addLine("sw $t1, 0($v0)    # Save expression result in left variable.");
+		code.addLine("add $a0, $0, $0 # Clear accumulator value.");
+		code.addLine("add $v0, $0, $0 # Clear v0 address value.");
+
+		return code.getCode();
 	}
 }

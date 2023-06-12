@@ -2,6 +2,7 @@ package semantic_analyzer.ast;
 
 import error.semantic.sentences.InternalError;
 import error.semantic.sentences.ASTError;
+import semantic_analyzer.symbol_table.ArgumentEntry;
 import semantic_analyzer.symbol_table.AttributeEntry;
 import semantic_analyzer.symbol_table.ClassEntry;
 import semantic_analyzer.symbol_table.Location;
@@ -9,12 +10,14 @@ import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.symbol_table.VariableEntry;
 import semantic_analyzer.types.ClassType;
 import semantic_analyzer.types.Type;
+import util.Code;
 import util.Json;
 
 public class AccessVariableNode extends AccessNode {
 	private String identifier;
 	private ChainedAccessNode chainedAccess;
 	private Boolean mandatoryChain = false;
+	private VariableEntry variable; // Accessed TS entity used in code generation.
 
 	public AccessVariableNode(String identifier, Location loc) {
 		super(loc);
@@ -77,15 +80,15 @@ public class AccessVariableNode extends AccessNode {
 
 		} else {
 			// Si es una variable normal, se obtiene del contexto actual de la TS.
-			VariableEntry var = ts.getVariable(identifier);
+			variable = ts.getVariable(identifier);
 
 			// Validar que la variable exista.
-			if (var == null) {
+			if (variable == null) {
 				throw new ASTError(loc,
 						"SE INTENTO ACCEDER A LA VARIABLE " + identifier + " PERO NO ESTA DEFINIDA EN EL AMBITO ACTUAL.");
 			}
 
-			if (var instanceof AttributeEntry) {
+			if (variable instanceof AttributeEntry) {
 				// Validar que no se accede a un atributo (de instancia) en un método estático.
 				if (ts.currentMethod().isStatic()) {
 					throw new ASTError(loc,
@@ -95,15 +98,13 @@ public class AccessVariableNode extends AccessNode {
 				}
 
 				// Validar que no se accedan atributos privados heredados de otras clases.
-				AttributeEntry attr = (AttributeEntry) (var);
+				AttributeEntry attr = (AttributeEntry) (variable);
 				if (attr.isInherited() && !attr.isPublic()) {
-					throw new ASTError(loc, "EL ATRIBUTO " + var.name() + " DE LA CLASE "
+					throw new ASTError(loc, "EL ATRIBUTO " + variable.name() + " DE LA CLASE "
 							+ ts.currentClass().name() + " NO ES VISIBLE EN ESTE CONTEXTO PORQUE ES UN ATRIBUTO PRIVADO HEREDADO.");
 				}
 			}
-
-			varType = var.type();
-
+			varType = variable.type();
 		}
 
 		if (chainedAccess == null && mandatoryChain) {
@@ -135,7 +136,34 @@ public class AccessVariableNode extends AccessNode {
 
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+		Code code = new Code();
+
+		// Both variable value and address will be saved in registers.
+		// This way, by accesing the variable, you get read and write access.
+		// Variable value is saved at $a0 and variable address is saved at $v0.
+
+		if (variable instanceof AttributeEntry) {
+			// Access class attribute.
+			code.addLine("lw $t1, ///self    # Save in $t1 the current class CIR address"); /// TODO do this
+			code.addLine("la $a0, $t1(" + (variable.position() + 1) * 4, ")    # Save in accumulator the attribute address.");
+
+		} else {
+			if (variable instanceof ArgumentEntry) {
+				// Access method argument.
+				code.addLine("lw $a0, " + variable.position() * 4,
+						"($fp)    # Save in accumulator the method attribute value.");
+				code.addLine("addiu $v0, $fp, " + variable.position() * 4,
+						"    # Save in accumulator the block variable address.");
+
+			} else {
+				// Access method block variable.
+				code.addLine("lw $a0, -" + variable.position() * 4, "($fp)    # Save in accumulator the block variable value.");
+				code.addLine("addiu $v0, $fp, -" + variable.position() * 4,
+						"    # Save in accumulator the block variable address.");
+			}
+		}
+
+		// Tip: at this point, variable value is at $a0 and variable address is at $v0.
+		return code.getCode();
 	}
 }
