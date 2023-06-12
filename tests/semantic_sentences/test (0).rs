@@ -1,7 +1,7 @@
 class Fibonacci {
 	I32: suma;
 	I32: i,j;
-	fn sucesion_fib(I32: n = 3)-> void {
+	fn sucesion_fib(I32: n)-> void {
 		i=0; j=0; suma=0;
 		while (i<= n){
 			if (i==0){

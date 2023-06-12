@@ -144,22 +144,24 @@ public class AccessVariableNode extends AccessNode {
 
 		if (variable instanceof AttributeEntry) {
 			// Access class attribute.
-			code.addLine("lw $t1, ///self    # Save in $t1 the current class CIR address"); /// TODO do this
-			code.addLine("la $a0, $t1(" + (variable.position() + 1) * 4, ")    # Save in accumulator the attribute address.");
+			code.addLine("lw $t1, 4($fp)    # Save in $t1 the upper frame pointer address.");
+			code.addLine("lw $t2, 12($t1)    # Save in $t2 the current class CIR address"); // 12 = 4*fp + 4*ra + 4*self
+			code.addLine("lw $a0, " + variable.position() * 4, "($t2)    # Save in accumulator the attribute value.");
+			code.addLine("addiu $v0, $t2, " + variable.position() * 4, "    # Save in v0 the attribute address.");
 
 		} else {
 			if (variable instanceof ArgumentEntry) {
 				// Access method argument.
 				code.addLine("lw $a0, " + variable.position() * 4,
-						"($fp)    # Save in accumulator the method attribute value.");
+						"($fp)    # Save in accumulator the method argument value.");
 				code.addLine("addiu $v0, $fp, " + variable.position() * 4,
-						"    # Save in accumulator the block variable address.");
+						"    # Save in v0 the method argument address.");
 
 			} else {
 				// Access method block variable.
 				code.addLine("lw $a0, -" + variable.position() * 4, "($fp)    # Save in accumulator the block variable value.");
 				code.addLine("addiu $v0, $fp, -" + variable.position() * 4,
-						"    # Save in accumulator the block variable address.");
+						"    # Save in v0 the block variable address.");
 			}
 		}
 

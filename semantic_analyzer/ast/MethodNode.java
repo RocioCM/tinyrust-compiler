@@ -79,7 +79,7 @@ public class MethodNode implements Node {
 			code.add(mockedCode);
 		} else {
 			code.pushToStackFrom("$fp"); // Save the caller frame pointer to stack.
-			code.addLine("la $fp, 4($sp)    # Set the new frame pointer.");
+			code.addLine("la $fp, 0($sp)    # Set the new frame pointer.");
 
 			for (int i = 0; i < variables.size(); i++) {
 				VariableEntry var = variables.get(i + 1);

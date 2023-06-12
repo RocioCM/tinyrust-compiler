@@ -41,16 +41,19 @@ public class ConstructorCallNode extends MethodCallNode {
 		int attrsSize = ts.getClass(super.className()).attributes().size();
 
 		code.addLine(".data");
-		code.addLine(cirLabel, ": space(" + (attrsSize + 1) * 4, ")");
+		code.addLine(cirLabel, ": .space " + (attrsSize + 1) * 4, "    # Instance of class ", super.className());
 
 		code.addLine(".text");
 		code.addLine("la $a0, ", vtLabel, "    # Save VT address to accumulator.");
 		code.addLine("sw $a0 ", cirLabel, "($0)    # Save VT address in CIR.");
 		code.addLine("la $a0, ", cirLabel, "    # Save CIR address to accumulator.");
-		code.pushToStackFrom("$a0");
-		/// TODO1: create CIR. And save its ref to a0. Then push it to stack. Test it
 
+		// Invoke class constructor.
+		code.pushToStackFrom("$a0"); // Push self for constructor.
 		code.add(super.generateCode(ts)); // Invoke class constructor method.
+		code.popFromStackTo("$a0"); // Save the instance reference in a0 register for return.
+
+		/// TODO NEXT: constructor is messing up on return. Test it.
 
 		return code.getCode();
 	}

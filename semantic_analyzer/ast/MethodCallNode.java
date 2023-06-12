@@ -160,6 +160,7 @@ public abstract class MethodCallNode extends ExpressionNode {
 
         // Tip: at this point, when returning from the method,
         // the return value is at $a0.
+
         /// TODO: resolve chained access. Generate its code.
 
         return code.getCode();

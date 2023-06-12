@@ -44,6 +44,8 @@ public class AccessStaticMethodNode extends MethodCallNode {
 
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
+		// Tip: it's not necessary to push any self value to stack as it's not accessed
+		// in the body of the static method.
 		return super.generateCode(ts);
 	}
 }
