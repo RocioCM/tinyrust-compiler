@@ -42,7 +42,11 @@ public class AbstractSyntaxTree implements Node {
 		asm.addLine("");
 		asm.addLine(".text");
 		asm.addLine(".globl main");
+
+		// Main method execution:
+		asm.pushAndUpdateFramePointer();
 		asm.addLine("jal main # start ejecution in main function.");
+		asm.popFromStackTo("$fp"); // Clear stack.
 		asm.exitProgram(); // This will be executed when main method execution is completed.
 
 		asm.add(classes.generateCode(ts));
@@ -51,8 +55,9 @@ public class AbstractSyntaxTree implements Node {
 		// This is generic for every method, then it's just written once,
 		asm.addLine("");
 		asm.addLine("cleanup_method:");
-		asm.addLine("la $sp, 0($fp)    # Remove variables from stack.");
-		asm.addLine("lw $sp, 0($sp)    # Remove arguments from stack.");
+		asm.addLine("lw $fp, 0($fp)    # Jump tothe stack frame's first frame pointer.");
+		asm.addLine("addiu $sp, $fp, -4    # Remove vars and arguments from stack.");
+		asm.addLine("lw $fp, 0($fp)    # Restore caller frame pointer.");
 		asm.addLine("jr $ra    # Jump back to caller's next instruction address after method execution.");
 
 		// Error handling subroutines.

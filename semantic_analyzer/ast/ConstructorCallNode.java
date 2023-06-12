@@ -53,8 +53,6 @@ public class ConstructorCallNode extends MethodCallNode {
 		code.add(super.generateCode(ts)); // Invoke class constructor method.
 		code.popFromStackTo("$a0"); // Save the instance reference in a0 register for return.
 
-		/// TODO NEXT: constructor is messing up on return. Test it.
-
 		return code.getCode();
 	}
 }

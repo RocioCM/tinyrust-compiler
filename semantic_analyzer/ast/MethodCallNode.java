@@ -142,14 +142,19 @@ public abstract class MethodCallNode extends ExpressionNode {
 
         // Save caller method state to stack.
         code.pushToStackFrom("$ra"); // Save the caller return address to stack.
-        code.pushToStackFrom("$fp"); // Save the caller frame pointer to stack.
-        code.addLine("la $fp, 0($sp)    # Set the new frame pointer.");
-
+        code.pushAndUpdateFramePointer();
+        /// TODO: emmh, modificar el frame pointer antes de pushear los argumentos rompe
+        /// la referencia del argumento. Por qué no guardarlo un ratito en un registro y
+        /// después devolverlo a la vida?
+        code.addLine("lw $fp 4($sp) # Restore previous frame pointer in register, for args evaluation."); ///
         // Push arguments to the stack in inverse order.
         for (int i = arguments.size() - 1; i >= 0; i--) {
             code.add(arguments.get(i).generateCode(ts));
             code.pushToStackFrom("$a0");
         }
+
+        code.addLine("lw $fp " + 4 * arguments.size(), // Is this number right?
+                "($sp) # Restore real current frame pointer in register, for args evaluation."); ///
 
         // Call method.
         code.addLine("jal " + Code.generateLabel("method", className, methodName) + "    # Jump to method code.");

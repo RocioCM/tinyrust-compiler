@@ -3,6 +3,7 @@ package semantic_analyzer.ast;
 import error.semantic.sentences.ASTError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
+import util.Code;
 import util.Json;
 
 public class AccessMethodNode extends MethodCallNode {
@@ -45,7 +46,14 @@ public class AccessMethodNode extends MethodCallNode {
 
     @Override
     public String generateCode(SymbolTable ts) throws ASTError {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+        Code code = new Code();
+
+        // Tip: the self reference for the method is the same as the caller self.
+        code.pushToStackFrom("$0"); // Push "self" empty reference. /// TODO: push the real self reference.
+        code.add(super.generateCode(ts));
+        code.popFromStackTo("$t2"); // This value is not used, just removed.
+        /// TODO save in a0 the method result. Or is it already there?
+
+        return code.getCode();
     }
 }

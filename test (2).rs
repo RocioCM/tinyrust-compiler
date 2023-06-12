@@ -1,5 +1,5 @@
 class Fibonacci {
-	I32: suma;
+	pub I32: suma;
 	I32: i,j;
 	static fn sucesion_fib(I32: n)-> void {
 		I32: suma;
@@ -28,6 +28,7 @@ class Fibonacci {
 		i=1;
 		j=2;
 		suma=3;
+		(IO.out_i32(suma));
 	}
 	static fn imprimo_numero(I32: num) -> void{
 		(IO.out_str("f_"));

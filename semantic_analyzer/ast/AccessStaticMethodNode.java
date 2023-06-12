@@ -3,6 +3,7 @@ package semantic_analyzer.ast;
 import error.semantic.sentences.ASTError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
+import util.Code;
 import util.Json;
 
 public class AccessStaticMethodNode extends MethodCallNode {
@@ -44,8 +45,14 @@ public class AccessStaticMethodNode extends MethodCallNode {
 
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
+		Code code = new Code();
+
 		// Tip: it's not necessary to push any self value to stack as it's not accessed
 		// in the body of the static method.
-		return super.generateCode(ts);
+		code.pushToStackFrom("$0"); // Push "self" empty reference.
+		code.add(super.generateCode(ts));
+		code.popFromStackTo("$t2"); // This value is not used, just removed.
+
+		return code.getCode();
 	}
 }

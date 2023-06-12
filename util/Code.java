@@ -39,7 +39,6 @@ public class Code {
 		addLine("sw " + reg + " 0($sp)   # add data to stack top.");
 		addLine("addiu $sp $sp -4   # move stack pointer down.");
 		return this;
-
 	}
 
 	/**
@@ -53,6 +52,12 @@ public class Code {
 		addLine("addiu $sp $sp 4   # move stack pointer up.");
 		return this;
 
+	}
+
+	public Code pushAndUpdateFramePointer() {
+		pushToStackFrom("$fp"); // Save frame pointer to stack.
+		addLine("addiu $fp, $sp, 4    # Set the new frame pointer.");
+		return this;
 	}
 
 	public Code writeOutput(int syscallId) {

@@ -144,8 +144,8 @@ public class AccessVariableNode extends AccessNode {
 
 		if (variable instanceof AttributeEntry) {
 			// Access class attribute.
-			code.addLine("lw $t1, 4($fp)    # Save in $t1 the upper frame pointer address.");
-			code.addLine("lw $t2, 12($t1)    # Save in $t2 the current class CIR address"); // 12 = 4*fp + 4*ra + 4*self
+			code.addLine("lw $t1, 0($fp)    # Save in $t1 the upper frame pointer address.");
+			code.addLine("lw $t2, 8($t1)    # Save in $t2 the current class CIR address"); // 8 = 4*fp + 4*ra
 			code.addLine("lw $a0, " + variable.position() * 4, "($t2)    # Save in accumulator the attribute value.");
 			code.addLine("addiu $v0, $t2, " + variable.position() * 4, "    # Save in v0 the attribute address.");
 
