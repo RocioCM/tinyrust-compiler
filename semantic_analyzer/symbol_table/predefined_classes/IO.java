@@ -9,8 +9,8 @@ import semantic_analyzer.types.Str;
 
 public class IO extends PredefinedClass {
 
-	public IO() throws InternalError {
-		super("IO");
+	public IO(int position) throws InternalError {
+		super("IO", position);
 		try {
 			super.addMethod("out_str", true);
 			super.addArgumentToMethod("out_str", new Str(), "s");

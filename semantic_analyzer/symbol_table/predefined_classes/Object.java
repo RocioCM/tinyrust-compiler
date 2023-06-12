@@ -1,7 +1,7 @@
 package semantic_analyzer.symbol_table.predefined_classes;
 
 public class Object extends PredefinedClass {
-	public Object() {
-		super("Object");
+	public Object(int position) {
+		super("Object", position);
 	}
 }

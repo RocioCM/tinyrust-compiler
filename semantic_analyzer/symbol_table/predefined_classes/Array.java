@@ -4,8 +4,8 @@ import error.semantic.sentences.InternalError;
 import semantic_analyzer.types.I32;
 
 public class Array extends PredefinedClass {
-	public Array() throws InternalError {
-		super("Array");
+	public Array(int position) throws InternalError {
+		super("Array", position);
 		try {
 			super.addMethod("length", false, new I32());
 		} catch (Exception e) {
