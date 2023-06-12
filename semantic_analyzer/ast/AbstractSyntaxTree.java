@@ -41,12 +41,10 @@ public class AbstractSyntaxTree implements Node {
 	public String generateCode(SymbolTable ts) throws ASTError {
 		Code asm = new Code();
 
+		generateVirtualTables(ts, asm); // Save static VTs in data segment.
 		asm.addConstants(); // Init some constants in data segment.
 
-		// Generate Virtual Method Tables. The VTs associate methods from classes with
-		// its corresponding ASM label.
-		generateVirtualTables(ts, asm);
-
+		asm.addLine("");
 		asm.addLine(".text");
 		asm.addLine(".globl main");
 		asm.addLine("jal main # start ejecution in main function.");
@@ -79,11 +77,10 @@ public class AbstractSyntaxTree implements Node {
 			String className = classesIter.next().name();
 			ClassEntry classTSEntry = ts.getClass(className);
 
+			asm.addLine("vtable_" + className + ":"); // Declare class VTable.
 			// Retrieve methods from TS instead of AST, because AST doesn't include
 			// inherited methods.
 			classTSEntry.methods().values().forEach((method) -> {
-				String vtLabel = Code.generateLabel("labelmethod", className, method.name(), "");
-
 				if (method.isInherited()) {
 					// Method is inherited, so get the super-method label "recursively".
 					ClassEntry superClassTSEntry = ts.getClass(classTSEntry.extendsFrom());
@@ -95,14 +92,14 @@ public class AbstractSyntaxTree implements Node {
 					}
 
 					// Found method implementation, then generate label on that super-class.
-					String methodLabel = Code.generateLabel("labelmethod", superClassTSEntry.name(), method.name(), "");
-					asm.addLine(vtLabel, ": .word ", methodLabel);
+					String methodLabel = Code.generateLabel("method", superClassTSEntry.name(), method.name());
+					asm.addLine(".word ", methodLabel);
 
 				} else {
 					// Method isn't inherited, so its label is resolved directly.
 					String methodLabel = className.equals("main") && method.name().equals("main") ? "main"
-							: Code.generateLabel("method", className, method.name(), "");
-					asm.addLine(vtLabel, ": .word ", methodLabel);
+							: Code.generateLabel("method", className, method.name());
+					asm.addLine(".word ", methodLabel);
 				}
 			});
 		}

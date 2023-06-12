@@ -152,7 +152,7 @@ public abstract class MethodCallNode extends ExpressionNode {
         }
 
         // Call method.
-        code.addLine("jal " + Code.generateLabel("method", className, methodName, "") + "    # Jump to method code.");
+        code.addLine("jal " + Code.generateLabel("method", className, methodName) + "    # Jump to method code.");
 
         // Restore registers after method call returns.
         code.popFromStackTo("$ra"); // Restore caller return address from stack.

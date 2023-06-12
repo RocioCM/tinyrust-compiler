@@ -7,6 +7,7 @@ import util.Code;
 import util.Json;
 
 public class ClassNode implements Node {
+
 	private String name;
 	private TreeList<MethodNode> methods;
 	protected Location loc; // Declaration location.
@@ -50,6 +51,9 @@ public class ClassNode implements Node {
 		// Generarla con los labels de los métodos de la TS, porque en los métodos del
 		// AST faltan los métodos heredados.
 		// TODO 1: agregar clase al CIR? Noup, armar su Virtual Method Table.
+
+		/// TODO: si el constructor no es explícito, igualmente agregar el label para el
+		/// constructor implícito.
 
 		code.add(methods.generateCode(ts)); // Registrar el código de cada método.
 		return code.getCode();

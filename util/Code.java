@@ -25,8 +25,8 @@ public class Code {
 	}
 
 	/** Genera un label único para un método o variable. */
-	static public String generateLabel(String prefix, String className, String method, String postfix) {
-		return prefix + "_" + className.replaceAll("_", "__") + "_" + method.replaceAll("_", "__") + "_" + postfix;
+	static public String generateLabel(String prefix, String className, String method) {
+		return prefix + "_" + className.replaceAll("_", "__") + "_" + method;
 	}
 
 	/**

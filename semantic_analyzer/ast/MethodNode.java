@@ -60,7 +60,7 @@ public class MethodNode implements Node {
 		// Preprocesar datos para la generación de código.
 		String className = ts.currentClass().name();
 		this.label = className.equals("main") && name.equals("main") ? "main"
-				: Code.generateLabel("method", className, name, "");
+				: Code.generateLabel("method", className, name);
 		this.argsSize = ts.currentMethod().arguments().size();
 
 		ts.endMethod();
