@@ -43,23 +43,33 @@ public class Executor {
 			String astJson = ast.toJson();
 			String asmCode = ast.generateCode(ts);
 
-			Logger.success("GENERACION CODIGO", outputPath);
+			Logger.success("GENERACION CODIGO", null);
 
+			// Archivos intermedios:
 			Logger.createFile(tsJson, basePath.concat(".ts.json"));
 			Logger.createFile(astJson, basePath.concat(".ast.json"));
-			Logger.createFile(asmCode, basePath.concat(".asm")); // Archivo con el código generado.
+			// Archivo con el código generado:
+			Logger.createFile(asmCode, outputPath != null ? outputPath : basePath.concat(".asm"));
 
 		} catch (LexicalError error) {
 			Logger.error("LEXICO", error, outputPath);
+			Logger.error("LEXICO", error, null);
+
 			System.exit(1);
 		} catch (SyntacticalError error) {
 			Logger.error("ANALISIS SINTACTICO", error, outputPath);
+			Logger.error("ANALISIS SINTACTICO", error, null);
+
 			System.exit(1);
 		} catch (ASTError error) {
 			Logger.error("SEMANTICO - SENTENCIAS", error, outputPath);
+			Logger.error("SEMANTICO - SENTENCIAS", error, null);
+
 			System.exit(1);
 		} catch (SemanticalError error) {
 			Logger.error("SEMANTICO - DECLARACIONES", error, outputPath);
+			Logger.error("SEMANTICO - DECLARACIONES", error, null);
+
 			System.exit(1);
 		}
 	}
