@@ -137,24 +137,22 @@ public abstract class MethodCallNode extends ExpressionNode {
     public String generateCode(SymbolTable ts) throws ASTError {
         Code code = new Code();
 
-        /// TODO: the self reference must be pushed to stack before this so we can
-        /// access its attrs in the method.
+        // Tip: before generating this code, the self reference must be pushed to stack.
+        // As it changes depending on the type of method access, defining its value it's
+        // up to the MethodCallNode subclass invoking this method.
 
         // Save caller method state to stack.
         code.pushToStackFrom("$ra"); // Save the caller return address to stack.
         code.pushAndUpdateFramePointer();
-        /// TODO: emmh, modificar el frame pointer antes de pushear los argumentos rompe
-        /// la referencia del argumento. Por qué no guardarlo un ratito en un registro y
-        /// después devolverlo a la vida?
-        code.addLine("lw $fp 4($sp) # Restore previous frame pointer in register, for args evaluation."); ///
+
+        code.addLine("lw $fp 4($sp) # Restore caller frame pointer in register, during arguments evaluation.");
         // Push arguments to the stack in inverse order.
         for (int i = arguments.size() - 1; i >= 0; i--) {
             code.add(arguments.get(i).generateCode(ts));
             code.pushToStackFrom("$a0");
         }
-
-        code.addLine("lw $fp " + 4 * arguments.size(), // Is this number right?
-                "($sp) # Restore real current frame pointer in register, for args evaluation."); ///
+        code.addLine("addiu $fp, $sp, " + 4 * (arguments.size() + 1),
+                "    # Restore the latest frame pointer value to register, after arguments evaluation.");
 
         // Call method.
         code.addLine("jal " + Code.generateLabel("method", className, methodName) + "    # Jump to method code.");

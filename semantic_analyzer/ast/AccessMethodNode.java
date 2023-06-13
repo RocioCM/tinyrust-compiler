@@ -48,11 +48,16 @@ public class AccessMethodNode extends MethodCallNode {
     public String generateCode(SymbolTable ts) throws ASTError {
         Code code = new Code();
 
-        // Tip: the self reference for the method is the same as the caller self.
-        code.pushToStackFrom("$0"); // Push "self" empty reference. /// TODO: push the real self reference.
+        // Get self reference.
+        // Tip: the self reference for the method is the same as the caller's self.
+        code.addLine("lw $t1, 0($fp)    # Save in $t1 the upper frame pointer address.");
+        code.addLine("lw $a0, 8($t1)    # Save in $t2 the current class CIR address"); // 8 = 4*fp + 4*ra
+        code.pushToStackFrom("$a0");
+
         code.add(super.generateCode(ts));
-        code.popFromStackTo("$t2"); // This value is not used, just removed.
-        /// TODO save in a0 the method result. Or is it already there?
+
+        code.popFromStackTo("$t2"); // Self value is not used anymore, just pop it to random register.
+        // Tip: by this point, the result is already stored at $a0.
 
         return code.getCode();
     }

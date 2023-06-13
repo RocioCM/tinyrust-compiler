@@ -61,7 +61,7 @@ public class Code {
 	}
 
 	public Code writeOutput(int syscallId) {
-		popFromStackTo("$a0"); // Retrieve output value from stack.
+		addLine("lw $a0 4($fp)"); // Retrieve output value from method first argument.
 		addLine("li $v0, ", String.valueOf(syscallId), "    # Load output syscall id.");
 		addLine("syscall    # Print out value.");
 		/// TODO: add breakline after each print. Remove the hardcoded new lines from
@@ -86,9 +86,9 @@ public class Code {
 
 	public Code readInputLiteral(int syscallId, String msgLabel) {
 		// Show user friendly input message.
-		addLine("la $t1, " + msgLabel + "   # Save string addr in temporal register.");
-		pushToStackFrom("$t1");
-		writeOutput(4);
+		addLine("la $a0 ", msgLabel, "   # Save string addr in output register.");
+		addLine("li $v0, 4    # Load output string syscall id.");
+		addLine("syscall    # Print out value.");
 
 		// Expect input value.
 		addLine("li $v0, ", String.valueOf(syscallId), "   # Load input syscall id.");
@@ -102,9 +102,9 @@ public class Code {
 
 	public Code readInputString(int syscallId, String msgLabel) {
 		// Show user friendly input message.
-		addLine("la $t1, " + msgLabel + "   # Save string addr in temporal register.");
-		pushToStackFrom("$t1");
-		writeOutput(4);
+		addLine("la $a0 ", msgLabel, "   # Save string addr in output register.");
+		addLine("li $v0, 4    # Load output string syscall id.");
+		addLine("syscall    # Print out value.");
 
 		// Expect input value.
 		addLine("li $v0, ", String.valueOf(syscallId), "   # Load input syscall id.");
@@ -132,6 +132,8 @@ public class Code {
 		// Boolean values labels
 		addLine("bool_true: .asciiz \"true\\n\"");
 		addLine("bool_false: .asciiz \"false\\n\"");
+		// Default values
+		addLine("empty_str: .asciiz \"\"");
 		// Reserved spaces
 		addLine("temp_i32: .word 0");
 		addLine(".text    # End data segment.");

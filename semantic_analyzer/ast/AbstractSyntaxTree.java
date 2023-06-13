@@ -55,7 +55,7 @@ public class AbstractSyntaxTree implements Node {
 		// This is generic for every method, then it's just written once,
 		asm.addLine("");
 		asm.addLine("cleanup_method:");
-		asm.addLine("lw $fp, 0($fp)    # Jump tothe stack frame's first frame pointer.");
+		asm.addLine("lw $fp, 0($fp)    # Jump $fp to the stack frame's first frame pointer.");
 		asm.addLine("addiu $sp, $fp, -4    # Remove vars and arguments from stack.");
 		asm.addLine("lw $fp, 0($fp)    # Restore caller frame pointer.");
 		asm.addLine("jr $ra    # Jump back to caller's next instruction address after method execution.");
