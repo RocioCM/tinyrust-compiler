@@ -70,7 +70,8 @@ public class Code {
 	}
 
 	public Code writeOutputBool(int syscallId) {
-		popFromStackTo("$a0"); // Retrieve output value from stack.
+		addLine("lw $a0 4($fp)"); // Retrieve output value from method first argument.
+
 		addLine("beq $a0, $0, set_bool_false     # Save true string address in a0.");
 		addLine("la $a0, bool_true    # Save true string address in a0.");
 		addLine("j output_bool    # Jump to print instruction.");
@@ -112,7 +113,7 @@ public class Code {
 		addLine("la $t1, temp_i32    # Reserve aligned space for input value.");
 		addLine("sw $v0, 0($t1)    # Save input value to data segment.");
 		addLine("lw $a0, 0($t1)    # Save input value to accumulator.");
-
+		// TODO: this is not running, fix it.
 		return this;
 	}
 

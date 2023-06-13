@@ -14,7 +14,7 @@ class TinyRustCompiler {
 
 		try {
 			// Se lee la ruta del archivo de los argumentos de entrada.
-			inputPath = "./test (2).rs";
+			inputPath = args[0];
 
 			if (!inputPath.endsWith(".rs")) {
 				throw new IOException("ERROR: EL ARCHIVO DE ENTRADA DEBE TENER EXTENSION .rs");

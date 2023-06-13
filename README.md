@@ -1,5 +1,7 @@
 # TinyRust+
 
+[WIP] - Esta documentación es un trabajo en progreso, por lo cual está incompleta.
+
 En este repositorio se encuentra la implementación del compilador del lenguaje de programación TinyRust+.
 
 ## Compilado y ejecución
@@ -87,42 +89,3 @@ La clase Token representa cualquier token del lenguaje TinyRust+. Registra el n�
 #### ReservedWords
 
 La clase ReservedWords implementa un método estático que recibe un Token de tipo identificador y valida (y lo actualiza si corresponde) si el identificador es en realidad una palabra reservada. También implementa una funcionalidad similar para validar si un token de tipo identificador de clase es en realidad un tipo primitivo de datos de TinyRust+.
-
-// Notes
-
-Stack Frame == RA (registro de activación) != $ra (return address)
-Cada método tiene su stack frame, que es un conjunto de cosas en la pila.
-Cuando entrás al método se ponen esas cosas en la pila.
-Cuando salís del método se borran.
-
-Incluso el método main en teoría tiene su stack frame...
-El syscall exit lo debería poner después del jal main (si el main vuelve ahí.)
-
-El stack frame se arma una parte en MethodCallNode y otra en MethodNode.
-MethodNode es quien limpia el stack frame de la pila.
-El stack frame tiene:
-
-0. El self del llamado (si llamo Fibo.coso, el self es Fibo).
-1. Guardo el return address actual (el valor de $ra) (ese lo llenó el jal y es donde continua el llamador).
-2. Guardo el valor de $fp previo (frame pointer del contexto invocador). Y guardo en el frame pointer actual, la dirección a este frame pointer, es decir, al actual $sp.
-
-3. Guardo los n argumentos actuales (del n al 0)
-4. Guardo el valor de $fp de nuevo (este apunta al de antes de los args). Y el $fp queda apuntando a esta dirección de memoria, es decir, al actual $sp. (Con este accedo variables y args).
-5. Guardo las n variables del método (de 0 a n).
-   Del frame pointer $fp tengo para arriba los args y para abajo las vars.
-
-Debajo de eso, hago lo que me pinte con la stack.
-
-El accessNode guarda en $a0 el valor de la variable (lectura) y en $v0 el address en memoria de la variable (para escritura).
-
-lw carga desde memoria a un registro
-sw carga desde un registro a la memoria
-
-Entonces:
-$a0 devuelve valores
-$v0 devuelve addresses
-
-TODOS en orden de importancia:
-
-0. Testear el retorno del constructor.
-1. Acceder métodos del CIR.
