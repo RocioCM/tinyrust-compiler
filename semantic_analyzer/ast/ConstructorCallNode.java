@@ -1,6 +1,9 @@
 package semantic_analyzer.ast;
 
+import java.util.HashMap;
+
 import error.semantic.sentences.ASTError;
+import semantic_analyzer.symbol_table.AttributeEntry;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import util.Code;
@@ -38,15 +41,33 @@ public class ConstructorCallNode extends MethodCallNode {
 		Code code = new Code();
 		String cirLabel = "cir_" + id;
 		String vtLabel = "vtable_" + super.className();
-		int attrsSize = ts.getClass(super.className()).attributes().size();
+		HashMap<String, AttributeEntry> attributes = ts.getClass(super.className()).attributes();
 
 		code.addLine(".data");
-		code.addLine(cirLabel, ": .space " + (attrsSize + 1) * 4, "    # Instance of class ", super.className());
+		code.addLine(cirLabel, ": .space " + (attributes.size() + 1) * 4, "    # Instance of class ", super.className());
 
 		code.addLine(".text");
 		code.addLine("la $a0, ", vtLabel, "    # Save VT address to accumulator.");
 		code.addLine("sw $a0 ", cirLabel, "($0)    # Save VT address in CIR.");
 		code.addLine("la $a0, ", cirLabel, "    # Save CIR address to accumulator.");
+
+		// Initialize value for each field.
+		attributes.values().forEach((attr) -> {
+			/// TODO Use the type's default value for str and char.
+			/// Init each field with its default value.
+			/// Defaults: bool 0, int 0, Object nil, Array nil, char ??, str "".
+
+			switch (attr.type().type()) {
+				case "Str":
+					break;
+
+				case "Char":
+					break;
+
+				default:
+					break;
+			}
+		});
 
 		// Invoke class constructor.
 		code.pushToStackFrom("$a0"); // Push self for constructor.

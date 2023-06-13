@@ -5,6 +5,7 @@ import error.semantic.sentences.InternalError;
 import semantic_analyzer.symbol_table.ClassEntry;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Type;
+import util.Code;
 import util.Json;
 
 public class ChainedExpressionNode extends ExpressionNode {
@@ -60,7 +61,11 @@ public class ChainedExpressionNode extends ExpressionNode {
 
     @Override
     public String generateCode(SymbolTable ts) throws ASTError {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+        Code code = new Code(expression.generateCode(ts)); // Generate expression code.
+        code.pushToStackFrom("$a0"); // Push expression value from register to stack.
+
+        /// TODO: resolve chained access. Generate its code.
+
+        return code.getCode();
     }
 }

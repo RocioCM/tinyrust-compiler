@@ -84,8 +84,19 @@ public class MethodNode implements Node {
 				VariableEntry var = variables.get(i + 1);
 				code.addLine("add $a0, $0, $0    # Clean accumulator to store nil on the variable.");
 				code.pushToStackFrom("$a0"); // Save variable value to stack.
-				/// TODO Use the type's default value for str, char and array.
+
+				/// TODO Use the type's default value for str and char.
 				/// Defaults: bool 0, int 0, Object nil, Array nil, char ??, str "".
+				switch (var.type().type()) {
+					case "Str":
+						break;
+
+					case "Char":
+						break;
+
+					default:
+						break;
+				}
 			}
 
 			code.add(block.generateCode(ts));

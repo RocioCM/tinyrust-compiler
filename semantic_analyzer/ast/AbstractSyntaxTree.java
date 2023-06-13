@@ -63,7 +63,12 @@ public class AbstractSyntaxTree implements Node {
 		// Error handling subroutines.
 		asm.addLine("");
 		asm.addLine("error_zero_division:");
-		/// TODO print error with line and column.
+		/// TODO print error with line and column stored at $a1 and $a2.
+		asm.exitProgram();
+
+		asm.addLine("");
+		asm.addLine("error_array_out_of_bounds:");
+		/// TODO print error with line and column stored at $a1 and $a2.
 		asm.exitProgram();
 
 		return asm.getCode();

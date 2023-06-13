@@ -142,28 +142,36 @@ public class AccessVariableNode extends AccessNode {
 		// This way, by accesing the variable, you get read and write access.
 		// Variable value is saved at $a0 and variable address is saved at $v0.
 
-		if (variable instanceof AttributeEntry) {
-			// Access class attribute.
-			code.addLine("lw $t1, 0($fp)    # Save in $t1 the upper frame pointer address.");
-			code.addLine("lw $t2, 8($t1)    # Save in $t2 the current class CIR address"); // 8 = 4*fp + 4*ra
-			code.addLine("lw $a0, " + variable.position() * 4, "($t2)    # Save in accumulator the attribute value.");
-			code.addLine("addiu $v0, $t2, " + variable.position() * 4, "    # Save in v0 the attribute address.");
+		if (identifier.equals("self")) {
+			/// TODO: handle special "self" variable case.
 
 		} else {
-			if (variable instanceof ArgumentEntry) {
-				// Access method argument.
-				code.addLine("lw $a0, " + variable.position() * 4,
-						"($fp)    # Save in accumulator the method argument value.");
-				code.addLine("addiu $v0, $fp, " + variable.position() * 4,
-						"    # Save in v0 the method argument address.");
+			if (variable instanceof AttributeEntry) {
+				// Access class attribute.
+				code.addLine("lw $t1, 0($fp)    # Save in $t1 the upper frame pointer address.");
+				code.addLine("lw $t2, 8($t1)    # Save in $t2 the current class CIR address"); // 8 = 4*fp + 4*ra
+				code.addLine("lw $a0, " + variable.position() * 4, "($t2)    # Save in accumulator the attribute value.");
+				code.addLine("addiu $v0, $t2, " + variable.position() * 4, "    # Save in v0 the attribute address.");
 
 			} else {
-				// Access method block variable.
-				code.addLine("lw $a0, -" + variable.position() * 4, "($fp)    # Save in accumulator the block variable value.");
-				code.addLine("addiu $v0, $fp, -" + variable.position() * 4,
-						"    # Save in v0 the block variable address.");
+				if (variable instanceof ArgumentEntry) {
+					// Access method argument.
+					code.addLine("lw $a0, " + variable.position() * 4,
+							"($fp)    # Save in accumulator the method argument value.");
+					code.addLine("addiu $v0, $fp, " + variable.position() * 4,
+							"    # Save in v0 the method argument address.");
+
+				} else {
+					// Access method block variable.
+					code.addLine("lw $a0, -" + variable.position() * 4,
+							"($fp)    # Save in accumulator the block variable value.");
+					code.addLine("addiu $v0, $fp, -" + variable.position() * 4,
+							"    # Save in v0 the block variable address.");
+				}
 			}
 		}
+
+		/// TODO: resolve chained access. Generate its code.
 
 		// Tip: at this point, variable value is at $a0 and variable address is at $v0.
 		return code.getCode();
