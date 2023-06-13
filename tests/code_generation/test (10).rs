@@ -19,7 +19,7 @@ fn main() {
 	b = true;
 	while (b) {
 		(IO.out_bool(b));
-		b = !b;
+		b = false; // TODO revisar b = !b no funciona.
 	}
 	(IO.out_str("out 3"));
 

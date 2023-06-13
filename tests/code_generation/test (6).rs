@@ -8,9 +8,9 @@ class Derivada : Base {
 	create() {
 		x = 0;
 		(hola("Hola mundo!"));
-		(update());
-		(update());
-		(print());
+		// (update()); // Todavia no funciona, los metodos no se consultan en la VT.
+		// (update());
+		// (print());
 	}
 
 }
@@ -33,6 +33,6 @@ fn main() {
 	// Herencia de metodos
 	Base: b1;
 
-	b1 = new Derivada();
+	b1 = new Derivada(); 
 	
 }

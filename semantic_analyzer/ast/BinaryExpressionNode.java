@@ -139,7 +139,7 @@ public class BinaryExpressionNode extends ExpressionNode {
 				code.addLine("li $a2, ", String.valueOf(super.loc.getCol()), "    # Save column in case of division error.");
 				code.addLine("beq $t1, $0, error_zero_division    # Validate zero-division..");
 				code.addLine("div $t1 $a0   # Divide the two expressions values (a0/t1).");
-				code.addLine("mfh1 $a0     # Save division remainder in accumulator.");
+				code.addLine("mfhi $a0     # Save division remainder in accumulator.");
 				break;
 
 			default:
