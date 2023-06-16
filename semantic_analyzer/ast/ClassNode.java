@@ -53,7 +53,7 @@ public class ClassNode implements Node {
 		// Generate class Virtual Method Table (VT).
 		ClassEntry classTSEntry = ts.getClass(name);
 		String vtLabel = "vtable_" + name;
-		code.addLine(".data");
+		code.addLine("\n.data");
 		code.addLine(vtLabel, ":"); // Declare class VTable.
 		code.addLine(".word ", Code.generateLabel("method", name, "create")); // Add constructor to VT.
 
@@ -88,6 +88,7 @@ public class ClassNode implements Node {
 		if (classTSEntry.constructor() == null || !classTSEntry.constructor().isAlreadyDeclared()) {
 			code.addLine("");
 			code.addLine(Code.generateLabel("method", name, "create") + ":");
+			code.pushAndUpdateFramePointer(); // Save the caller frame pointer to stack.
 			code.addLine("j cleanup_method    # Jump to method cleanup and return to caller.");
 		}
 

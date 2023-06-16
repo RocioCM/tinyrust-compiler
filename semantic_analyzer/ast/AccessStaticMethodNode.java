@@ -7,9 +7,13 @@ import util.Code;
 import util.Json;
 
 public class AccessStaticMethodNode extends MethodCallNode {
+	static private int instancesCounter = 0;
+	private int instanceId;
 
 	public AccessStaticMethodNode(String className, MethodCallNode methodCall, Location loc) {
 		super(className, methodCall.methodName(), methodCall.arguments(), methodCall.chainedAccess(), loc);
+		this.instanceId = instancesCounter + 1;
+		instancesCounter++;
 	}
 
 	@Override
@@ -35,7 +39,8 @@ public class AccessStaticMethodNode extends MethodCallNode {
 		// Validar que el método sea estático.
 		if (!super.getMethod(ts).isStatic()) {
 			throw new ASTError(loc,
-					"SE INTENTO INVOCAR DE MANERA ESTATICA AL METODO NO ESTATICO " + super.methodName() + " DE LA CLASE "
+					"SE INTENTO INVOCAR DE MANERA ESTATICA AL METODO NO ESTATICO " + super.methodName()
+							+ " DE LA CLASE "
 							+ super.className());
 		}
 
@@ -46,10 +51,20 @@ public class AccessStaticMethodNode extends MethodCallNode {
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
 		Code code = new Code();
+		String vtLabel = "vtable_" + super.className();
+		String mockedCirLabel = "mCir_" + instanceId;
+		code.addLine(".data");
+		code.addLine(mockedCirLabel, ": .space 4    # Mocked instance of class ",
+				super.className(), " for static methods access.");
 
-		// Tip: it's not necessary to push any self value to stack as it's not accessed
-		// in the body of the static method.
-		code.pushToStackFrom("$0"); // Push "self" empty reference.
+		// Tip: it's just necessary to push the VT reference a "self" value to stack as
+		// attributes are not accessed in the body of the static method.
+		code.addLine(".text");
+		code.addLine("la $a0, ", vtLabel, "    # Save VT address to accumulator.");
+		code.addLine("sw $a0 ", mockedCirLabel, "($0)    # Save VT address in CIR.");
+		code.addLine("la $a0, ", mockedCirLabel, "    # Save  mocked CIR address to accumulator.");
+
+		code.pushToStackFrom("$a0"); // Push mocked CIR as "self" reference.
 		code.add(super.generateCode(ts));
 		code.popFromStackTo("$t2"); // This value is not used, just removed.
 

@@ -17,6 +17,7 @@ import util.Code;
 public abstract class MethodCallNode extends ExpressionNode {
     private String className; // Si es null indica que debe accederse a la clase actual.
     private String methodName;
+    private int position; // Posiciòn del mètodo en la clase. Usado en la generaciòn de còdigo.
     private TreeList<ExpressionNode> arguments;
     private ChainedAccessNode chainedAccess;
 
@@ -102,6 +103,9 @@ public abstract class MethodCallNode extends ExpressionNode {
             resolveType = methodEntry.returnType();
         }
 
+        // Guardar datos para la generación de código.
+        this.position = methodEntry.position();
+
         super.setResolveType(resolveType);
         super.validateType(ts);
     }
@@ -155,8 +159,12 @@ public abstract class MethodCallNode extends ExpressionNode {
                 "    # Restore the latest frame pointer value to register, after arguments evaluation.");
 
         // Call method.
-        code.addLine("jal " + Code.generateLabel("method", className, methodName) + "    # Jump to method code.");
-        // TODO: cambiar este label por la ref de la VT.
+        // Access class VT using CIR reference.
+        code.addLine("lw $t1, 8($fp)    # Save in $t1 the current class CIR address"); // 8 = 4*fp + 4*ra
+        code.addLine("lw $t2, 0($t1)    # Save in $t2 the object VT address");
+        code.addLine("lw $a0, " + position * 4,
+                "($t2)    # Save in accumulator the method label address");
+        code.addLine("jalr $a0    # Jump to method code.");
 
         // Restore registers after method call returns.
         code.popFromStackTo("$fp"); // Restore caller frame pointer from stack.

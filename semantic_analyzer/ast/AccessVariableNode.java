@@ -31,7 +31,8 @@ public class AccessVariableNode extends AccessNode {
 		this.chainedAccess = chainedAccess;
 	}
 
-	public AccessVariableNode(String identifier, ChainedAccessNode chainedAccess, Boolean mandatoryChain, Location loc) {
+	public AccessVariableNode(String identifier, ChainedAccessNode chainedAccess, Boolean mandatoryChain,
+			Location loc) {
 		super(loc);
 		this.identifier = identifier;
 		this.chainedAccess = chainedAccess;
@@ -69,7 +70,8 @@ public class AccessVariableNode extends AccessNode {
 			// Validar que no se acceda self en el método main.
 			if (ts.currentClass().name().equals("main")) {
 				throw new ASTError(loc,
-						"SE INTENTO ACCEDER A LA VARIABLE " + identifier + " PERO NO ESTA DEFINIDA EN EL AMBITO ACTUAL.");
+						"SE INTENTO ACCEDER A LA VARIABLE " + identifier
+								+ " PERO NO ESTA DEFINIDA EN EL AMBITO ACTUAL.");
 			}
 
 			// Validar que no se acceda self en un contexto estático.
@@ -85,7 +87,8 @@ public class AccessVariableNode extends AccessNode {
 			// Validar que la variable exista.
 			if (variable == null) {
 				throw new ASTError(loc,
-						"SE INTENTO ACCEDER A LA VARIABLE " + identifier + " PERO NO ESTA DEFINIDA EN EL AMBITO ACTUAL.");
+						"SE INTENTO ACCEDER A LA VARIABLE " + identifier
+								+ " PERO NO ESTA DEFINIDA EN EL AMBITO ACTUAL.");
 			}
 
 			if (variable instanceof AttributeEntry) {
@@ -101,7 +104,8 @@ public class AccessVariableNode extends AccessNode {
 				AttributeEntry attr = (AttributeEntry) (variable);
 				if (attr.isInherited() && !attr.isPublic()) {
 					throw new ASTError(loc, "EL ATRIBUTO " + variable.name() + " DE LA CLASE "
-							+ ts.currentClass().name() + " NO ES VISIBLE EN ESTE CONTEXTO PORQUE ES UN ATRIBUTO PRIVADO HEREDADO.");
+							+ ts.currentClass().name()
+							+ " NO ES VISIBLE EN ESTE CONTEXTO PORQUE ES UN ATRIBUTO PRIVADO HEREDADO.");
 				}
 			}
 			varType = variable.type();
@@ -150,7 +154,8 @@ public class AccessVariableNode extends AccessNode {
 				// Access class attribute.
 				code.addLine("lw $t1, 0($fp)    # Save in $t1 the upper frame pointer address.");
 				code.addLine("lw $t2, 8($t1)    # Save in $t2 the current class CIR address"); // 8 = 4*fp + 4*ra
-				code.addLine("lw $a0, " + variable.position() * 4, "($t2)    # Save in accumulator the attribute value.");
+				code.addLine("lw $a0, " + variable.position() * 4,
+						"($t2)    # Save in accumulator the attribute value.");
 				code.addLine("addiu $v0, $t2, " + variable.position() * 4, "    # Save in v0 the attribute address.");
 
 			} else {
@@ -171,7 +176,13 @@ public class AccessVariableNode extends AccessNode {
 			}
 		}
 
-		/// TODO: resolve chained access. Generate its code.
+		if (chainedAccess != null) {
+			/// TODO: handle nil variable value, it wont have any chainable attrs. You have
+			/// to throw a runtime error.
+			// Tip: current self reference for the chain is at a0.
+			code.add(chainedAccess.generateCode(ts));
+			// The result of the chained access will be stored at a0 and v0 at this point.
+		}
 
 		// Tip: at this point, variable value is at $a0 and variable address is at $v0.
 		return code.getCode();

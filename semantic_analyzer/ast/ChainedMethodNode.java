@@ -12,10 +12,12 @@ import semantic_analyzer.symbol_table.MethodEntry;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Type;
 import semantic_analyzer.types.Void;
+import util.Code;
 import util.Json;
 
 public class ChainedMethodNode extends ChainedAccessNode {
 	private TreeList<ExpressionNode> arguments;
+	private int position;
 
 	public ChainedMethodNode(String accessedEntity, TreeList<ExpressionNode> arguments,
 			ChainedAccessNode chainedAccess, Location loc) {
@@ -71,6 +73,9 @@ public class ChainedMethodNode extends ChainedAccessNode {
 			returnType = methodEntry.returnType();
 		}
 
+		// Guardar datos para la generación de código.
+		this.position = methodEntry.position();
+
 		return returnType;
 	}
 
@@ -104,7 +109,37 @@ public class ChainedMethodNode extends ChainedAccessNode {
 
 	@Override
 	public String generateCode(SymbolTable ts) throws ASTError {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
+		Code code = new Code();
+		// 1. Self està en a0, pushearla al stack.
+		code.pushToStackFrom("$a0"); // Push self reference to Stack (CIR addr).
+
+		code.pushToStackFrom("$ra"); // Save the caller return address to stack.
+		code.pushAndUpdateFramePointer();
+
+		code.addLine("lw $fp 4($sp) # Restore caller frame pointer in register, during arguments evaluation.");
+		// Push arguments to the stack in inverse order.
+		for (int i = arguments.size() - 1; i >= 0; i--) {
+			code.add(arguments.get(i).generateCode(ts));
+			code.pushToStackFrom("$a0");
+		}
+		code.addLine("addiu $fp, $sp, " + 4 * (arguments.size() + 1),
+				"    # Restore the latest frame pointer value to register, after arguments evaluation.");
+
+		// Call method.
+		// Access class VT using CIR reference.
+		code.addLine("lw $t1, 8($fp)    # Save in $t1 the current class CIR address"); // 8 = 4*fp + 4*ra
+		code.addLine("lw $t2, 0($t1)    # Save in $t2 the object VT address");
+		code.addLine("lw $a0, " + position * 4,
+				"($t2)    # Save in accumulator the method label address");
+		code.addLine("jalr $a0    # Jump to method code.");
+
+		// Tip: at this point, return value is already stored in the accumulator.
+
+		// Restore registers after method call returns.
+		code.popFromStackTo("$fp"); // Restore caller frame pointer from stack.
+		code.popFromStackTo("$ra"); // Restore caller return address from stack.
+		code.popFromStackTo("$t2"); // This value isn't used, just popped.
+
+		return code.getCode();
 	}
 }

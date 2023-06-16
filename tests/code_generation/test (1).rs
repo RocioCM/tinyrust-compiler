@@ -24,11 +24,10 @@ class Fibonacci {
 		}
 	}
 
-	create(I32: n) {
+	create() {
 		i=0;
 		j=0;
 		suma=0;
-		(sucesion_fib(n));
 	}
 
 	fn imprimo_numero(I32: num) -> void {
@@ -47,7 +46,8 @@ class Fibonacci {
 fn main(){
 	Fibonacci: fib;
 	I32: n;
+	fib = new Fibonacci();
 	n = IO.in_i32();
-	fib = new Fibonacci(n);
+	(fib.sucesion_fib(n));
 }
 
