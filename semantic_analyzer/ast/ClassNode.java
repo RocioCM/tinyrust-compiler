@@ -1,5 +1,7 @@
 package semantic_analyzer.ast;
 
+import java.util.HashMap;
+
 import error.semantic.sentences.ASTError;
 import semantic_analyzer.symbol_table.ClassEntry;
 import semantic_analyzer.symbol_table.Location;
@@ -55,11 +57,14 @@ public class ClassNode implements Node {
 		String vtLabel = "vtable_" + name;
 		code.addLine("\n.data");
 		code.addLine(vtLabel, ":"); // Declare class VTable.
+		code.addLine(".align 2");
 		code.addLine(".word ", Code.generateLabel("method", name, "create")); // Add constructor to VT.
 
 		// Retrieve methods from TS instead of AST, because AST doesn't include
 		// inherited methods.
-		classTSEntry.methods().values().forEach((method) -> {
+		HashMap<Number, MethodEntry> methodsTS = classTSEntry.indexedMethods();
+		for (int i = 1; i <= methodsTS.size(); i++) {
+			MethodEntry method = methodsTS.get(i);
 			if (method.isInherited()) {
 				// Method is inherited, so get the super-method label "recursively".
 				ClassEntry superClassTSEntry = ts.getClass(classTSEntry.extendsFrom());
@@ -80,7 +85,7 @@ public class ClassNode implements Node {
 						: Code.generateLabel("method", name, method.name());
 				code.addLine(".word ", methodLabel);
 			}
-		});
+		}
 
 		code.addLine(".text");
 

@@ -54,15 +54,16 @@ public class AccessStaticMethodNode extends MethodCallNode {
 		String vtLabel = "vtable_" + super.className();
 		String mockedCirLabel = "mCir_" + instanceId;
 		code.addLine(".data");
-		code.addLine(mockedCirLabel, ": .space 4    # Mocked instance of class ",
+		code.addLine(mockedCirLabel, ": .align 2    # Mocked instance of class ",
 				super.className(), " for static methods access.");
+		code.addLine(".space 4");
 
 		// Tip: it's just necessary to push the VT reference a "self" value to stack as
 		// attributes are not accessed in the body of the static method.
 		code.addLine(".text");
 		code.addLine("la $a0, ", vtLabel, "    # Save VT address to accumulator.");
 		code.addLine("sw $a0 ", mockedCirLabel, "($0)    # Save VT address in CIR.");
-		code.addLine("la $a0, ", mockedCirLabel, "    # Save  mocked CIR address to accumulator.");
+		code.addLine("la $a0, ", mockedCirLabel, "    # Save mocked CIR address to accumulator.");
 
 		code.pushToStackFrom("$a0"); // Push mocked CIR as "self" reference.
 		code.add(super.generateCode(ts));

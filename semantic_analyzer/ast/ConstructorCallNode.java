@@ -44,7 +44,8 @@ public class ConstructorCallNode extends MethodCallNode {
 		HashMap<String, AttributeEntry> attributes = ts.getClass(super.className()).attributes();
 
 		code.addLine(".data");
-		code.addLine(cirLabel, ": .space " + (attributes.size() + 1) * 4, "    # Instance of class ", super.className());
+		code.addLine(cirLabel, ": .align 2");
+		code.addLine(".space " + (attributes.size() + 1) * 4, "    # Instance of class ", super.className());
 
 		code.addLine(".text");
 		code.addLine("la $a0, ", vtLabel, "    # Save VT address to accumulator.");
