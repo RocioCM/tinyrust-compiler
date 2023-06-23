@@ -15,4 +15,11 @@ public interface Node extends TableElement {
 	 *                  inválidos.
 	 */
 	public void validate(SymbolTable ts) throws ASTError;
+
+	/**
+	 * Construye y retorna el código ASM generado para el nodo y todo su subárbol.
+	 * 
+	 * @param ts - Tabla de Símbolos consolidada.
+	 */
+	public String generateCode(SymbolTable ts) throws ASTError;
 }

@@ -1,9 +1,9 @@
 package semantic_analyzer.ast;
 
 import error.semantic.sentences.ASTError;
-import error.semantic.sentences.InternalError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
+import util.Code;
 import util.Json;
 
 public class AccessMethodNode extends MethodCallNode {
@@ -34,17 +34,31 @@ public class AccessMethodNode extends MethodCallNode {
 
         // Validar que un método NO estático no sea invocado dentro de un método
         // estático.
-        try {
-            if (ts.currentMethod().isStatic() && !super.getMethod(ts).isStatic()) {
-                throw new ASTError(loc,
-                        "SE INTENTO ACCEDER AL METODO NO ESTATICO " + super.methodName()
-                                + " DENTRO DEL METODO ESTATICO " + ts.currentMethod().name()
-                                + ". NO SE PERMITE ACCEDER A METODOS DINAMICOS DENTRO DE UN CONTEXTO ESTATICO.");
-            }
-        } catch (error.semantic.declarations.InternalError e) {
-            throw new InternalError(loc, e.getMessage());
+        if (ts.currentMethod().isStatic() && !super.getMethod(ts).isStatic()) {
+            throw new ASTError(loc,
+                    "SE INTENTO ACCEDER AL METODO NO ESTATICO " + super.methodName()
+                            + " DENTRO DEL METODO ESTATICO " + ts.currentMethod().name()
+                            + ". NO SE PERMITE ACCEDER A METODOS DINAMICOS DENTRO DE UN CONTEXTO ESTATICO.");
         }
 
         super.validate(ts); // Validar que la llamada al método sea válida.
+    }
+
+    @Override
+    public String generateCode(SymbolTable ts) throws ASTError {
+        Code code = new Code();
+
+        // Get self reference.
+        // Tip: the self reference for the method is the same as the caller's self.
+        code.addLine("lw $t1, 0($fp)    # Save in $t1 the upper frame pointer address.");
+        code.addLine("lw $a0, 8($t1)    # Save in $t2 the current class CIR address"); // 8 = 4*fp + 4*ra
+        code.pushToStackFrom("$a0");
+
+        code.add(super.generateCode(ts));
+
+        code.popFromStackTo("$t2"); // Self value is not used anymore, just pop it to random register.
+        // Tip: by this point, the result is already stored at $a0.
+
+        return code.getCode();
     }
 }

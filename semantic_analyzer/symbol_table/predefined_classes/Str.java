@@ -1,11 +1,11 @@
 package semantic_analyzer.symbol_table.predefined_classes;
 
-import error.semantic.declarations.InternalError;
+import error.semantic.sentences.InternalError;
 import semantic_analyzer.types.I32;
 
 public class Str extends PredefinedClass {
-	public Str() throws InternalError {
-		super("Str");
+	public Str(int position) throws InternalError {
+		super("Str", position);
 		try {
 			super.addMethod("length", false, new I32());
 			super.addMethod("concat", false, new semantic_analyzer.types.Str());

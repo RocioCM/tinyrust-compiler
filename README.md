@@ -1,5 +1,7 @@
 # TinyRust+
 
+[WIP] - Esta documentación es un trabajo en progreso, por lo cual está incompleta.
+
 En este repositorio se encuentra la implementación del compilador del lenguaje de programación TinyRust+.
 
 ## Compilado y ejecución

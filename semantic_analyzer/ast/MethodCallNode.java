@@ -12,10 +12,12 @@ import semantic_analyzer.symbol_table.MethodEntry;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Type;
 import semantic_analyzer.types.Void;
+import util.Code;
 
 public abstract class MethodCallNode extends ExpressionNode {
     private String className; // Si es null indica que debe accederse a la clase actual.
     private String methodName;
+    private int position; // Posiciòn del mètodo en la clase. Usado en la generaciòn de còdigo.
     private TreeList<ExpressionNode> arguments;
     private ChainedAccessNode chainedAccess;
 
@@ -36,13 +38,8 @@ public abstract class MethodCallNode extends ExpressionNode {
 
         // Obtener la entrada de la TS de la clase accedida.
         if (className == null) {
-            try {
-                classEntry = ts.currentClass();
-                className = classEntry.name();
-            } catch (error.semantic.declarations.InternalError e) {
-                // Lanzar un error si no existe una clase actual.
-                throw new InternalError(loc, e.getMessage());
-            }
+            classEntry = ts.currentClass();
+            className = classEntry.name();
         } else {
             classEntry = ts.getClass(className);
             if (classEntry == null) {
@@ -106,6 +103,9 @@ public abstract class MethodCallNode extends ExpressionNode {
             resolveType = methodEntry.returnType();
         }
 
+        // Guardar datos para la generación de código.
+        this.position = methodEntry.position();
+
         super.setResolveType(resolveType);
         super.validateType(ts);
     }
@@ -135,6 +135,47 @@ public abstract class MethodCallNode extends ExpressionNode {
             argsIterator.next().setExpectedResolveType(argFormalType);
         }
         arguments.validate(ts); // Validará que cada expresión tenga el tipo esperado.
+    }
+
+    @Override
+    public String generateCode(SymbolTable ts) throws ASTError {
+        Code code = new Code();
+
+        // Tip: before generating this code, the self reference must be pushed to stack.
+        // As it changes depending on the type of method access, defining its value it's
+        // up to the MethodCallNode subclass invoking this method.
+
+        // Save caller method state to stack.
+        code.pushToStackFrom("$ra"); // Save the caller return address to stack.
+        code.pushAndUpdateFramePointer();
+
+        code.addLine("lw $fp 4($sp) # Restore caller frame pointer in register, during arguments evaluation.");
+        // Push arguments to the stack in inverse order.
+        for (int i = arguments.size() - 1; i >= 0; i--) {
+            code.add(arguments.get(i).generateCode(ts));
+            code.pushToStackFrom("$a0");
+        }
+        code.addLine("addiu $fp, $sp, " + 4 * (arguments.size() + 1),
+                "    # Restore the latest frame pointer value to register, after arguments evaluation.");
+
+        // Call method.
+        // Access class VT using CIR reference.
+        code.addLine("lw $t1, 8($fp)    # Save in $t1 the current class CIR address"); // 8 = 4*fp + 4*ra
+        code.addLine("lw $t2, 0($t1)    # Save in $t2 the object VT address");
+        code.addLine("lw $a0, " + position * 4,
+                "($t2)    # Save in accumulator the method label address");
+        code.addLine("jalr $a0    # Jump to method code.");
+
+        // Restore registers after method call returns.
+        code.popFromStackTo("$fp"); // Restore caller frame pointer from stack.
+        code.popFromStackTo("$ra"); // Restore caller return address from stack.
+
+        // Tip: at this point, when returning from the method,
+        // the return value is at $a0.
+
+        /// TODO: resolve chained access. Generate its code.
+
+        return code.getCode();
     }
 
     public String className() {

@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import error.semantic.sentences.ASTError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
+import util.Code;
 import util.Json;
 
 public class TreeList<T extends Node> extends LinkedList<T> implements Node {
@@ -20,6 +21,7 @@ public class TreeList<T extends Node> extends LinkedList<T> implements Node {
 		this.loc = loc;
 	}
 
+	@SafeVarargs
 	public TreeList(T... items) {
 		super(Arrays.asList(items)); // Agregar a la lista los items predefinidos.
 		this.loc = new Location(-1, -1); // En caso de que la ubicación no sea relevante.
@@ -57,5 +59,16 @@ public class TreeList<T extends Node> extends LinkedList<T> implements Node {
 			// Validar cada nodo de la lista.
 			nodesIter.next().validate(ts);
 		}
+	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		Code code = new Code();
+		Iterator<T> nodesIter = this.iterator();
+		while (nodesIter.hasNext()) {
+			// Generar código para cada nodo de la lista.
+			code.add(nodesIter.next().generateCode(ts));
+		}
+		return code.getCode();
 	}
 }

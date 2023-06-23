@@ -5,9 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import error.lexic.LexicalError;
-import error.semantic.SemanticalError;
-import error.syntactic.SyntacticalError;
 import lexic_analyzer.Token;
 
 /**
@@ -65,22 +62,23 @@ public class Logger {
 	}
 
 	/**
-	 * Muestra con formato un error generado por el analizador léxico
+	 * Muestra con formato un error generado en alguna etapa de análisis.
 	 * 
-	 * @param error      - error generado por el analizador léxico
+	 * @param type       - Label de la etapa en que ocurrió el error.
+	 * @param error      - error generado por el compilador de TinyRust+
 	 * @param outputPath (Opcional) - Ruta del archivo de salida
 	 */
-	public static void lexicError(LexicalError error, String outputPath) {
+	public static void error(String type, Exception error, String outputPath) {
 		if (outputPath == null) { // No se especificó archivo de salida.
 			// Se escribe el output en la terminal.
-			System.out.println("ERROR: LEXICO ");
+			System.out.println("ERROR: " + type);
 			System.out.println("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |");
 			System.out.println(error.getMessage());
 		} else {
 			try {
 				// Se abre el archivo de salida especificado y se escribe el output.
 				FileWriter fileWriter = getOutputFileWriter(outputPath, true);
-				fileWriter.write("ERROR: LEXICO\n");
+				fileWriter.write("ERROR: " + type + "\n");
 				fileWriter.write("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |\n");
 				fileWriter.write(error.getMessage() + "\n");
 				fileWriter.close();
@@ -92,19 +90,20 @@ public class Logger {
 	}
 
 	/**
-	 * Imprime un mensaje de éxito en el análisis sintáctico.
+	 * Imprime un mensaje de éxito en el proceso de compilación.
 	 * 
+	 * @param type       - Label del la etapa finalizada exitosamente
 	 * @param outputPath (Opcional) - Ruta del archivo de salida
 	 */
-	public static void syntacticSuccess(String outputPath) {
+	public static void success(String type, String outputPath) {
 		if (outputPath == null) { // No se especificó archivo de salida.
 			// Se escribe el output en la terminal.
-			System.out.println("CORRECTO: ANALISIS SINTACTICO");
+			System.out.println("CORRECTO: " + type);
 		} else {
 			try {
 				// Se abre el archivo de salida especificado y se escribe el output.
 				FileWriter fileWriter = getOutputFileWriter(outputPath, true);
-				fileWriter.write("CORRECTO: ANALISIS SINTACTICO\n");
+				fileWriter.write("CORRECTO: " + type + "\n");
 				fileWriter.close();
 
 			} catch (IOException e) {
@@ -115,142 +114,13 @@ public class Logger {
 	}
 
 	/**
-	 * Muestra con formato un error generado por el analizador sintáctico
-	 * 
-	 * @param error      - error generado por el analizador sintáctico
-	 * @param outputPath (Opcional) - Ruta del archivo de salida
-	 */
-	public static void syntacticError(SyntacticalError error, String outputPath) {
-		if (outputPath == null) { // No se especificó archivo de salida.
-			// Se escribe el output en la terminal.
-			System.out.println("ERROR: SINTACTICO ");
-			System.out.println("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |");
-			System.out.println(error.getMessage());
-		} else {
-			try {
-				// Se abre el archivo de salida especificado y se escribe el output.
-				FileWriter fileWriter = getOutputFileWriter(outputPath, true);
-				fileWriter.write("ERROR: SINTACTICO\n");
-				fileWriter.write("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |\n");
-				fileWriter.write(error.getMessage() + "\n");
-				fileWriter.close();
-			} catch (IOException e) {
-				System.out.println("ERROR IO: NO SE PUDO ESCRIBIR EN EL ARCHIVO DE SALIDA.");
-				System.exit(1);
-			}
-		}
-	}
-
-	/**
-	 * Imprime un mensaje de éxito en del análisis semántico de declaraciones.
-	 * 
-	 * @param outputPath (Opcional) - Ruta del archivo de salida
-	 */
-	public static void semanticDeclSuccess(String outputPath) {
-		if (outputPath == null) { // No se especificó archivo de salida.
-			// Se escribe el output en la terminal.
-			System.out.println("CORRECTO: SEMANTICO - DECLARACIONES");
-		} else {
-			try {
-				// Se abre el archivo de salida especificado y se escribe el output.
-				FileWriter fileWriter = getOutputFileWriter(outputPath, true);
-				fileWriter.write("CORRECTO: SEMANTICO - DECLARACIONES\n");
-				fileWriter.close();
-
-			} catch (IOException e) {
-				System.out.println("ERROR IO: NO SE PUDO ESCRIBIR EN EL ARCHIVO DE SALIDA.");
-				System.exit(1);
-			}
-		}
-	}
-
-	/**
-	 * Muestra con formato un error generado durante el análisis semántico de
-	 * declaraciones.
-	 * 
-	 * @param error      - error generado por el analizador sintáctico
-	 * @param outputPath (Opcional) - Ruta del archivo de salida
-	 */
-	public static void semanticDeclError(SemanticalError error, String outputPath) {
-		if (outputPath == null) { // No se especificó archivo de salida.
-			// Se escribe el output en la terminal.
-			System.out.println("ERROR: SEMANTICO - DECLARACIONES ");
-			System.out.println("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |");
-			System.out.println(error.getMessage());
-		} else {
-			try {
-				// Se abre el archivo de salida especificado y se escribe el output.
-				FileWriter fileWriter = getOutputFileWriter(outputPath, true);
-				fileWriter.write("ERROR: SEMANTICO - DECLARACIONES\n");
-				fileWriter.write("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |\n");
-				fileWriter.write(error.getMessage() + "\n");
-				fileWriter.close();
-			} catch (IOException e) {
-				System.out.println("ERROR IO: NO SE PUDO ESCRIBIR EN EL ARCHIVO DE SALIDA.");
-				System.exit(1);
-			}
-		}
-	}
-
-	/**
-	 * Imprime un mensaje de éxito en del análisis semántico de sentencias.
-	 * 
-	 * @param outputPath (Opcional) - Ruta del archivo de salida
-	 */
-	public static void semanticSentSuccess(String outputPath) {
-		if (outputPath == null) { // No se especificó archivo de salida.
-			// Se escribe el output en la terminal.
-			System.out.println("CORRECTO: SEMANTICO - SENTENCIAS");
-		} else {
-			try {
-				// Se abre el archivo de salida especificado y se escribe el output.
-				FileWriter fileWriter = getOutputFileWriter(outputPath, true);
-				fileWriter.write("CORRECTO: SEMANTICO - SENTENCIAS\n");
-				fileWriter.close();
-
-			} catch (IOException e) {
-				System.out.println("ERROR IO: NO SE PUDO ESCRIBIR EN EL ARCHIVO DE SALIDA.");
-				System.exit(1);
-			}
-		}
-	}
-
-	/**
-	 * Muestra con formato un error generado durante el análisis semántico de
-	 * sentencias.
-	 * 
-	 * @param error      - error generado por el analizador semántico
-	 * @param outputPath (Opcional) - Ruta del archivo de salida
-	 */
-	public static void semanticSentError(SemanticalError error, String outputPath) {
-		if (outputPath == null) { // No se especificó archivo de salida.
-			// Se escribe el output en la terminal.
-			System.out.println("ERROR: SEMANTICO - SENTENCIAS");
-			System.out.println("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |");
-			System.out.println(error.getMessage());
-		} else {
-			try {
-				// Se abre el archivo de salida especificado y se escribe el output.
-				FileWriter fileWriter = getOutputFileWriter(outputPath, true);
-				fileWriter.write("ERROR: SEMANTICO - SENTENCIAS\n");
-				fileWriter.write("| NUMERO DE LINEA: | NUMERO DE COLUMNA: | DESCRIPCION: |\n");
-				fileWriter.write(error.getMessage() + "\n");
-				fileWriter.close();
-			} catch (IOException e) {
-				System.out.println("ERROR IO: NO SE PUDO ESCRIBIR EN EL ARCHIVO DE SALIDA.");
-				System.exit(1);
-			}
-		}
-	}
-
-	/**
-	 * Guarda en el archivo destino el JSON generado a partir de la Tabla de
+	 * Guarda en el archivo destino el código generado a partir de la Tabla de
 	 * Símbolos o AST.
 	 * 
-	 * @param json       - Cadena en formato JSON
+	 * @param json       - Cadena en cierto formato de código.
 	 * @param outputPath - Ruta del archivo de salida.
 	 */
-	public static void createJson(String json, String outputPath) {
+	public static void createFile(String json, String outputPath) {
 		try {
 			// Se abre el archivo de salida especificado y se escribe el output.
 			FileWriter fileWriter = getOutputFileWriter(outputPath, false);
@@ -263,7 +133,7 @@ public class Logger {
 	}
 
 	/**
-	 * Crea el archivo de salida si aun no existe e inicializa un FileWriter para
+	 * Crea un archivo de salida si aun no existe e inicializa un FileWriter para
 	 * ese archivo.
 	 * 
 	 * @param outputPath - Ruta del archivo de salida.

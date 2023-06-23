@@ -14,8 +14,9 @@ import semantic_analyzer.types.ClassType;
 import semantic_analyzer.types.Type;
 
 public abstract class PredefinedClass extends ClassEntry {
-	public PredefinedClass(String name) {
-		super(name, false, new ConstructorEntry(false, new ClassType(name), new Location(-1, -1)), new Location(-1, -1));
+	public PredefinedClass(String name, int position) {
+		super(name, false, new ConstructorEntry(false, new ClassType(name), new Location(-1, -1)), position,
+				new Location(-1, -1));
 	}
 
 	protected void addMethod(String name, boolean isStatic) throws SemanticalError {

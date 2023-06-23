@@ -4,9 +4,12 @@ import error.semantic.sentences.ASTError;
 import semantic_analyzer.symbol_table.Location;
 import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Bool;
+import util.Code;
 import util.Json;
 
 public class WhileNode extends SentenceNode {
+	static private int instancesCounter = 0; // Contador para asignar un id único al nodo.
+	private int id;
 	private ExpressionNode condition;
 	private SentenceNode block;
 
@@ -14,6 +17,8 @@ public class WhileNode extends SentenceNode {
 		super(loc);
 		this.condition = condition;
 		this.block = block;
+		this.id = WhileNode.instancesCounter + 1;
+		WhileNode.instancesCounter++;
 	}
 
 	@Override
@@ -33,5 +38,22 @@ public class WhileNode extends SentenceNode {
 		block.setExpectedReturnType(super.expectedReturnType());
 		block.validate(ts); // Validar las sentencias del bloque.
 		super.setResolvedReturnType(block.resolvedReturnType()); // Para validar el retorno del método.
+	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		Code code = new Code();
+		String whileLabel = "while_" + id;
+		String finallyLabel = "after_while_" + id;
+
+		code.addLine(whileLabel, ":");
+		code.addLine(condition.generateCode(ts));
+		code.addLine("beq $a0, $0, ", finallyLabel, "    # WHILE: stop looping if condition is false.");
+
+		code.add(block.generateCode(ts));
+		code.addLine("j ", whileLabel, "    # Jump back to loop start.");
+
+		code.addLine(finallyLabel, ":");
+		return code.getCode();
 	}
 }

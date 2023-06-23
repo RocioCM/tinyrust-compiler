@@ -1,7 +1,6 @@
 package semantic_analyzer.ast;
 
 import error.semantic.sentences.ASTError;
-import error.semantic.sentences.InternalError;
 import error.semantic.sentences.NotFoundError;
 import semantic_analyzer.symbol_table.AttributeEntry;
 import semantic_analyzer.symbol_table.ClassEntry;
@@ -41,17 +40,13 @@ public class ChainedArrayNode extends ChainedAccessNode {
         }
 
         // Validar que no se accedan atributos privados de otras clases.
-        try {
-            if (!attrEntry.isPublic() // El atributo es privado.
-                    && (attrEntry.isInherited() // Es heredado (no visible) o...
-                            || !accessedClass.name().equals(ts.currentClass().name())) // La clase no es la actual.
-            ) {
-                // Si el atributo es privado, no se puede acceder desde una clase distinta.
-                throw new ASTError(loc, "EL CAMPO " + super.accessedEntity() + " DE LA CLASE "
-                        + accessedClass.name() + " NO ES VISIBLE EN ESTE CONTEXTO PORQUE ES PRIVADO.");
-            }
-        } catch (error.semantic.declarations.InternalError e) {
-            throw new InternalError(loc, e.getMessage());
+        if (!attrEntry.isPublic() // El atributo es privado.
+                && (attrEntry.isInherited() // Es heredado (no visible) o...
+                        || !accessedClass.name().equals(ts.currentClass().name())) // La clase no es la actual.
+        ) {
+            // Si el atributo es privado, no se puede acceder desde una clase distinta.
+            throw new ASTError(loc, "EL CAMPO " + super.accessedEntity() + " DE LA CLASE "
+                    + accessedClass.name() + " NO ES VISIBLE EN ESTE CONTEXTO PORQUE ES PRIVADO.");
         }
 
         // Validar que el atributo es de tipo arreglo y que el índice es de tipo I32.
@@ -80,5 +75,11 @@ public class ChainedArrayNode extends ChainedAccessNode {
         // Validar el tipo del índice.
         accessIndex.setExpectedResolveType(new I32());
         accessIndex.validate(ts);
+    }
+
+    @Override
+    public String generateCode(SymbolTable ts) throws ASTError {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'generateCode'");
     }
 }
