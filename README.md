@@ -25,6 +25,50 @@ java -jar etapa2.jar ./tests/syntactic/"test (3).rs" ./example.o
 
 Especificar un archivo de salida es opcional. En caso de ser especificado, es escribirá la salida del compilador en dicho archivo. Si el archivo existe previamente será sobreescrito, caso contrario será creado por el compilador. En caso de no especificarse este parámetro, la salida se mostrará por pantalla.
 
+## Ejecución con Docker
+
+Para ejecutar el proyecto sin necesidad de instalar Java, JDK ni ninguna otra dependencia adicional, basta con tener [Docker](https://www.docker.com/) instalado y utilizar el `Dockerfile` provisto en la raíz del repositorio.
+
+### Construir la imagen
+
+Desde el directorio raíz del proyecto, ejecutar:
+
+```bash
+docker build -t tinyrust-compiler .
+```
+
+Este comando descarga una imagen base con el JDK, copia el código fuente, compila todos los archivos `.java` del proyecto y genera el `Main.jar` dentro de la imagen. Solo es necesario ejecutarlo la primera vez o cuando se modifiquen los archivos fuente.
+
+### Ejecutar el compilador
+
+Para compilar un archivo fuente de TinyRust+ se debe montar el directorio del proyecto (o el de los tests) dentro del contenedor y pasar la ruta del archivo a compilar como argumento:
+
+```bash
+docker run --rm -v "$(pwd):/app/work" -w /app/work tinyrust-compiler <ARCHIVO_FUENTE> [<ARCHIVO_SALIDA>]
+```
+
+La opción `-v "$(pwd):/app/work"` monta el directorio actual dentro del contenedor para que pueda leer el archivo fuente y, en caso de especificarse, escribir el archivo de salida. La opción `--rm` elimina el contenedor automáticamente al finalizar la ejecución.
+
+Ejemplo de uso con un archivo de prueba incluido en el repositorio:
+
+```bash
+docker run --rm -v "$(pwd):/app/work" -w /app/work tinyrust-compiler "tests/syntactic/test (3).rs" example.o
+```
+
+Si no se especifica un archivo de salida, el resultado del compilador se mostrará por pantalla:
+
+```bash
+docker run --rm -v "$(pwd):/app/work" -w /app/work tinyrust-compiler "tests/syntactic/test (3).rs"
+```
+
+### Eliminar la imagen
+
+Para eliminar la imagen del compilador del sistema, ejecutar:
+
+```bash
+docker rmi tinyrust-compiler
+```
+
 ## Estructura
 
 La clase de entrada del proyecto se encuentra en el archivo [main.java](./main.java). Esta clase se encarga de validar los argumentos especificados para la ejecución e inicializa el archivo de salida en caso de haber sido especificado. En caso de haber recibido una cantidad válida de parámetros, inicializa e invoca a un Executor.

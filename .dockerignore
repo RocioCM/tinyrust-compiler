@@ -1,0 +1,15 @@
+.git
+.gitignore
+.prettierrc
+.claude/
+*.class
+*.o
+*.j
+*.ts.json
+*.ast.json
+Main.jar
+Dockerfile
+.dockerignore
+docs/
+README.md
+*.md
