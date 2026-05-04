@@ -51,7 +51,7 @@ class Fibonacci: Fibo {
 	fn destroy(Str: s) -> void {
 		Hola2: var;
 		var = new Fibo(); // Subclase
-		(IO.out_string("Hola"));
+		(IO.out_str("Hola"));
 		if (10<2) {};
 		if (true) {
 		} else if (false) {

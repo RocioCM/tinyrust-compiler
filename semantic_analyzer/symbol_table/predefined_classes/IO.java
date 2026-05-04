@@ -1,6 +1,6 @@
 package semantic_analyzer.symbol_table.predefined_classes;
 
-import error.semantic.declarations.InternalError;
+import error.semantic.sentences.InternalError;
 import semantic_analyzer.types.Array;
 import semantic_analyzer.types.Bool;
 import semantic_analyzer.types.Char;
@@ -9,11 +9,11 @@ import semantic_analyzer.types.Str;
 
 public class IO extends PredefinedClass {
 
-	public IO() throws InternalError {
-		super("IO");
+	public IO(int position) throws InternalError {
+		super("IO", position);
 		try {
-			super.addMethod("out_string", true);
-			super.addArgumentToMethod("out_string", new Str(), "s");
+			super.addMethod("out_str", true);
+			super.addArgumentToMethod("out_str", new Str(), "s");
 			super.addMethod("out_i32", true);
 			super.addArgumentToMethod("out_i32", new I32(), "i");
 			super.addMethod("out_bool", true);

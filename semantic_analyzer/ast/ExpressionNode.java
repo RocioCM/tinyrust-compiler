@@ -39,7 +39,7 @@ public abstract class ExpressionNode implements Node {
 			throw new InternalError(loc,
 					"SE ESPERABA QUE LA EXPRESION TUVIERA UN TIPO RESUELTO PARA ESTE MOMENTO, PERO SU TIPO ES null.");
 		}
-		if (expectedResolveType != null
+		if (expectedResolveType != null && !resolveType.type().equals("void")
 				&& !expectedResolveType.equals(resolveType)
 				&& ((resolveType instanceof Array || !ts.isSubclass(resolveType, expectedResolveType)))) {
 			// Si el tipo no coincide porque es una subclase, no se lanza excepción.
@@ -51,6 +51,9 @@ public abstract class ExpressionNode implements Node {
 
 	@Override
 	abstract public void validate(SymbolTable ts) throws ASTError;
+
+	@Override
+	abstract public String generateCode(SymbolTable ts) throws ASTError;
 
 	public Type resolveType() {
 		return resolveType;

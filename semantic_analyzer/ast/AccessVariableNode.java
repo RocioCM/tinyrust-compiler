@@ -2,6 +2,7 @@ package semantic_analyzer.ast;
 
 import error.semantic.sentences.InternalError;
 import error.semantic.sentences.ASTError;
+import semantic_analyzer.symbol_table.ArgumentEntry;
 import semantic_analyzer.symbol_table.AttributeEntry;
 import semantic_analyzer.symbol_table.ClassEntry;
 import semantic_analyzer.symbol_table.Location;
@@ -9,12 +10,14 @@ import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.symbol_table.VariableEntry;
 import semantic_analyzer.types.ClassType;
 import semantic_analyzer.types.Type;
+import util.Code;
 import util.Json;
 
 public class AccessVariableNode extends AccessNode {
 	private String identifier;
 	private ChainedAccessNode chainedAccess;
 	private Boolean mandatoryChain = false;
+	private VariableEntry variable; // Accessed TS entity used in code generation.
 
 	public AccessVariableNode(String identifier, Location loc) {
 		super(loc);
@@ -28,7 +31,8 @@ public class AccessVariableNode extends AccessNode {
 		this.chainedAccess = chainedAccess;
 	}
 
-	public AccessVariableNode(String identifier, ChainedAccessNode chainedAccess, Boolean mandatoryChain, Location loc) {
+	public AccessVariableNode(String identifier, ChainedAccessNode chainedAccess, Boolean mandatoryChain,
+			Location loc) {
 		super(loc);
 		this.identifier = identifier;
 		this.chainedAccess = chainedAccess;
@@ -61,57 +65,50 @@ public class AccessVariableNode extends AccessNode {
 		if (identifier.equals("self")) {
 			// El acceso a self se trata de forma especial,
 			// ya que es una referencia no una variable.
-			try {
-				varType = new ClassType(ts.currentClass().name());
+			varType = new ClassType(ts.currentClass().name());
 
-				// Validar que no se acceda self en el método main.
-				if (ts.currentClass().name().equals("main")) {
-					throw new ASTError(loc,
-							"SE INTENTO ACCEDER A LA VARIABLE " + identifier + " PERO NO ESTA DEFINIDA EN EL AMBITO ACTUAL.");
-				}
+			// Validar que no se acceda self en el método main.
+			if (ts.currentClass().name().equals("main")) {
+				throw new ASTError(loc,
+						"SE INTENTO ACCEDER A LA VARIABLE " + identifier
+								+ " PERO NO ESTA DEFINIDA EN EL AMBITO ACTUAL.");
+			}
 
-				// Validar que no se acceda self en un contexto estático.
-				if (ts.currentMethod().isStatic()) {
-					throw new ASTError(loc,
-							"NO SE PERMITE ACCEDER A LA REFERENCIA \"self\" DENTRO DE UN METODO ESTATICO.");
-				}
-			} catch (error.semantic.declarations.InternalError e) {
-				throw new InternalError(loc, e.getMessage());
+			// Validar que no se acceda self en un contexto estático.
+			if (ts.currentMethod().isStatic()) {
+				throw new ASTError(loc,
+						"NO SE PERMITE ACCEDER A LA REFERENCIA \"self\" DENTRO DE UN METODO ESTATICO.");
 			}
 
 		} else {
 			// Si es una variable normal, se obtiene del contexto actual de la TS.
-			try {
-				VariableEntry var = ts.getVariable(identifier);
+			variable = ts.getVariable(identifier);
 
-				// Validar que la variable exista.
-				if (var == null) {
-					throw new ASTError(loc,
-							"SE INTENTO ACCEDER A LA VARIABLE " + identifier + " PERO NO ESTA DEFINIDA EN EL AMBITO ACTUAL.");
-				}
-
-				if (var instanceof AttributeEntry) {
-					// Validar que no se accede a un atributo (de instancia) en un método estático.
-					if (ts.currentMethod().isStatic()) {
-						throw new ASTError(loc,
-								"SE INTENTO ACCEDER AL ATRIBUTO " + identifier
-										+ " DENTRO DEL METODO ESTATICO " + ts.currentMethod().name()
-										+ ". NO SE PERMITE ACCEDER A ATRIBUTOS DINAMICOS DENTRO DE UN CONTEXTO ESTATICO.");
-					}
-
-					// Validar que no se accedan atributos privados heredados de otras clases.
-					AttributeEntry attr = (AttributeEntry) (var);
-					if (attr.isInherited() && !attr.isPublic()) {
-						throw new ASTError(loc, "EL ATRIBUTO " + var.name() + " DE LA CLASE "
-								+ ts.currentClass().name() + " NO ES VISIBLE EN ESTE CONTEXTO PORQUE ES UN ATRIBUTO PRIVADO HEREDADO.");
-					}
-				}
-
-				varType = var.type();
-
-			} catch (error.semantic.declarations.InternalError e) {
-				throw new InternalError(loc, e.getMessage());
+			// Validar que la variable exista.
+			if (variable == null) {
+				throw new ASTError(loc,
+						"SE INTENTO ACCEDER A LA VARIABLE " + identifier
+								+ " PERO NO ESTA DEFINIDA EN EL AMBITO ACTUAL.");
 			}
+
+			if (variable instanceof AttributeEntry) {
+				// Validar que no se accede a un atributo (de instancia) en un método estático.
+				if (ts.currentMethod().isStatic()) {
+					throw new ASTError(loc,
+							"SE INTENTO ACCEDER AL ATRIBUTO " + identifier
+									+ " DENTRO DEL METODO ESTATICO " + ts.currentMethod().name()
+									+ ". NO SE PERMITE ACCEDER A ATRIBUTOS DINAMICOS DENTRO DE UN CONTEXTO ESTATICO.");
+				}
+
+				// Validar que no se accedan atributos privados heredados de otras clases.
+				AttributeEntry attr = (AttributeEntry) (variable);
+				if (attr.isInherited() && !attr.isPublic()) {
+					throw new ASTError(loc, "EL ATRIBUTO " + variable.name() + " DE LA CLASE "
+							+ ts.currentClass().name()
+							+ " NO ES VISIBLE EN ESTE CONTEXTO PORQUE ES UN ATRIBUTO PRIVADO HEREDADO.");
+				}
+			}
+			varType = variable.type();
 		}
 
 		if (chainedAccess == null && mandatoryChain) {
@@ -139,5 +136,55 @@ public class AccessVariableNode extends AccessNode {
 		// Validar que el tipo resuelto es el esperado para la variable.
 		super.setResolveType(resolvedType);
 		super.validateType(ts);
+	}
+
+	@Override
+	public String generateCode(SymbolTable ts) throws ASTError {
+		Code code = new Code();
+
+		// Both variable value and address will be saved in registers.
+		// This way, by accesing the variable, you get read and write access.
+		// Variable value is saved at $a0 and variable address is saved at $v0.
+
+		if (identifier.equals("self")) {
+			/// TODO: handle special "self" variable case.
+
+		} else {
+			if (variable instanceof AttributeEntry) {
+				// Access class attribute.
+				code.addLine("lw $t1, 0($fp)    # Save in $t1 the upper frame pointer address.");
+				code.addLine("lw $t2, 8($t1)    # Save in $t2 the current class CIR address"); // 8 = 4*fp + 4*ra
+				code.addLine("lw $a0, " + variable.position() * 4,
+						"($t2)    # Save in accumulator the attribute value.");
+				code.addLine("addiu $v0, $t2, " + variable.position() * 4, "    # Save in v0 the attribute address.");
+
+			} else {
+				if (variable instanceof ArgumentEntry) {
+					// Access method argument.
+					code.addLine("lw $a0, " + variable.position() * 4,
+							"($fp)    # Save in accumulator the method argument value.");
+					code.addLine("addiu $v0, $fp, " + variable.position() * 4,
+							"    # Save in v0 the method argument address.");
+
+				} else {
+					// Access method block variable.
+					code.addLine("lw $a0, -" + variable.position() * 4,
+							"($fp)    # Save in accumulator the block variable value.");
+					code.addLine("addiu $v0, $fp, -" + variable.position() * 4,
+							"    # Save in v0 the block variable address.");
+				}
+			}
+		}
+
+		if (chainedAccess != null) {
+			/// TODO: handle nil variable value, it wont have any chainable attrs. You have
+			/// to throw a runtime error.
+			// Tip: current self reference for the chain is at a0.
+			code.add(chainedAccess.generateCode(ts));
+			// The result of the chained access will be stored at a0 and v0 at this point.
+		}
+
+		// Tip: at this point, variable value is at $a0 and variable address is at $v0.
+		return code.getCode();
 	}
 }

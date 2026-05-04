@@ -1,7 +1,6 @@
 package semantic_analyzer.symbol_table;
 
 import java.util.HashMap;
-
 import java.util.Iterator;
 
 import error.semantic.declarations.BadFormedConstructorError;
@@ -15,6 +14,7 @@ import util.Json;
 
 public class ClassEntry implements TableElement {
 	private String name;
+	private int position;
 	private Location locationDecl;
 	private String extendsFrom = "Object";
 	private Location locationExtendsFrom;
@@ -24,16 +24,17 @@ public class ClassEntry implements TableElement {
 	private TableList<AttributeEntry> attributes;
 	private boolean consolidated = false;
 
-	public ClassEntry(String name, Location loc) {
+	public ClassEntry(String name, int position, Location loc) {
 		this.name = name;
+		this.position = position;
 		this.locationDecl = loc;
 		this.constructor = new ConstructorEntry(false, new ClassType(name), loc);
 		this.methods = new TableList<MethodEntry>();
 		this.attributes = new TableList<AttributeEntry>();
 	}
 
-	public ClassEntry(String name, boolean extendable, ConstructorEntry constructor, Location loc) {
-		this(name, loc);
+	public ClassEntry(String name, boolean extendable, ConstructorEntry constructor, int position, Location loc) {
+		this(name, position, loc);
 		this.extendable = extendable;
 		this.constructor = constructor;
 		if (name.equals("Object") || name.equals("main")) {
@@ -45,6 +46,7 @@ public class ClassEntry implements TableElement {
 	public String toJson() {
 		Json json = new Json();
 		json.addAttr("nombre", name);
+		json.addAttr("posicion", position);
 		json.addAttr("heredaDe", extendsFrom);
 		json.addAttr("heredable", extendable);
 		json.addAttr("atributos", attributes);
@@ -111,6 +113,8 @@ public class ClassEntry implements TableElement {
 			}
 
 			// 2. Consolidar atributos.
+			int subClassAttrsSize = attributes.size();
+			HashMap<Number, AttributeEntry> indexedAttrs = indexedAttributes();
 			Iterator<AttributeEntry> superAttrsIter = superClass.attributes().values().iterator();
 			while (superAttrsIter.hasNext()) { // Iterar sobre cada atributo de la supercalse.
 				AttributeEntry superAttr = superAttrsIter.next();
@@ -121,9 +125,16 @@ public class ClassEntry implements TableElement {
 									+ superAttr.name());
 				} else {
 					// El atributo no se redefine, entonces se agrega a la subclase.
-					AttributeEntry newAttr = new AttributeEntry(superAttr, attributes.size() + 1); // Clonar
+					AttributeEntry newAttr = new AttributeEntry(superAttr); // Clonar
 					attributes.put(newAttr.name(), newAttr);
+
+					// Se debe re-indexar los atributos de la subclase para mantener las posiciones.
+					if (indexedAttrs.get(newAttr.position()) != null) {
+						indexedAttrs.get(newAttr.position())
+								.setPosition(Math.max(superClass.attributes().size(), subClassAttrsSize) + newAttr.position());
+					}
 				}
+				indexedAttrs = indexedAttributes(); // Actualizar map de posiciones.
 			}
 
 			// 3. Validar que exista el tipo de retorno y el tipo de cada argumento formal
@@ -135,6 +146,7 @@ public class ClassEntry implements TableElement {
 			}
 
 			// 4. Consolidar métodos.
+			HashMap<Number, MethodEntry> indexedMethods = indexedMethods();
 			Iterator<MethodEntry> superMethodsIter = superClass.methods().values().iterator();
 			while (superMethodsIter.hasNext()) { // Iterar sobre cada método de la superclase.
 				MethodEntry superMethod = superMethodsIter.next();
@@ -186,14 +198,58 @@ public class ClassEntry implements TableElement {
 								"NO ESTA PERMITIDO REDEFINIR METODOS DE UNA SUPERCLASE CON DISTINTA FIRMA: TIPO Y ORDEN DE ARGUMENTOS NO COINCIDE. (METODO "
 										+ superMethod.name() + ")");
 					}
+
+					// Si la redefinición es válida, se re-indexa el método de la suclase.
+					if (subMethod.position() != superMethod.position()) {
+						if (indexedMethods.get(superMethod.position()) != null) {
+							indexedMethods.get(superMethod.position()).setPosition(subMethod.position());
+						}
+						subMethod.setPosition(superMethod.position());
+					}
 				} else {
 					// El método no se redefine, entonces se agrega a la subclase.
-					MethodEntry newMethod = new MethodEntry(superMethod, methods.size() + 1); // Clonar
+					MethodEntry newMethod = new MethodEntry(superMethod, true); // Clonar
 					methods.put(newMethod.name(), newMethod);
+
+					// Se debe re-indexar los métodos de la subclase para mantener las posiciones.
+					if (indexedMethods.get(newMethod.position()) != null) {
+						int newPosition = superClass.methods().size() + 1;
+						while (indexedMethods.get(newPosition) != null) {
+							newPosition++;
+						}
+						indexedMethods.get(newMethod.position()).setPosition(newPosition);
+					}
 				}
+				indexedMethods = indexedMethods(); // Actualizar map de posiciones.
 			}
 		}
 		setConsolidated(true);
+	}
+
+	/**
+	 * Retorna un HashMap de los atributos de la clase, pero a diferencia del método
+	 * attributes(), en este caso los índices del map son las posiciones de los
+	 * atributos.
+	 */
+	public HashMap<Number, AttributeEntry> indexedAttributes() {
+		HashMap<Number, AttributeEntry> newMap = new HashMap<Number, AttributeEntry>();
+		attributes.values().forEach((elem) -> {
+			newMap.put(elem.position(), elem);
+		});
+		return newMap;
+	}
+
+	/**
+	 * Retorna un HashMap de los métodos de la clase, pero a diferencia del método
+	 * methods(), en este caso los índices del map son las posiciones de los
+	 * métodos.
+	 */
+	public HashMap<Number, MethodEntry> indexedMethods() {
+		HashMap<Number, MethodEntry> newMap = new HashMap<Number, MethodEntry>();
+		methods.values().forEach((elem) -> {
+			newMap.put(elem.position(), elem);
+		});
+		return newMap;
 	}
 
 	public String name() {
@@ -208,7 +264,7 @@ public class ClassEntry implements TableElement {
 		return this.methods;
 	}
 
-	public MethodEntry constructor() {
+	public ConstructorEntry constructor() {
 		return this.constructor;
 	}
 

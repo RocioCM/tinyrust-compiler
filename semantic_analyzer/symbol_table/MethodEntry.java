@@ -1,5 +1,6 @@
 package semantic_analyzer.symbol_table;
 
+import java.util.HashMap;
 import java.util.Iterator;
 
 import error.semantic.declarations.ConsolidationError;
@@ -15,6 +16,7 @@ public class MethodEntry implements TableElement {
 	private int position;
 	private Type returnType;
 	private boolean isStatic = false;
+	private boolean isInherited = false;
 	private TableList<ArgumentEntry> arguments;
 	private TableList<VariableEntry> blockVariables;
 
@@ -40,11 +42,12 @@ public class MethodEntry implements TableElement {
 		this.locationDecl = loc;
 	}
 
-	public MethodEntry(MethodEntry method, int position) {
+	public MethodEntry(MethodEntry method, boolean isInherited) {
 		// Clonar instancia.
 		this.name = method.name;
-		this.position = position;
+		this.position = method.position;
 		this.isStatic = method.isStatic;
+		this.isInherited = isInherited;
 		this.returnType = method.returnType;
 		this.arguments = new TableList<ArgumentEntry>(method.arguments);
 		this.blockVariables = new TableList<VariableEntry>(method.blockVariables);
@@ -153,6 +156,31 @@ public class MethodEntry implements TableElement {
 		return var; // Retornar la variable o null si no se halló.
 	}
 
+	/**
+	 * Retorna un HashMap de las variables de bloque del método. Los índices del map
+	 * son las posiciones de declaración de las variables.
+	 */
+	public HashMap<Number, VariableEntry> indexedVariables() {
+		HashMap<Number, VariableEntry> newMap = new HashMap<Number, VariableEntry>();
+		blockVariables.values().forEach((elem) -> {
+			newMap.put(elem.position(), elem);
+		});
+		return newMap;
+	}
+
+	/**
+	 * Retorna un HashMap de los argumentos del método, pero a diferencia del método
+	 * arguments(), en este caso los índices del map son las posiciones de los
+	 * argumentos.
+	 */
+	public HashMap<Number, ArgumentEntry> indexedArguments() {
+		HashMap<Number, ArgumentEntry> newMap = new HashMap<Number, ArgumentEntry>();
+		arguments.values().forEach((elem) -> {
+			newMap.put(elem.position(), elem);
+		});
+		return newMap;
+	}
+
 	public String name() {
 		return name;
 	}
@@ -163,6 +191,18 @@ public class MethodEntry implements TableElement {
 
 	public boolean isStatic() {
 		return isStatic;
+	}
+
+	public boolean isInherited() {
+		return isInherited;
+	}
+
+	public int position() {
+		return position;
+	}
+
+	public void setPosition(int position) {
+		this.position = position;
 	}
 
 	public void setStatic(boolean isStatic) {

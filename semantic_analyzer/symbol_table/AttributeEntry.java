@@ -14,9 +14,9 @@ public class AttributeEntry extends VariableEntry {
 		this.isInherited = false;
 	}
 
-	public AttributeEntry(AttributeEntry attr, int position) {
+	public AttributeEntry(AttributeEntry attr) {
 		// Clonar instancia.
-		super(attr.name, attr.type, position, attr.locationDecl);
+		super(attr.name, attr.type, attr.position, attr.locationDecl);
 		this.isPublic = attr.isPublic;
 		this.isInherited = true;
 	}

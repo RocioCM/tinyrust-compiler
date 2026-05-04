@@ -6,7 +6,7 @@ import java.util.Iterator;
 import error.semantic.SemanticalError;
 import error.semantic.declarations.ConsolidationError;
 import error.semantic.declarations.DuplicatedEntityIdError;
-import error.semantic.declarations.InternalError;
+import error.semantic.sentences.InternalError;
 import error.semantic.declarations.MultipleConstructorsError;
 import semantic_analyzer.symbol_table.predefined_classes.Array;
 import semantic_analyzer.symbol_table.predefined_classes.Bool;
@@ -84,7 +84,7 @@ public class SymbolTable implements TableElement {
 			throw new DuplicatedEntityIdError(" LA CLASE", name, loc);
 		}
 
-		ClassEntry newClass = new ClassEntry(name, loc);
+		ClassEntry newClass = new ClassEntry(name, classes.size() + 1, loc);
 		classes.put(name, newClass);
 		currentClass = newClass;
 	}
@@ -127,7 +127,7 @@ public class SymbolTable implements TableElement {
 	}
 
 	public void addMain(Location loc) throws SemanticalError {
-		ClassEntry phantomClass = new ClassEntry("main", false, null, loc);
+		ClassEntry phantomClass = new ClassEntry("main", false, null, classes.size() + 1, loc);
 		classes.put("main", phantomClass);
 		currentClass = phantomClass;
 		addMethod("main", true, loc);
@@ -232,13 +232,13 @@ public class SymbolTable implements TableElement {
 	}
 
 	private void addPredefinedClasses() throws InternalError {
-		classes.put("Object", new Object());
-		classes.put("IO", new IO());
-		classes.put("I32", new I32());
-		classes.put("Str", new Str());
-		classes.put("Char", new Char());
-		classes.put("Bool", new Bool());
-		classes.put("Array", new Array());
+		classes.put("Object", new Object(1));
+		classes.put("IO", new IO(2));
+		classes.put("I32", new I32(3));
+		classes.put("Str", new Str(4));
+		classes.put("Char", new Char(5));
+		classes.put("Bool", new Bool(6));
+		classes.put("Array", new Array(7));
 	}
 
 	public boolean isConsolidated() {

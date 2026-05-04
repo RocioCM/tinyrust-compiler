@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 
 import error.lexic.LexicalError;
 import error.semantic.SemanticalError;
-import error.semantic.sentences.ASTError;
 import error.syntactic.SyntacticalError;
 import util.Logger;
 
@@ -14,33 +13,23 @@ import util.Logger;
  * excepciones que se puedan lanzar durante el proceso.
  */
 public class Executor {
-	public void run(String inputPath, String outputPath) {
-		String basePath = inputPath.substring(0, inputPath.length() - 3); // Eliminar extensión .rs
-
+	public void run(String inputPath, String outputPath) throws FileNotFoundException {
 		try {
 			// Patrón Singleton: se utiliza una única instancia del analizador.
 			SyntacticAnalyzer syntactic = new SyntacticAnalyzer(inputPath);
 
-			String tsJson = syntactic.run();
-			String astJson = syntactic.getAstJson();
+			syntactic.run();
 
-			Logger.semanticSentSuccess(outputPath);
-			Logger.createJson(tsJson, basePath.concat(".ts.json"));
-			Logger.createJson(astJson, basePath.concat(".ast.json"));
-		} catch (FileNotFoundException error) {
-			System.out.println("\nERROR IO: NO SE ENCONTRO UN ARCHIVO DE ENTRADA EN LA RUTA " + inputPath);
-			System.exit(1);
+			Logger.success("ANALISIS SINTACTICO", outputPath);
+
 		} catch (LexicalError error) {
-			Logger.lexicError(error, outputPath);
+			Logger.error("LEXICO", error, outputPath);
 			System.exit(1);
 		} catch (SyntacticalError error) {
-			Logger.syntacticError(error, outputPath);
-			System.exit(1);
-		} catch (ASTError error) {
-			Logger.semanticSentError(error, outputPath);
+			Logger.error("SINTACTICO", error, outputPath);
 			System.exit(1);
 		} catch (SemanticalError error) {
-			Logger.semanticDeclError(error, outputPath);
+			Logger.error("SEMANTICO - DECLARACIONES", error, outputPath);
 			System.exit(1);
 		}
 	}

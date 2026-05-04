@@ -1,6 +1,8 @@
 package semantic_analyzer.ast;
 
+import error.semantic.sentences.ASTError;
 import semantic_analyzer.symbol_table.Location;
+import semantic_analyzer.symbol_table.SymbolTable;
 import semantic_analyzer.types.Type;
 
 public abstract class SentenceNode implements Node {
@@ -13,6 +15,12 @@ public abstract class SentenceNode implements Node {
         this.returnType = null;
         this.expectedReturnType = null;
     }
+
+    @Override
+    abstract public void validate(SymbolTable ts) throws ASTError;
+
+    @Override
+    abstract public String generateCode(SymbolTable ts) throws ASTError;
 
     public Type resolvedReturnType() {
         return returnType;

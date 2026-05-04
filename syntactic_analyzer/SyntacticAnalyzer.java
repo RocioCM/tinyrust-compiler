@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import error.lexic.LexicalError;
 import error.semantic.SemanticalError;
-import error.semantic.declarations.InternalError;
+import error.semantic.sentences.InternalError;
 import error.syntactic.SyntacticalError;
 import error.syntactic.UnexpectedToken;
 import lexic_analyzer.LexicAnalyzer;
@@ -63,10 +63,16 @@ public class SyntacticAnalyzer {
 	private AbstractSyntaxTree ast;
 
 	public SyntacticAnalyzer(String inputPath) throws FileNotFoundException, InternalError {
-		// Patrón Singleton: se utiliza una única instancia de la clase LexicAnalyzer.
 		lexic = new LexicAnalyzer(inputPath);
 		ts = new SymbolTable(inputPath);
 		ast = new AbstractSyntaxTree(inputPath);
+	}
+
+	public SyntacticAnalyzer(String inputPath, SymbolTable ts, AbstractSyntaxTree ast)
+			throws FileNotFoundException {
+		this.lexic = new LexicAnalyzer(inputPath);
+		this.ts = ts;
+		this.ast = ast;
 	}
 
 	/**
@@ -80,23 +86,20 @@ public class SyntacticAnalyzer {
 	 * @throws SemanticalError  - Si alguna sentencia del archivo no respeta la
 	 *                          semántica de TinyRust+.
 	 */
-	public String run() throws LexicalError, SyntacticalError, SemanticalError {
+	public void run() throws LexicalError, SyntacticalError, SemanticalError {
 		// Se obtienen los dos primeros tokens del archivo.
 		token = lexic.nextToken();
 		nextToken = lexic.nextToken();
 
 		Program();
-
-		// Si la entrada no es sintácticamente correcta, Program lanza una excepción,
-		// por lo que si termina de ejecutarse, implica que la entrada es correcta y
-		// la tabla de símbolos se construyó por completo.
-		ts.consolidate();
-		ast.validate(ts);
-		return (ts.toJson());
 	}
 
-	public String getAstJson() {
-		return ast.toJson();
+	public SymbolTable getTs() {
+		return this.ts;
+	}
+
+	public AbstractSyntaxTree getAst() {
+		return this.ast;
 	}
 
 	/**

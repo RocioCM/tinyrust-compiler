@@ -37,6 +37,10 @@ public class VariableEntry implements TableElement {
 		return position;
 	}
 
+	public void setPosition(int position) {
+		this.position = position;
+	}
+
 	public Location locationDecl() {
 		return locationDecl;
 	}
